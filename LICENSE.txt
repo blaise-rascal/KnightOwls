@@ -1,0 +1,7 @@
+I am making my source code available for educational purposes. You can use snippets of code, but that's all you may do.
+
+Please do not use the art, writing, or a huge portion of the gameplay mechanics in your projects.
+
+Also please do not distribute this project or claim you made it.
+
+Final disclaimer: I am bad at coding so you should probably not use my source code anyway.
