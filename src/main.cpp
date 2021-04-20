@@ -26,13 +26,18 @@ int main()
     bn::core::init();
     bn::sprite_ptr chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
     bn::sprite_ptr bomb_sprite = bn::sprite_items::hero_bomb_icon.create_sprite(10, 0);
-    bomb_sprite.set_bg_priority(1); 
+    bomb_sprite.set_bg_priority(2); 
 
     
-    bn::sprite_ptr selection_cursor_sprite = bn::sprite_items::selection_cursor.create_sprite(10, 30);
+    bn::sprite_ptr selection_cursor_sprite = bn::sprite_items::selection_cursor.create_sprite(-30, 30);
 
     //bf::status status;
     bn::string<20> weight_hud_text("NUMBER PRESSES: ");
+    //const bn::string<20> deploy_label_text("DEPLOY");
+    //const bn::string<20> pass_label_text("PASS");
+
+
+
     int current_weight = 0;
     weight_hud_text.append(bn::to_string<8>(current_weight));
 
@@ -44,7 +49,7 @@ int main()
 
     bn::sprite_text_generator my_text_generator(variable_8x8_sprite_font);
     my_text_generator.set_left_alignment();
-    my_text_generator.set_bg_priority(2); 
+    my_text_generator.set_bg_priority(1); 
     
     bn::vector<bn::sprite_ptr, 32> text_sprites;
 
