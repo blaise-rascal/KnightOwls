@@ -35,6 +35,6 @@ int main()
     my_text_generator.set_left_alignment();
     my_text_generator.set_bg_priority(1); 
 
-    //bn::unique_ptr<game_scene> GameScenePointer(new game_scene(my_text_generator));
-    //GameScenePointer->update();
+    bn::unique_ptr<game_scene> GameScenePointer(new game_scene(my_text_generator));
+    GameScenePointer->update();
 }
