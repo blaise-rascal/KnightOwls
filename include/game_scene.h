@@ -29,6 +29,10 @@ int main(){
 */
 
 
+namespace bn
+{
+    class sprite_text_generator;
+}
 
 //#include "variable_8x8_sprite_font.h"
 
@@ -71,7 +75,7 @@ class game_scene
         void _update_weight_text();
     
         void _update_selection_cursor(int menu_position, bn::sprite_ptr selection_cursor_sprite);
-}
+};
 //}
 
 #endif
