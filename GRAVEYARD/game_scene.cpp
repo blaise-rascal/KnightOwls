@@ -33,14 +33,9 @@ int main(){
 
 
 
-/*namespace{
+namespace{
         //initialize sprites
-        bn::sprite_ptr chiyu_sprite;
-
-}*/
-
-
-/*
+        bn::sprite_ptr chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
         bn::sprite_ptr bomb_sprite = bn::sprite_items::hero_bomb_icon.create_sprite(10, 0);
         //bomb_sprite.set_bg_priority(2); 
         bn::sprite_ptr selection_cursor_sprite = bn::sprite_items::selection_cursor.create_sprite(-30, 30);
@@ -68,56 +63,25 @@ int main(){
         bn::vector<bn::sprite_ptr, 4> pass_text_sprites;
 
         
-}*/
+}
 
-game_scene::game_scene(/*bn::sprite_text_generator& text_generator*/):
-_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0))
+ game_scene::game_scene(bn::sprite_text_generator& text_generator):
+
+pointer_to_text_generator(text_generator)
+
 {
-//pointer_to_text_generator(text_generator)
-    //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
-//{
     //generate text
     //my_text_generator.generate(-100, 0, weight_hud_text, weight_text_sprites);
     
-    //initialize sprites
-   // chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
-    /*bn::sprite_ptr bomb_sprite = bn::sprite_items::hero_bomb_icon.create_sprite(10, 0);
-    //bomb_sprite.set_bg_priority(2); 
-    bn::sprite_ptr selection_cursor_sprite = bn::sprite_items::selection_cursor.create_sprite(-30, 30);
-
-    //bf::status status;
-
-    //string declarations
-    bn::string<20> weight_hud_text("WEIGHT: ");
-    const bn::string<6> deploy_label_text("DEPLOY");
-    const bn::string<4> pass_label_text("PASS");
-    //bn::sprite_text_generator& _text_generator;
-
-
-    int current_weight = 0;
-    //weight_hud_text.append(bn::to_string<8>(current_weight));
-
-
-
-    int menu_position = 0;
-    const int MENU_POSITION_MAX = 1;
-
-    //declare text sprites
-    bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
-    bn::vector<bn::sprite_ptr, 6> deploy_text_sprites;
-    bn::vector<bn::sprite_ptr, 4> pass_text_sprites;
-
-
     pointer_to_text_generator.generate(-100, 40, deploy_label_text, deploy_text_sprites);
     pointer_to_text_generator.generate(10, 40, pass_label_text, pass_text_sprites);
-    _update_weight_text();*/
+    _update_weight_text();
 }
 
 void game_scene::update()
 {
-    _chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
     while(true)
-    {   /*
+    {
         if(bn::keypad::a_pressed())
         {
             current_weight++;
@@ -143,11 +107,11 @@ void game_scene::update()
             }
             _update_selection_cursor(menu_position, selection_cursor_sprite);
         }
-        */
+
         bn::core::update();
     }
 }
-/*
+
 void game_scene::_update_selection_cursor(int menu_position, bn::sprite_ptr selection_cursor_sprite)
 {
     if(menu_position == 0)
@@ -165,4 +129,3 @@ void game_scene::_update_weight_text()
     weight_hud_text.append(bn::to_string<8>(current_weight));
     pointer_to_text_generator.generate(-100, 0, weight_hud_text, weight_text_sprites);
 }
-*/

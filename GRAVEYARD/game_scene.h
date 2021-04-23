@@ -11,7 +11,6 @@
 #include "bn_keypad.h"
 #include "bn_string.h"
 #include "bn_sprite_text_generator.h"
-//#include "bn_sprite_items_chiyu.h"
 
 
 #include "bn_fixed_point.h"
@@ -29,25 +28,25 @@ int main(){
 }
 */
 
-/*
+
 namespace bn
 {
     class sprite_text_generator;
-}*/
+}
 
 //#include "variable_8x8_sprite_font.h"
 
 class game_scene
 {
     public:
-        game_scene(/*bn::sprite_text_generator& text_generator*/);//TODO: Add background??
+        game_scene(bn::sprite_text_generator& text_generator);//TODO: Add background??
         void update();
 
     private:
-        bn::sprite_ptr _chiyu_sprite;
-        /*bn::sprite_ptr bomb_sprite;
+        /*bn::sprite_ptr chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
+        bn::sprite_ptr bomb_sprite = bn::sprite_items::hero_bomb_icon.create_sprite(10, 0);
         //bomb_sprite.set_bg_priority(2); 
-        bn::sprite_ptr selection_cursor_sprite;
+        bn::sprite_ptr selection_cursor_sprite = bn::sprite_items::selection_cursor.create_sprite(-30, 30);
 
         //bf::status status;
 
@@ -55,13 +54,13 @@ class game_scene
         bn::string<20> weight_hud_text("WEIGHT: ");
         const bn::string<6> deploy_label_text("DEPLOY");
         const bn::string<4> pass_label_text("PASS");
-        //bn::sprite_text_generator& _text_generator;
+
 
 
         int current_weight = 0;
         //weight_hud_text.append(bn::to_string<8>(current_weight));
 
-    
+
 
         int menu_position = 0;
         const int MENU_POSITION_MAX = 1;
@@ -70,11 +69,12 @@ class game_scene
         bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
         bn::vector<bn::sprite_ptr, 6> deploy_text_sprites;
         bn::vector<bn::sprite_ptr, 4> pass_text_sprites;
+        */
         bn::sprite_text_generator& pointer_to_text_generator;
         
         void _update_weight_text();
     
-        void _update_selection_cursor(int menu_position, bn::sprite_ptr selection_cursor_sprite);*/
+        void _update_selection_cursor(int menu_position, bn::sprite_ptr selection_cursor_sprite);
 };
 //}
 
