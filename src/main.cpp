@@ -27,14 +27,14 @@
 
 int main()
 {
-    //Must be called before bunato functionality is used
+    //Must be called before butano functionality is used
     bn::core::init();
 
     //text generator
-    /*bn::sprite_text_generator my_text_generator(variable_8x8_sprite_font);
+    bn::sprite_text_generator my_text_generator(variable_8x8_sprite_font);
     my_text_generator.set_left_alignment();
     my_text_generator.set_bg_priority(1); 
-    */
-    bn::unique_ptr<game_scene> GameScenePointer(new game_scene/*(my_text_generator)*/);
+    
+    bn::unique_ptr<game_scene> GameScenePointer(new game_scene(my_text_generator));
     GameScenePointer->update();
 }
