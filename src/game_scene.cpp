@@ -72,7 +72,10 @@ int main(){
 
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
-    _chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0))
+    _chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
+    //weight_hud_text("WEIGHT: "),
+    current_weight(0)
+    
 {
 //pointer_to_text_generator(text_generator)
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
@@ -88,19 +91,19 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
     //bf::status status;
 
-    //string declarations
-    bn::string<20> weight_hud_text("WEIGHT: ");
-    const bn::string<6> deploy_label_text("DEPLOY");
-    const bn::string<4> pass_label_text("PASS");
+    //string declarations*/
+    //bn::string<20> weight_hud_text("WEIGHT: ");/*
+    //const bn::string<6> deploy_label_text("DEPLOY");
+    //const bn::string<4> pass_label_text("PASS");
     //bn::sprite_text_generator& _text_generator;
 
 
-    int current_weight = 0;
+    //int current_weight = 0;
     //weight_hud_text.append(bn::to_string<8>(current_weight));
 
 
 
-    int menu_position = 0;
+    /*int menu_position = 0;
     const int MENU_POSITION_MAX = 1;
 
     //declare text sprites
@@ -118,14 +121,14 @@ void game_scene::update()
 {
     //_chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
     while(true)
-    {   /*
+    {   
         if(bn::keypad::a_pressed())
         {
             current_weight++;
             weight_text_sprites.clear();
             _update_weight_text();
 
-        }
+        }/*
         if(bn::keypad::left_pressed())
         {
             menu_position--;
@@ -159,11 +162,10 @@ void game_scene::_update_selection_cursor(int menu_position, bn::sprite_ptr sele
         selection_cursor_sprite.set_x(30);
     }
 }
-
+*/
 void game_scene::_update_weight_text()
 {
-    weight_hud_text="WEIGHT: ";
+    bn::string<20> weight_hud_text("WEIGHT: ");
     weight_hud_text.append(bn::to_string<8>(current_weight));
-    pointer_to_text_generator.generate(-100, 0, weight_hud_text, weight_text_sprites);
+    my_text_generator.generate(-100, 0, weight_hud_text, weight_text_sprites);
 }
-*/
