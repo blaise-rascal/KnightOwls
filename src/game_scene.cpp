@@ -33,11 +33,13 @@ int main(){
 
 
 
-/*namespace{
+namespace{
         //initialize sprites
-        bn::sprite_ptr chiyu_sprite;
-
-}*/
+        
+        const bn::string<6> deploy_label_text("DEPLOY");
+        const bn::string<4> pass_label_text("PASS");
+        const int MENU_POSITION_MAX = 1;
+}
 
 
 /*
@@ -73,15 +75,19 @@ int main(){
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
     _chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
+    _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     //weight_hud_text("WEIGHT: "),
-    current_weight(0)
+    current_weight(0),
+    menu_position(0)
     
 {
 //pointer_to_text_generator(text_generator)
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
 //{
     //generate text
-    my_text_generator.generate(-100, 0, "CAN YOU TAKE ME HIGHER", weight_text_sprites);
+    my_text_generator.generate(-100, 30, deploy_label_text, deploy_text_sprites);
+    my_text_generator.generate(0, 30, pass_label_text, pass_text_sprites);
+    _update_weight_text();
     
     //initialize sprites
    // chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
@@ -103,9 +109,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 
 
-    /*int menu_position = 0;
-    const int MENU_POSITION_MAX = 1;
-
+    //int menu_position = 0;
+/*
     //declare text sprites
     bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
     bn::vector<bn::sprite_ptr, 6> deploy_text_sprites;
@@ -128,7 +133,7 @@ void game_scene::update()
             weight_text_sprites.clear();
             _update_weight_text();
 
-        }/*
+        }
         if(bn::keypad::left_pressed())
         {
             menu_position--;
@@ -136,7 +141,7 @@ void game_scene::update()
             {
                 menu_position = MENU_POSITION_MAX;
             }
-            _update_selection_cursor(menu_position, selection_cursor_sprite);
+            _update_selection_cursor();
         }
         if(bn::keypad::right_pressed())
         {
@@ -145,24 +150,24 @@ void game_scene::update()
             {
                 menu_position = 0;
             }
-            _update_selection_cursor(menu_position, selection_cursor_sprite);
+            _update_selection_cursor();
         }
-        */
+        
         bn::core::update();
     }
 }
-/*
-void game_scene::_update_selection_cursor(int menu_position, bn::sprite_ptr selection_cursor_sprite)
+
+void game_scene::_update_selection_cursor()
 {
     if(menu_position == 0)
     {
-        selection_cursor_sprite.set_x(-30);
+        _selection_cursor_sprite.set_x(-30);
     }
     else{
-        selection_cursor_sprite.set_x(30);
+        _selection_cursor_sprite.set_x(30);
     }
 }
-*/
+
 void game_scene::_update_weight_text()
 {
     bn::string<20> weight_hud_text("WEIGHT: ");
