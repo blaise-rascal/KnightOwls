@@ -64,11 +64,13 @@ class game_scene
     
 
         int menu_position;
+        int state;
 
         //declare text sprites
         bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
-        bn::vector<bn::sprite_ptr, 6> deploy_text_sprites;
-        bn::vector<bn::sprite_ptr, 4> pass_text_sprites;/*
+        bn::vector<bn::sprite_ptr, 6> deploy_label_text_sprites;
+        bn::vector<bn::sprite_ptr, 6> status_text_sprites;
+        bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;/*
         bn::sprite_text_generator& pointer_to_text_generator;*/
         
         void _update_weight_text();
