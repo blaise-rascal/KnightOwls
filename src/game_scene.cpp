@@ -4,8 +4,10 @@
 #include "bn_sprite_ptr.h"
 #include "bn_sprites.h"
 #include "bn_vector.h"
+
 #include "bn_keypad.h"
 #include "bn_string.h"
+#include "bn_array.h"
 #include "bn_sprite_text_generator.h"
 
 
@@ -38,6 +40,7 @@ namespace{
         
         const bn::string<6> deploy_label_text("SUMMON");
         const bn::string<4> pass_label_text("PASS");
+        //const bn::array<int, 8> StartingDeck([0,0,1,1,2,2,3,3]);
         const int MENU_POSITION_MAX = 1;
 }
 
@@ -88,9 +91,22 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
     my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
 
-    my_text_generator.set_center_alignment();
+
+    //make starting deck
+    playerdeck.push_back(0);
+    playerdeck.push_back(0);
+    playerdeck.push_back(1);
+    playerdeck.push_back(1);
+    playerdeck.push_back(2);
+    playerdeck.push_back(2);
+    playerdeck.push_back(3);
+    playerdeck.push_back(3);
+
     my_text_generator.generate(0, -50, "YOUR TURN", status_text_sprites);
+    my_text_generator.set_center_alignment();
     my_text_generator.set_left_alignment();
+
+
     _update_weight_text();
     _update_selection_cursor();
     
@@ -137,8 +153,8 @@ void game_scene::update()
             case 0: //Player Turn
                 if(bn::keypad::a_pressed() && menu_position==0)
             {
-                current_weight++;
-                weight_text_sprites.clear();
+                current_weight=current_weight+playerdeck.at(0);
+                playerdeck.erase(playerdeck.begin());
                 _update_weight_text();
 
             }
@@ -184,8 +200,19 @@ void game_scene::_update_selection_cursor()
 
 void game_scene::_update_weight_text()
 {
+    weight_text_sprites.clear();
+    my_text_generator.set_left_alignment();
     bn::string<20> weight_hud_text("WEIGHT: ");
     weight_hud_text.append(bn::to_string<8>(current_weight));
     weight_hud_text.append("/4");
     my_text_generator.generate(-100, 50, weight_hud_text, weight_text_sprites);
 }
+/*
+void game_scene::_display_status()
+{
+    my_text_generator.set_left_alignment();
+    bn::string<20> weight_hud_text("WEIGHT: ");
+    weight_hud_text.append(bn::to_string<8>(current_weight));
+    weight_hud_text.append("/4");
+    my_text_generator.generate(-100, 50, weight_hud_text, status_text_sprites);
+}*/

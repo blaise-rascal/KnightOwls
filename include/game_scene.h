@@ -72,7 +72,7 @@ class game_scene
         bn::vector<bn::sprite_ptr, 6> status_text_sprites;
         bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;/*
         bn::sprite_text_generator& pointer_to_text_generator;*/
-        
+        bn::vector<int, 100> playerdeck;
         void _update_weight_text();
     
         //void _update_selection_cursor(int menu_position, bn::sprite_ptr selection_cursor_sprite);
