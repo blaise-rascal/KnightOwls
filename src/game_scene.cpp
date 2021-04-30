@@ -41,7 +41,7 @@ int main(){
 namespace{
         //initialize sprites
         
-        const bn::string<6> deploy_label_text("SUMMON");
+        const bn::string<6> deploy_label_text("  DRAW");
         const bn::string<4> pass_label_text("PASS");
         //const bn::array<int, 8> StartingDeck([0,0,1,1,2,2,3,3]);
         const int MENU_POSITION_MAX = 1;
@@ -96,16 +96,16 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 
     //make starting deck
-    playerdeck.push_back(40);
-    playerdeck.push_back(20);
-    playerdeck.push_back(30);
-    playerdeck.push_back(50);
-    /*playerdeck.push_back(5);
-    playerdeck.push_back(6);
-    playerdeck.push_back(7);
-    playerdeck.push_back(8);*/
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(2);
+    player1deck.push_back(2);
 
-    _display_status("YOUR TURN!");
+    _display_status("POOL INCLUDES 0,0,0,0,1,1,2,2");
     //my_text_generator.set_center_alignment();
     //my_text_generator.set_left_alignment();
 
@@ -159,22 +159,31 @@ void game_scene::update()
 
         switch(state)
             {
-            case 0: //Player Turn
+            case 0: //Player1 Turn
                 if(bn::keypad::a_pressed() && menu_position==0)
                 {
-                    int index_to_remove = bn::abs(random_num%playerdeck.size());
-                    //_display_status(bn::to_string<20>(playerdeck.at(index_to_remove)));
-                    current_weight=current_weight+playerdeck.at(index_to_remove);
-                    playerdeck.erase(playerdeck.begin()+index_to_remove);
-                    _update_weight_text();
-                    if(current_weight>4){
-                        //status_text_sprites.clear();
-                        //my_text_generator.generate(0, -50, "BOAT SANK", status_text_sprites);
-                        _display_status("BOAT SANK");
+                    if(player1deck.size()>0){
+                        int index_to_remove = bn::abs(random_num%player1deck.size());
+                        //_display_status(bn::to_string<20>(player1deck.at(index_to_remove)));
+                        int weight_to_add = player1deck.at(index_to_remove);
+                        current_weight=current_weight+weight_to_add;
+                        player1deck.erase(player1deck.begin()+index_to_remove);
+                        _update_weight_text();
+                        _display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
+                        if(current_weight>4){
+                            //status_text_sprites.clear();
+                            //my_text_generator.generate(0, -50, "BOAT SANK", status_text_sprites);
+                            _display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)).append(". BOAT SANK"));
+                        }
+                        else{
+                             _display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
+                        }
                     }
-                
+                    else{
+                        _display_status("NO MORE ITEMS TO DRAW");
+                    }
                     
-                    //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(playerdeck.size())));
+                    //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(player1deck.size())));
                 }
                 if(bn::keypad::left_pressed())
                 {
@@ -227,8 +236,7 @@ void game_scene::_update_weight_text()
     my_text_generator.generate(-100, 50, weight_hud_text, weight_text_sprites);
 }
 
-//Tried to make a function to display a status. Didn't work because I can't seem to be able to pass a bn::string as a parameter
-void game_scene::_display_status(const bn::string<20>& statustext)
+void game_scene::_display_status(const bn::string<40>& statustext)
 {
     my_text_generator.set_center_alignment();
     status_text_sprites.clear();
