@@ -59,6 +59,7 @@ class game_scene
 */
 
         int current_weight;
+        int current_power;
         //weight_hud_text.append(bn::to_string<8>(current_weight));
 
     
@@ -69,13 +70,14 @@ class game_scene
         //declare text sprites
         bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
         bn::vector<bn::sprite_ptr, 6> deploy_label_text_sprites;
-        bn::vector<bn::sprite_ptr, 6> status_text_sprites;
+        bn::vector<bn::sprite_ptr, 20> status_text_sprites;
         bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;/*
         bn::sprite_text_generator& pointer_to_text_generator;*/
         bn::vector<int, 100> playerdeck;
         void _update_weight_text();
+        
+        void _display_status(const bn::string<20>& statustext);
     
-        //void _update_selection_cursor(int menu_position, bn::sprite_ptr selection_cursor_sprite);
         
         void _update_selection_cursor();
 };

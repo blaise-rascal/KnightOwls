@@ -6,8 +6,11 @@
 #include "bn_vector.h"
 
 #include "bn_keypad.h"
+
+#include "bn_math.h"
 #include "bn_string.h"
 #include "bn_array.h"
+#include "bn_random.h"
 #include "bn_sprite_text_generator.h"
 
 
@@ -93,18 +96,18 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 
     //make starting deck
-    playerdeck.push_back(0);
-    playerdeck.push_back(0);
-    playerdeck.push_back(1);
-    playerdeck.push_back(1);
-    playerdeck.push_back(2);
-    playerdeck.push_back(2);
-    playerdeck.push_back(3);
-    playerdeck.push_back(3);
+    playerdeck.push_back(40);
+    playerdeck.push_back(20);
+    playerdeck.push_back(30);
+    playerdeck.push_back(50);
+    /*playerdeck.push_back(5);
+    playerdeck.push_back(6);
+    playerdeck.push_back(7);
+    playerdeck.push_back(8);*/
 
-    my_text_generator.generate(0, -50, "YOUR TURN", status_text_sprites);
-    my_text_generator.set_center_alignment();
-    my_text_generator.set_left_alignment();
+    _display_status("YOUR TURN!");
+    //my_text_generator.set_center_alignment();
+    //my_text_generator.set_left_alignment();
 
 
     _update_weight_text();
@@ -127,7 +130,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
     //int current_weight = 0;
     //weight_hud_text.append(bn::to_string<8>(current_weight));
-
+    
 
 
     //int menu_position = 0;
@@ -145,38 +148,54 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 void game_scene::update()
 {
+    bn::random random_generator;
+    int random_num;
     //_chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
     while(true)
     {   
+        //This is a deterministic random generator, so it must be spun every fram to not return the same numbers every boot.
+        //Luckily this is not too slow to affect performance.
+        random_num = random_generator.get();
+
         switch(state)
             {
             case 0: //Player Turn
                 if(bn::keypad::a_pressed() && menu_position==0)
-            {
-                current_weight=current_weight+playerdeck.at(0);
-                playerdeck.erase(playerdeck.begin());
-                _update_weight_text();
-
-            }
-            if(bn::keypad::left_pressed())
-            {
-                menu_position--;
-                if(menu_position<0)
                 {
-                    menu_position = MENU_POSITION_MAX;
+                    int index_to_remove = bn::abs(random_num%playerdeck.size());
+                    //_display_status(bn::to_string<20>(playerdeck.at(index_to_remove)));
+                    current_weight=current_weight+playerdeck.at(index_to_remove);
+                    playerdeck.erase(playerdeck.begin()+index_to_remove);
+                    _update_weight_text();
+                    if(current_weight>4){
+                        //status_text_sprites.clear();
+                        //my_text_generator.generate(0, -50, "BOAT SANK", status_text_sprites);
+                        _display_status("BOAT SANK");
+                    }
+                
+                    
+                    //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(playerdeck.size())));
                 }
-                _update_selection_cursor();
-            }
-            if(bn::keypad::right_pressed())
-            {
-                menu_position++;
-                if(menu_position > MENU_POSITION_MAX)
+                if(bn::keypad::left_pressed())
                 {
-                    menu_position = 0;
+                    menu_position--;
+                    if(menu_position<0)
+                    {
+                        menu_position = MENU_POSITION_MAX;
+                    }
+                    
+                    _update_selection_cursor();
                 }
-                _update_selection_cursor();
-            }
-            break;
+                if(bn::keypad::right_pressed())
+                {
+                    menu_position++;
+                    if(menu_position > MENU_POSITION_MAX)
+                    {
+                        menu_position = 0;
+                    }
+                    _update_selection_cursor();
+                }
+                break;
 
             default:
                 BN_ERROR("Invalid state");
@@ -207,12 +226,11 @@ void game_scene::_update_weight_text()
     weight_hud_text.append("/4");
     my_text_generator.generate(-100, 50, weight_hud_text, weight_text_sprites);
 }
-/*
-void game_scene::_display_status()
+
+//Tried to make a function to display a status. Didn't work because I can't seem to be able to pass a bn::string as a parameter
+void game_scene::_display_status(const bn::string<20>& statustext)
 {
-    my_text_generator.set_left_alignment();
-    bn::string<20> weight_hud_text("WEIGHT: ");
-    weight_hud_text.append(bn::to_string<8>(current_weight));
-    weight_hud_text.append("/4");
-    my_text_generator.generate(-100, 50, weight_hud_text, status_text_sprites);
-}*/
+    my_text_generator.set_center_alignment();
+    status_text_sprites.clear();
+    my_text_generator.generate(0, -50, statustext, status_text_sprites);
+}
