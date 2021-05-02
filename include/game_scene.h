@@ -36,6 +36,10 @@ namespace bn
 }*/
 
 //#include "variable_8x8_sprite_font.h"
+/*
+struct game_scene::CardInfo {
+   int 
+};*/
 
 class game_scene
 {
@@ -79,7 +83,7 @@ class game_scene
         void _display_status(const bn::string<40>& statustext);
     
         
-        void _update_selection_cursor();
+        void _update_selection_cursor_from_menu_position();
 };
 //}
 
