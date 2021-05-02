@@ -4,6 +4,7 @@
 #include "bn_sprite_ptr.h"
 #include "bn_sprites.h"
 #include "bn_vector.h"
+#include "bn_regular_bg_ptr.h"
 
 #include "bn_keypad.h"
 
@@ -19,6 +20,8 @@
 #include "bn_sprite_items_chiyu.h"
 #include "bn_sprite_items_selection_cursor.h"
 #include "bn_sprite_items_hero_bomb_icon.h"
+
+#include "bn_regular_bg_items_oceanbackground.h"
 
 #include "game_scene.h"
 
@@ -160,6 +163,7 @@ namespace{
 
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
+    _ocean_bg(bn::regular_bg_items::oceanbackground.create_bg(0, 0)),
     _chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     //weight_hud_text("WEIGHT: "),
@@ -171,6 +175,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
 //{
     //generate text
+
+
+
     my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
     my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
 

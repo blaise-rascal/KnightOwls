@@ -10,6 +10,7 @@
 #include "bn_vector.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
+#include "bn_regular_bg_ptr.h"
 #include "bn_sprite_text_generator.h"
 //#include "bn_sprite_items_chiyu.h"
 
@@ -48,7 +49,9 @@ class game_scene
         void update();
 
     private:
+        //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
+        bn::regular_bg_ptr _ocean_bg;
         bn::sprite_ptr _chiyu_sprite;
 
         //bn::sprite_ptr bomb_sprite;
@@ -77,6 +80,7 @@ class game_scene
         bn::vector<bn::sprite_ptr, 40> status_text_sprites;
         bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;/*
         bn::sprite_text_generator& pointer_to_text_generator;*/
+
         bn::vector<int, 100> player1deck;
         void _update_weight_text();
         
