@@ -181,6 +181,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
     my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
 
+    //CardInfoMember={44,4};
+    CardInfoVector.push_back({5,5});
+    CardInfoVector.push_back({56,56});
 
     //make starting deck
     player1deck.push_back(0);
@@ -192,7 +195,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(2);
     player1deck.push_back(2);
 
-    _display_status("POOL INCLUDES 0,0,0,0,1,1,2,2");
+    //GOOD HERE _display_status("POOL INCLUDES 0,0,0,0,1,1,2,2");
+    //GOOD HERE _display_status(bn::to_string<8>(CardInfoVector.at(1).weight));
     //my_text_generator.set_center_alignment();
     //my_text_generator.set_left_alignment();
 

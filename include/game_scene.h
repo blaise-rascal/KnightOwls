@@ -37,10 +37,8 @@ namespace bn
 }*/
 
 //#include "variable_8x8_sprite_font.h"
-/*
-struct game_scene::CardInfo {
-   int 
-};*/
+
+
 
 class game_scene
 {
@@ -49,6 +47,10 @@ class game_scene
         void update();
 
     private:
+        struct CardInfo {
+         int weight;
+         int cost;
+        };
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
         bn::regular_bg_ptr _ocean_bg;
@@ -82,6 +84,7 @@ class game_scene
         bn::sprite_text_generator& pointer_to_text_generator;*/
 
         bn::vector<int, 100> player1deck;
+        bn::vector<CardInfo,10> CardInfoVector;
         void _update_weight_text();
         
         void _display_status(const bn::string<40>& statustext);
@@ -90,5 +93,7 @@ class game_scene
         void _update_selection_cursor_from_menu_position();
 };
 //}
+
+
 
 #endif
