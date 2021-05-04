@@ -169,8 +169,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
     current_power(0),
-    current_gather(0),
-    total_energy(0),
+    current_runes(0),
+    total_runes(0),
     menu_position(0),
     state(0)
 {
@@ -262,19 +262,33 @@ void game_scene::update()
                         int index_to_remove = bn::abs(random_num%player1deck.size());
                         //_display_status(bn::to_string<20>(player1deck.at(index_to_remove)));
                         int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
+                        int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).power;
+                        int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gather;
                         current_weight=current_weight+weight_to_add;
+                        current_power=current_power+power_to_add;
+                        current_runes=current_runes+runes_to_add;
                         _update_weight_text();
                         //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
                         //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
+
+                        bn::string<50> first_line_status("SUMMONED ");
+                        
+                        first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
                         if(current_weight>4){
                             //status_text_sprites.clear();
                             //my_text_generator.generate(0, -50, "BOAT SANK", status_text_sprites);
-                            _display_status(bn::string<50>("YOU DREW A ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name).append(". BOAT SANK"));
+                            first_line_status.append(". BOAT SANK");
                         }
-                        else{
-                             _display_status(bn::string<50>("YOU DREW A ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name));
-                        }
-                        
+                        //else{
+                        //     _display_status(bn::string<50>("YOU DREW A ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name));
+                        //}
+                        bn::string<50> second_line_status("WEIGHT+");
+                        second_line_status.append(bn::to_string<4>(weight_to_add));
+                        second_line_status.append(", COMBAT+");
+                        second_line_status.append(bn::to_string<4>(power_to_add));
+                        second_line_status.append(", RUNES+");
+                        second_line_status.append(bn::to_string<4>(runes_to_add));
+                        _display_status(first_line_status,second_line_status);
                         player1deck.erase(player1deck.begin()+index_to_remove);
                     }
                     else{
@@ -332,6 +346,16 @@ void game_scene::_update_weight_text()
     weight_hud_text.append(bn::to_string<8>(current_weight));
     weight_hud_text.append("/4");
     my_text_generator.generate(-100, 50, weight_hud_text, weight_text_sprites);
+
+    runes_text_sprites.clear();
+    bn::string<20> runes_hud_text("RUNES: ");
+    runes_hud_text.append(bn::to_string<8>(current_runes));
+    my_text_generator.generate(-100, 61, runes_hud_text, runes_text_sprites);
+
+    power_text_sprites.clear();
+    bn::string<20> power_hud_text("COMBAT: ");
+    power_hud_text.append(bn::to_string<8>(current_power));
+    my_text_generator.generate(0, 61, power_hud_text, power_text_sprites);
 }
 
 void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)

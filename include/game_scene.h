@@ -74,8 +74,8 @@ class game_scene
 
         int current_weight;
         int current_power;
-        int current_gather;
-        int total_energy;
+        int current_runes;
+        int total_runes;
         //weight_hud_text.append(bn::to_string<8>(current_weight));
 
     
@@ -84,7 +84,9 @@ class game_scene
         int state;
 
         //declare text sprites
-        bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
+        bn::vector<bn::sprite_ptr, 20> weight_text_sprites;
+        bn::vector<bn::sprite_ptr, 20> runes_text_sprites;
+        bn::vector<bn::sprite_ptr, 20> power_text_sprites;
         bn::vector<bn::sprite_ptr, 6> deploy_label_text_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_one_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
