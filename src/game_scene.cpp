@@ -18,8 +18,10 @@
 #include "bn_fixed_point.h"
 
 #include "bn_sprite_items_chiyu.h"
+
+#include "bn_sprite_items_knight_owls.h"
 #include "bn_sprite_items_selection_cursor.h"
-#include "bn_sprite_items_hero_bomb_icon.h"
+//#include "bn_sprite_items_hero_bomb_icon.h"
 
 #include "bn_regular_bg_items_oceanbackground.h"
 
@@ -172,7 +174,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_runes(0),
     total_runes(0),
     menu_position(0),
-    state(0)
+    state(0),
+    enemyattack(20)
 {
 //pointer_to_text_generator(text_generator)
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
@@ -181,14 +184,13 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 
 
-    my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
-    my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
-
+    
     //                         name, cost, weight, power, gather, probabilityweight
     CardInfoVector.push_back({"MAGE",           7,0,0,1,10});
     CardInfoVector.push_back({"ARCHER",         7,0,3,0,10});
     CardInfoVector.push_back({"WARRIOR",        1,1,6,1,0});
     CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,0});
+    CardInfoVector.push_back({"ARCHER",         12,0,7,0,10});
 
     //make starting deck
     player1deck.push_back(0);
@@ -200,14 +202,13 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(3);
     player1deck.push_back(3);
 
-    _display_status("POOL INCLUDES MMAAWWHWHW","HERE IS MORE TEXT!");
+    
     //_display_status(bn::to_string<8>(CardInfoVector.at(1).name));
     //my_text_generator.set_center_alignment();
     //my_text_generator.set_left_alignment();
 
-
-    _update_hud_text();
-    _update_selection_cursor_from_menu_position();
+    
+    
     
     //initialize sprites
    // chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
@@ -255,12 +256,32 @@ void game_scene::update()
 
         switch(state)
             {
-            case 0: //Player1 Turn
+            case 0: //Beginning of Player1 Turn
+            {
+                my_text_generator.set_left_alignment();
+                my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
+                my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
+                _display_status("YOUR TURN");
+                _update_hud_text();
+                _update_selection_cursor_from_menu_position();
+                
+                bn::string<16> enemy_attack_text("ATK: ");
+                enemy_attack_text.append(bn::to_string<4>(enemyattack));
+                my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
+
+                state = 1; //TODO: Make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
+
+               
+
+                break;
+            }
+            case 1: //Player1 Turn Loop
                 if(bn::keypad::a_pressed() && menu_position==0)
                 {
                     if(player1deck.size()>0){
+
+                        //DRAW A CARD!!!
                         int index_to_remove = bn::abs(random_num%player1deck.size());
-                        //_display_status(bn::to_string<20>(player1deck.at(index_to_remove)));
                         int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
                         int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).power;
                         int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gather;
@@ -288,6 +309,12 @@ void game_scene::update()
                         second_line_status.append(bn::to_string<4>(power_to_add));
                         second_line_status.append(", RUNES+");
                         second_line_status.append(bn::to_string<4>(runes_to_add));
+
+                        //Display sprite
+                        Player1Tableau.push_back(bn::sprite_items::knight_owls.create_sprite(0, 0));
+                        //Player1Tableau.at(0).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(8));
+
+
                         _display_status(first_line_status,second_line_status);
                         player1deck.erase(player1deck.begin()+index_to_remove);
                     }
@@ -316,6 +343,9 @@ void game_scene::update()
                     }
                     _update_selection_cursor_from_menu_position();
                 }
+
+                
+                bn::core::update();
                 break;
 
             default:
@@ -323,7 +353,6 @@ void game_scene::update()
                 break;
             }
         
-        bn::core::update();
     }
 }
 

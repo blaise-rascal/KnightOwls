@@ -82,6 +82,7 @@ class game_scene
 
         int menu_position;
         int state;
+        int enemyattack;
 
         //declare text sprites
         bn::vector<bn::sprite_ptr, 20> weight_text_sprites;
@@ -90,16 +91,17 @@ class game_scene
         bn::vector<bn::sprite_ptr, 6> deploy_label_text_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_one_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
-        bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;/*
-        bn::sprite_text_generator& pointer_to_text_generator;*/
+        bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;
+        bn::vector<bn::sprite_ptr, 20> enemy_attack_text_sprites;
 
+        //vectors containing card & state information
         bn::vector<int, 100> player1deck;
         bn::vector<CardInfo,10> CardInfoVector;
+        bn::vector<bn::sprite_ptr, 100> Player1Tableau;
+
+        //functions
         void _update_hud_text();
-        
         void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "");
-    
-        
         void _update_selection_cursor_from_menu_position();
 };
 //}
