@@ -168,6 +168,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
+    current_power(0),
+    current_gather(0),
+    total_energy(0),
     menu_position(0),
     state(0)
 {
@@ -181,22 +184,24 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
     my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
 
-    //CardInfoMember={44,4};
-    CardInfoVector.push_back({5,5});
-    CardInfoVector.push_back({56,56});
+    //                         name, cost, weight, power, gather, probabilityweight
+    CardInfoVector.push_back({"MAGE",           7,0,0,1,10});
+    CardInfoVector.push_back({"ARCHER",         7,0,3,0,10});
+    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,0});
+    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,0});
 
     //make starting deck
     player1deck.push_back(0);
     player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
     player1deck.push_back(1);
     player1deck.push_back(1);
     player1deck.push_back(2);
     player1deck.push_back(2);
+    player1deck.push_back(3);
+    player1deck.push_back(3);
 
-    //GOOD HERE _display_status("POOL INCLUDES 0,0,0,0,1,1,2,2");
-    //GOOD HERE _display_status(bn::to_string<8>(CardInfoVector.at(1).weight));
+    _display_status("POOL INCLUDES MMAAWWHWHW","HERE IS MORE TEXT!");
+    //_display_status(bn::to_string<8>(CardInfoVector.at(1).name));
     //my_text_generator.set_center_alignment();
     //my_text_generator.set_left_alignment();
 
@@ -256,19 +261,21 @@ void game_scene::update()
                     if(player1deck.size()>0){
                         int index_to_remove = bn::abs(random_num%player1deck.size());
                         //_display_status(bn::to_string<20>(player1deck.at(index_to_remove)));
-                        int weight_to_add = player1deck.at(index_to_remove);
+                        int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
                         current_weight=current_weight+weight_to_add;
-                        player1deck.erase(player1deck.begin()+index_to_remove);
                         _update_weight_text();
-                        _display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
+                        //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
+                        //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
                         if(current_weight>4){
                             //status_text_sprites.clear();
                             //my_text_generator.generate(0, -50, "BOAT SANK", status_text_sprites);
-                            _display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)).append(". BOAT SANK"));
+                            _display_status(bn::string<50>("YOU DREW A ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name).append(". BOAT SANK"));
                         }
                         else{
-                             _display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
+                             _display_status(bn::string<50>("YOU DREW A ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name));
                         }
+                        
+                        player1deck.erase(player1deck.begin()+index_to_remove);
                     }
                     else{
                         _display_status("NO MORE ITEMS TO DRAW");
@@ -327,13 +334,14 @@ void game_scene::_update_weight_text()
     my_text_generator.generate(-100, 50, weight_hud_text, weight_text_sprites);
 }
 
-void game_scene::_display_status(const bn::string<40>& statustext)
+void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)
 {
     my_text_generator.set_center_alignment();
-    status_text_sprites.clear();
-    my_text_generator.generate(0, -50, statustext, status_text_sprites);
+    status_text_one_sprites.clear();
+    my_text_generator.generate(0, -61, statustextone, status_text_one_sprites);
+    status_text_two_sprites.clear();
+    my_text_generator.generate(0, -50, statustexttwo, status_text_two_sprites);
 }
-
 //void game_scene::_point_cursor_at(const bn::sprite_item)
 //{
 

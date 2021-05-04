@@ -47,9 +47,14 @@ class game_scene
         void update();
 
     private:
-        struct CardInfo {
-         int weight;
-         int cost;
+        //TODO: Maybe make const?   name, cost, weight, power, gather, probabilityweight
+        struct CardInfo { 
+            bn::string<15> name;
+            int cost;
+            int weight;
+            int power;
+            int gather;
+            int probabilityweight;
         };
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
@@ -69,6 +74,8 @@ class game_scene
 
         int current_weight;
         int current_power;
+        int current_gather;
+        int total_energy;
         //weight_hud_text.append(bn::to_string<8>(current_weight));
 
     
@@ -79,7 +86,8 @@ class game_scene
         //declare text sprites
         bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
         bn::vector<bn::sprite_ptr, 6> deploy_label_text_sprites;
-        bn::vector<bn::sprite_ptr, 40> status_text_sprites;
+        bn::vector<bn::sprite_ptr, 50> status_text_one_sprites;
+        bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
         bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;/*
         bn::sprite_text_generator& pointer_to_text_generator;*/
 
@@ -87,7 +95,7 @@ class game_scene
         bn::vector<CardInfo,10> CardInfoVector;
         void _update_weight_text();
         
-        void _display_status(const bn::string<40>& statustext);
+        void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "");
     
         
         void _update_selection_cursor_from_menu_position();
