@@ -59,7 +59,7 @@ class game_scene
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
         bn::regular_bg_ptr _ocean_bg;
-        bn::sprite_ptr _chiyu_sprite;
+        //bn::sprite_ptr _chiyu_sprite;
 
         //bn::sprite_ptr bomb_sprite;
         //bomb_sprite.set_bg_priority(2); 
@@ -95,7 +95,7 @@ class game_scene
 
         bn::vector<int, 100> player1deck;
         bn::vector<CardInfo,10> CardInfoVector;
-        void _update_weight_text();
+        void _update_hud_text();
         
         void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "");
     

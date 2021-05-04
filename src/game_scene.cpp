@@ -164,7 +164,7 @@ namespace{
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
     _ocean_bg(bn::regular_bg_items::oceanbackground.create_bg(0, 0)),
-    _chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
+    //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
@@ -206,7 +206,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //my_text_generator.set_left_alignment();
 
 
-    _update_weight_text();
+    _update_hud_text();
     _update_selection_cursor_from_menu_position();
     
     //initialize sprites
@@ -267,7 +267,7 @@ void game_scene::update()
                         current_weight=current_weight+weight_to_add;
                         current_power=current_power+power_to_add;
                         current_runes=current_runes+runes_to_add;
-                        _update_weight_text();
+                        _update_hud_text();
                         //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
                         //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
 
@@ -284,7 +284,7 @@ void game_scene::update()
                         //}
                         bn::string<50> second_line_status("WEIGHT+");
                         second_line_status.append(bn::to_string<4>(weight_to_add));
-                        second_line_status.append(", COMBAT+");
+                        second_line_status.append(", ATTACK+");
                         second_line_status.append(bn::to_string<4>(power_to_add));
                         second_line_status.append(", RUNES+");
                         second_line_status.append(bn::to_string<4>(runes_to_add));
@@ -338,7 +338,7 @@ void game_scene::_update_selection_cursor_from_menu_position()
     }
 }
 
-void game_scene::_update_weight_text()
+void game_scene::_update_hud_text()
 {
     weight_text_sprites.clear();
     my_text_generator.set_left_alignment();
@@ -353,9 +353,9 @@ void game_scene::_update_weight_text()
     my_text_generator.generate(-100, 61, runes_hud_text, runes_text_sprites);
 
     power_text_sprites.clear();
-    bn::string<20> power_hud_text("COMBAT: ");
+    bn::string<20> power_hud_text("ATTACK: ");
     power_hud_text.append(bn::to_string<8>(current_power));
-    my_text_generator.generate(0, 61, power_hud_text, power_text_sprites);
+    my_text_generator.generate(-100, 72, power_hud_text, power_text_sprites);
 }
 
 void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)
