@@ -83,6 +83,7 @@ class game_scene
         int menu_position;
         int state;
         int enemyattack;
+        int last_tableau_x_pos;
 
         //declare text sprites
         bn::vector<bn::sprite_ptr, 20> weight_text_sprites;

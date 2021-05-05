@@ -19,6 +19,8 @@
 
 #include "bn_sprite_items_chiyu.h"
 
+#include "bn_sprite_tiles_ptr.h"
+
 #include "bn_sprite_items_knight_owls.h"
 #include "bn_sprite_items_selection_cursor.h"
 //#include "bn_sprite_items_hero_bomb_icon.h"
@@ -175,7 +177,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     total_runes(0),
     menu_position(0),
     state(0),
-    enemyattack(20)
+    enemyattack(20),
+    last_tableau_x_pos(-110)
 {
 //pointer_to_text_generator(text_generator)
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
@@ -258,6 +261,7 @@ void game_scene::update()
             {
             case 0: //Beginning of Player1 Turn
             {
+                //TODO: Reset values to zero of member variables
                 my_text_generator.set_left_alignment();
                 my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
                 my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
@@ -269,7 +273,7 @@ void game_scene::update()
                 enemy_attack_text.append(bn::to_string<4>(enemyattack));
                 my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
 
-                state = 1; //TODO: Make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
+                state = 1; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
 
                
 
@@ -296,26 +300,27 @@ void game_scene::update()
                         
                         first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
                         if(current_weight>4){
-                            //status_text_sprites.clear();
-                            //my_text_generator.generate(0, -50, "BOAT SANK", status_text_sprites);
                             first_line_status.append(". BOAT SANK");
                         }
-                        //else{
-                        //     _display_status(bn::string<50>("YOU DREW A ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name));
-                        //}
+
                         bn::string<50> second_line_status("WEIGHT+");
                         second_line_status.append(bn::to_string<4>(weight_to_add));
                         second_line_status.append(", ATTACK+");
                         second_line_status.append(bn::to_string<4>(power_to_add));
                         second_line_status.append(", RUNES+");
                         second_line_status.append(bn::to_string<4>(runes_to_add));
+                        //display status
+                        _display_status(first_line_status,second_line_status);
 
                         //Display sprite
-                        Player1Tableau.push_back(bn::sprite_items::knight_owls.create_sprite(0, 0));
-                        //Player1Tableau.at(0).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(8));
+                        //newspriteposition= vector.at(size-1).position + 5
+                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0);
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                        Player1Tableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
+                        //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                        last_tableau_x_pos+=5;
 
-
-                        _display_status(first_line_status,second_line_status);
+                        //Delete the drawn card from the deck
                         player1deck.erase(player1deck.begin()+index_to_remove);
                     }
                     else{
