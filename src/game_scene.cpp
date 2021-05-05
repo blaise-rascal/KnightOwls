@@ -188,12 +188,12 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 
     
-    //                         name, cost, weight, power, gather, probabilityweight
-    CardInfoVector.push_back({"MAGE",           7,0,0,1,10});
-    CardInfoVector.push_back({"ARCHER",         7,0,3,0,10});
-    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,0});
-    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,0});
-    CardInfoVector.push_back({"ARCHER",         12,0,7,0,10});
+    //                         name, cost, weight, power, gather, tileindex, probabilityweight
+    CardInfoVector.push_back({"MAGE",           7,0,0,1,0,10});
+    CardInfoVector.push_back({"ARCHER",         7,0,3,0,5,10});
+    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,10,0});
+    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,15,0});
+    CardInfoVector.push_back({"ARCHER",         12,0,7,0,20,10});
 
     //make starting deck
     player1deck.push_back(0);
@@ -315,7 +315,7 @@ void game_scene::update()
                         //Display sprite
                         //newspriteposition= vector.at(size-1).position + 5
                         bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0);
-                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(index_to_remove)).tileindex));//player1deck.at(index_to_remove).tileindex));
                         Player1Tableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
                         //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                         last_tableau_x_pos+=5;

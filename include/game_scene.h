@@ -47,13 +47,14 @@ class game_scene
         void update();
 
     private:
-        //TODO: Maybe make const?   name, cost, weight, power, gather, probabilityweight
+        //TODO: Maybe make const?  
         struct CardInfo { 
             bn::string<15> name;
             int cost;
             int weight;
             int power;
             int gather;
+            int tileindex;
             int probabilityweight;
         };
         //Declare sprite pointers
