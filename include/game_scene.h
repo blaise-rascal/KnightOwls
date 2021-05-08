@@ -85,6 +85,7 @@ class game_scene
         int state;
         int enemyattack;
         int last_tableau_x_pos;
+        //int enemyindex;
 
         //declare text sprites
         bn::vector<bn::sprite_ptr, 20> weight_text_sprites;
@@ -100,6 +101,8 @@ class game_scene
         bn::vector<int, 100> player1deck;
         bn::vector<CardInfo,10> CardInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
+        bn::vector<bn::sprite_ptr, 5> MercenaryTableau;
+        bn::vector<int, 5> MercenaryDeck;
 
         //functions
         void _update_hud_text();

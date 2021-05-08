@@ -130,8 +130,19 @@ namespace{
         
         const bn::string<6> deploy_label_text("  DRAW");
         const bn::string<4> pass_label_text("PASS");
-        //const bn::array<int, 8> StartingDeck([0,0,1,1,2,2,3,3]);
+        //const bn::array<int, 8> EventArray([0,0,1,1,2,2,3,3]); //Hmm, it'd be cool to have probabilities later on... Also maybe array of 
+        //Things that an enemy can be:
+        /*
+            -Attack value 1 
+                -probability
+            -Attack value 2
+                -probability
+
+            -# of enemies
+            -sprite for each enemy?
+            -location of each enemy... ugh... all of a sudden i need a 4 position arrays*/
         const int MENU_POSITION_MAX = 1;
+        //const bn::string<6> deploy_label_text("  DRAW");
 }
 
 
@@ -179,6 +190,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     state(0),
     enemyattack(20),
     last_tableau_x_pos(-110)
+    //enemyindex(0)
 {
 //pointer_to_text_generator(text_generator)
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
@@ -205,7 +217,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(3);
     player1deck.push_back(3);
 
-    
+    _selection_cursor_sprite.set_visible(false);
     //_display_status(bn::to_string<8>(CardInfoVector.at(1).name));
     //my_text_generator.set_center_alignment();
     //my_text_generator.set_left_alignment();
@@ -255,12 +267,32 @@ void game_scene::update()
     {   
         //This is a deterministic random generator, so it must be spun every fram to not return the same numbers every boot.
         //Luckily this is not too slow to affect performance.
+        //TODO: Add to, like, a title screen; otherwise 
         random_num = random_generator.get();
 
         switch(state)
             {
-            case 0: //Beginning of Player1 Turn
+            case 0: // Beginning of game 
+            {   
+                //Add 4 units to mercenary vectors
+                
+                _display_status("PRESS A TO START");//This should 
+                state = 1;
+                break;
+            }
+            case 1: // Wait for player to start game
             {
+                if(bn::keypad::a_pressed())
+                {
+                    _selection_cursor_sprite.set_visible(true);
+                    state = 2;
+                }
+                bn::core::update();
+                break;
+            }
+            case 2: // Beginning of Player1 Turn
+            {
+                
                 //TODO: Reset values to zero of member variables
                 my_text_generator.set_left_alignment();
                 my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
@@ -272,14 +304,19 @@ void game_scene::update()
                 bn::string<16> enemy_attack_text("ATK: ");
                 enemy_attack_text.append(bn::to_string<4>(enemyattack));
                 my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
+                //eventarrayindex++;
 
-                state = 1; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
+                //Make array
+
+
+                state = 3; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
 
                
 
                 break;
             }
-            case 1: //Player1 Turn Loop
+            case 3: //Player1 Turn Loop
+            {
                 if(bn::keypad::a_pressed() && menu_position==0)
                 {
                     if(player1deck.size()>0){
@@ -352,7 +389,7 @@ void game_scene::update()
                 
                 bn::core::update();
                 break;
-
+            }
             default:
                 BN_ERROR("Invalid state");
                 break;
