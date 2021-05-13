@@ -85,6 +85,7 @@ class game_scene
         int state;
         int enemyattack;
         int last_tableau_x_pos;
+        int last_merc_tableau_x_pos;
         //int enemyindex;
 
         //declare text sprites

@@ -14,7 +14,7 @@
 #include "bn_random.h"
 #include "bn_sprite_text_generator.h"
 
-
+//TODO: clean up includes, remove from game those things built extraneously by $make clean $make
 #include "bn_fixed_point.h"
 
 #include "bn_sprite_items_chiyu.h"
@@ -142,6 +142,7 @@ namespace{
             -sprite for each enemy?
             -location of each enemy... ugh... all of a sudden i need a 4 position arrays*/
         const int MENU_POSITION_MAX = 1;
+        const int MERCS_FOR_SALE = 4;
         //const bn::string<6> deploy_label_text("  DRAW");
 }
 
@@ -189,7 +190,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     menu_position(0),
     state(0),
     enemyattack(20),
-    last_tableau_x_pos(-110)
+    last_tableau_x_pos(-110),
+    
+    last_merc_tableau_x_pos(-40)
     //enemyindex(0)
 {
 //pointer_to_text_generator(text_generator)
@@ -198,15 +201,19 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //generate text
 
 
-
     
     //                         name, cost, weight, power, gather, tileindex, probabilityweight
+    CardInfoVector.push_back({"MAGE",           7,0,0,1,0,10});
+    CardInfoVector.push_back({"ARCHER",         7,0,3,0,1,10});
+    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,2,0});
+    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,3,0});
+    CardInfoVector.push_back({"SPEAR MASTER",         12,0,7,0,4,1});
+    /*
     CardInfoVector.push_back({"MAGE",           7,0,0,1,0,10});
     CardInfoVector.push_back({"ARCHER",         7,0,3,0,5,10});
     CardInfoVector.push_back({"WARRIOR",        1,1,6,1,10,0});
     CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,15,0});
-    CardInfoVector.push_back({"ARCHER",         12,0,7,0,20,10});
-
+    CardInfoVector.push_back({"SPEAR MASTER",         12,0,7,0,20,1});*/
     //make starting deck
     player1deck.push_back(0);
     player1deck.push_back(0);
@@ -261,32 +268,75 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 void game_scene::update()
 {
     bn::random random_generator;
-    int random_num;
+    int random_num; // Do not alter this value! It continues spinning each frame
+    int total_merc_probs = 0;
+    for(int i =0; i<CardInfoVector.size();i++)
+    {
+
+        total_merc_probs += CardInfoVector.at(i).probabilityweight;
+    }
     //_chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
     while(true)
     {   
-        //This is a deterministic random generator, so it must be spun every fram to not return the same numbers every boot.
+        //This is a deterministic random generator, so it must be spun every frame to not return the same numbers every boot.
         //Luckily this is not too slow to affect performance.
-        //TODO: Add to, like, a title screen; otherwise 
+        //TODO: If I implement a title screen, this should start spinning then for maximum randomness
         random_num = random_generator.get();
 
         switch(state)
             {
             case 0: // Beginning of game 
             {   
-                //Add 4 units to mercenary vectors
                 
-                _display_status("PRESS A TO START");//This should 
+                
+                //_display_status(bn::to_string<50>(total_merc_probs));
+                _display_status("PRESS A TO START");
                 state = 1;
+                
+                //bn::core::update();
                 break;
             }
             case 1: // Wait for player to start game
             {
                 if(bn::keypad::a_pressed())
                 {
+                    //Add 4 units to mercenary vectors
+                    //TODO: Maybe have player push to keep adding? We'll see if it feels random enough...
+                    //Also TODO: Maybe run this random generator many times to be sure that it is working as expected; also keep in mind that max(random_num) must be greater than total_merc_probs*
+                    int temp_rando = bn::abs(random_num);
+                    for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
+                    {
+                        bool foundcard=false;
+                        int card_to_add=1000;
+                        int weight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
+                        temp_rando=temp_rando/total_merc_probs;//Remove the last n digits
+                        int count_up_weights=0;
+                        for(int card_to_check=0; card_to_check < CardInfoVector.size(); card_to_check++)//TODO maybe make this a while loop. eh who cares
+                        {
+                            if(foundcard == false)
+                            {
+                                count_up_weights+=CardInfoVector.at(card_to_check).probabilityweight;
+                                if(weight_to_add < count_up_weights)
+                                {
+                                    foundcard = true;
+                                    card_to_add = card_to_check;
+                                }
+                            }
+                        }
+                        //TODO: handle error if foundcard is false (though it'll be obvious, you can't add vector 1000)
+                        //Add to mercenary deck
+                        MercenaryDeck.push_back(card_to_add);
+                        
+                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -40);
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));//player1deck.at(index_to_remove).tileindex));
+                        MercenaryTableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
+                        //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                        last_merc_tableau_x_pos+=20;
+                    }
                     _selection_cursor_sprite.set_visible(true);
                     state = 2;
                 }
+                //SUPER RISKY: By removing this, I drop the frame rate to zero. (Well, it turns )
                 bn::core::update();
                 break;
             }
