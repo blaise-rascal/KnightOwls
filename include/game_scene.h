@@ -86,6 +86,7 @@ class game_scene
         int enemyattack;
         int last_tableau_x_pos;
         int last_merc_tableau_x_pos;
+        int runes_at_start_of_round;
         //int enemyindex;
 
         //declare text sprites
