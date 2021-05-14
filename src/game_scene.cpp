@@ -142,7 +142,7 @@ namespace{
             -sprite for each enemy?
             -location of each enemy... ugh... all of a sudden i need a 4 position arrays*/
         const int MENU_POSITION_MAX = 1;
-        const int MERCS_FOR_SALE = 4;
+        const int MERCS_FOR_SALE = 3;
         //const bn::string<6> deploy_label_text("  DRAW");
 }
 
@@ -192,7 +192,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     enemyattack(20),
     last_tableau_x_pos(-110),
     
-    last_merc_tableau_x_pos(-40)
+    last_merc_tableau_x_pos(-20)
     //enemyindex(0)
 {
 //pointer_to_text_generator(text_generator)
@@ -203,9 +203,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
     
     //                         name, cost, weight, power, gather, tileindex, probabilityweight
-    CardInfoVector.push_back({"MAGE",           7,0,0,1,0,10});
-    CardInfoVector.push_back({"ARCHER",         7,0,3,0,1,10});
-    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,2,0});
+    CardInfoVector.push_back({"MAGE",           7,0,0,1,1,1});
+    CardInfoVector.push_back({"ARCHER",         7,0,3,0,2,1});
+    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,0,0});
     CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,3,0});
     CardInfoVector.push_back({"SPEAR MASTER",         12,0,7,0,4,1});
     /*
@@ -284,7 +284,7 @@ void game_scene::update()
         random_num = random_generator.get();
 
         switch(state)
-            {
+        {
             case 0: // Beginning of game 
             {   
                 
@@ -327,13 +327,13 @@ void game_scene::update()
                         //Add to mercenary deck
                         MercenaryDeck.push_back(card_to_add);
                         
-                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -40);
+                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -30);
                         NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));//player1deck.at(index_to_remove).tileindex));
                         MercenaryTableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
                         //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                         last_merc_tableau_x_pos+=20;
                     }
-                    _selection_cursor_sprite.set_visible(true);
+                    
                     state = 2;
                 }
                 //SUPER RISKY: By removing this, I drop the frame rate to zero. (Well, it turns )
@@ -367,55 +367,6 @@ void game_scene::update()
             }
             case 3: //Player1 Turn Loop
             {
-                if(bn::keypad::a_pressed() && menu_position==0)
-                {
-                    if(player1deck.size()>0){
-
-                        //DRAW A CARD!!!
-                        int index_to_remove = bn::abs(random_num%player1deck.size());
-                        int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
-                        int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).power;
-                        int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gather;
-                        current_weight=current_weight+weight_to_add;
-                        current_power=current_power+power_to_add;
-                        current_runes=current_runes+runes_to_add;
-                        _update_hud_text();
-                        //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
-                        //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
-
-                        bn::string<50> first_line_status("SUMMONED ");
-                        
-                        first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
-                        if(current_weight>4){
-                            first_line_status.append(". BOAT SANK");
-                        }
-
-                        bn::string<50> second_line_status("WEIGHT+");
-                        second_line_status.append(bn::to_string<4>(weight_to_add));
-                        second_line_status.append(", ATTACK+");
-                        second_line_status.append(bn::to_string<4>(power_to_add));
-                        second_line_status.append(", RUNES+");
-                        second_line_status.append(bn::to_string<4>(runes_to_add));
-                        //display status
-                        _display_status(first_line_status,second_line_status);
-
-                        //Display sprite
-                        //newspriteposition= vector.at(size-1).position + 5
-                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0);
-                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(index_to_remove)).tileindex));//player1deck.at(index_to_remove).tileindex));
-                        Player1Tableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
-                        //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
-                        last_tableau_x_pos+=5;
-
-                        //Delete the drawn card from the deck
-                        player1deck.erase(player1deck.begin()+index_to_remove);
-                    }
-                    else{
-                        _display_status("NO MORE ITEMS TO DRAW");
-                    }
-                    
-                    //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(player1deck.size())));
-                }
                 if(bn::keypad::left_pressed())
                 {
                     menu_position--;
@@ -435,15 +386,93 @@ void game_scene::update()
                     }
                     _update_selection_cursor_from_menu_position();
                 }
+                if(bn::keypad::a_pressed())
+                {
+                    if(menu_position==0)
+                    {
+                        if(player1deck.size()>0){
+
+                            //DRAW A CARD!!!
+                            int index_to_remove = bn::abs(random_num%player1deck.size());
+                            int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
+                            int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).power;
+                            int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gather;
+                            current_weight=current_weight+weight_to_add;
+                            current_power=current_power+power_to_add;
+                            current_runes=current_runes+runes_to_add;
+                            _update_hud_text();
+                            //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
+                            //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
+
+                            bn::string<50> first_line_status("SUMMONED ");
+                            bn::string<50> second_line_status("");
+                            first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
+                            if(current_weight>4){
+                                
+                                second_line_status.append("OVERLOADED! PRESS A TO UNSUMMON.");
+                                state = 4;
+
+                            }
+                            else{
+                                second_line_status.append("WEIGHT+");
+                                second_line_status.append(bn::to_string<4>(weight_to_add));
+                                second_line_status.append(", ATTACK+");
+                                second_line_status.append(bn::to_string<4>(power_to_add));
+                                second_line_status.append(", RUNES+");
+                                second_line_status.append(bn::to_string<4>(runes_to_add));
+                            }
+                            //display status
+                            _display_status(first_line_status,second_line_status);
+
+                            //Display sprite
+                            //newspriteposition= vector.at(size-1).position + 5
+                            bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0);
+                            NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(index_to_remove)).tileindex));//player1deck.at(index_to_remove).tileindex));
+                            Player1Tableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
+                            //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                            last_tableau_x_pos+=5;
+
+                            //Delete the drawn card from the deck
+                            player1deck.erase(player1deck.begin()+index_to_remove);
+                        }
+                        else{
+                            _display_status("NO MORE ITEMS TO DRAW");
+                        }
+                    }
+                    
+                    else if(menu_position==1)
+                    {
+                        state=5;
+                    }
+                    //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(player1deck.size())));
+                }
+
 
                 
                 bn::core::update();
                 break;
             }
+            case 4: //Overloaded!
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    state=5;
+                }
+                bn::core::update();
+                break;
+            }
+            case 5: //Combat
+            {
+                _display_status("PRESS A TO RESOLVE COMBAT");
+                bn::core::update();
+                break;
+            }
             default:
+            {
                 BN_ERROR("Invalid state");
                 break;
             }
+        }
         
     }
 }
@@ -457,6 +486,7 @@ void game_scene::_update_selection_cursor_from_menu_position()
     else{
         _selection_cursor_sprite.set_x(40);
     }
+    _selection_cursor_sprite.set_visible(true);
 }
 
 void game_scene::_update_hud_text()
@@ -466,26 +496,26 @@ void game_scene::_update_hud_text()
     bn::string<20> weight_hud_text("WEIGHT: ");
     weight_hud_text.append(bn::to_string<8>(current_weight));
     weight_hud_text.append("/4");
-    my_text_generator.generate(-100, 50, weight_hud_text, weight_text_sprites);
+    my_text_generator.generate(-110, 50, weight_hud_text, weight_text_sprites);
 
     runes_text_sprites.clear();
     bn::string<20> runes_hud_text("RUNES: ");
     runes_hud_text.append(bn::to_string<8>(current_runes));
-    my_text_generator.generate(-100, 61, runes_hud_text, runes_text_sprites);
+    my_text_generator.generate(-110, 61, runes_hud_text, runes_text_sprites);
 
     power_text_sprites.clear();
     bn::string<20> power_hud_text("ATTACK: ");
     power_hud_text.append(bn::to_string<8>(current_power));
-    my_text_generator.generate(-100, 72, power_hud_text, power_text_sprites);
+    my_text_generator.generate(-110, 72, power_hud_text, power_text_sprites);
 }
 
 void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)
 {
     my_text_generator.set_center_alignment();
     status_text_one_sprites.clear();
-    my_text_generator.generate(0, -61, statustextone, status_text_one_sprites);
+    my_text_generator.generate(0, -66, statustextone, status_text_one_sprites);
     status_text_two_sprites.clear();
-    my_text_generator.generate(0, -50, statustexttwo, status_text_two_sprites);
+    my_text_generator.generate(0, -55, statustexttwo, status_text_two_sprites);
 }
 //void game_scene::_point_cursor_at(const bn::sprite_item)
 //{
