@@ -128,7 +128,7 @@ new plan: just an endless attack, but you know what your enemy will hit you with
 namespace{
         //initialize sprites
         
-        const bn::string<6> deploy_label_text("  DRAW");
+        const bn::string<6> deploy_label_text("SUMMON");
         const bn::string<4> pass_label_text("PASS");
         //const bn::array<int, 8> EventArray([0,0,1,1,2,2,3,3]); //Hmm, it'd be cool to have probabilities later on... Also maybe array of 
         //Things that an enemy can be:
@@ -187,14 +187,13 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_weight(0),
     current_power(0),
     current_runes(0),
-    total_runes(0),
+    runes_which_might_disappear(0),
     menu_position(0),
     state(0),
-    enemyattack(20),
+    enemy_attack(20),
     last_tableau_x_pos(-110),
     
-    last_merc_tableau_x_pos(-20),
-    runes_at_start_of_round(0)
+    last_merc_tableau_x_pos(-20)
     //enemyindex(0)
 {
 //pointer_to_text_generator(text_generator)
@@ -296,15 +295,13 @@ void game_scene::update()
                 state =100;
                 break;
             }
-            case 100: //Loop while waiting for A press - when pressed, summon enemy & update hud
+            case 100: //Loop while waiting for A press - when pressed, summon mercs
             {
                 if(bn::keypad::a_pressed())
                 {
-                    bn::string<16> enemy_attack_text("ATK: ");
-                    enemy_attack_text.append(bn::to_string<4>(enemyattack));
-                    my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
+                    
                     //_display_status(bn::to_string<50>(total_merc_probs));
-                    _display_status("A STORM BREWS. AN ENEMY APPEARS!", "PRESS A TO COLLECT STARTING RUNES");
+                    
                     int temp_rando = bn::abs(random_num);
                     for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
                     {
@@ -313,7 +310,7 @@ void game_scene::update()
                         int weight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
                         temp_rando=temp_rando/total_merc_probs;//Remove the last n digits
                         int count_up_weights=0;
-                        for(int card_to_check=0; card_to_check < CardInfoVector.size(); card_to_check++)//TODO maybe make this a while loop. eh who cares
+                        for(int card_to_check=0; card_to_check < CardInfoVector.size(); card_to_check++)//TODO maybe make this a while loop (more efficient). eh who cares
                         {
                             if(foundcard == false)
                             {
@@ -335,47 +332,65 @@ void game_scene::update()
                         //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                         last_merc_tableau_x_pos+=20;
                     }
-                    _update_hud_text();
-                    state = 1;
+                    _display_status("THE STARS REVEAL ___", "PRESS A TO CONTINUE");
+                    
+                    state = 101;
                 }
                 bn::core::update();
                 break;
             }
-            case 1: // Loop; wait for A press to 
+            case 101: // Loop; wait for A press to add starting runes
             {
                 if(bn::keypad::a_pressed())
                 {
+                    
+                    _display_status("ENEMY APPEARS! ATTACK = ", "PRESS A TO CONTINUE");
+                    bn::string<16> enemy_attack_text("ATK: ");
+                    enemy_attack_text.append(bn::to_string<4>(enemy_attack));
+                    my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
+                    state = 1;
+                }
+                bn::core::update();
+                break; 
+            }
+            case 1: // Loop; wait for A press to add starting runes
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    _display_status("NEW COMBAT ROUND: 4 RUNES GENERATED", "PRESS A TO CONTINUE");
+                    current_runes+=RUNES_PER_TURN;
+                    _update_hud_text();
+                    state = 2;
                     //Add 4 units to mercenary vectors
                     //TODO: Maybe have player push to keep adding? We'll see if it feels random enough...
                     //Also TODO: Maybe run this random generator many times to be sure that it is working as expected; also keep in mind that max(random_num) must be greater than total_merc_probs*
                     
-                    current_runes+=RUNES_PER_TURN;
                     
-                    state = 2;
                 }
                 bn::core::update();
                 break;
             }
-            case 2: // Beginning of Player1 Turn
+            case 2: // Loop; wait to switch to menu
             {
-                
+                if(bn::keypad::a_pressed())
+                {
                 //TODO: Reset values to zero of member variables
-                my_text_generator.set_left_alignment();
-                my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
-                my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
-                _display_status("YOUR TURN");
-                _update_hud_text();
-                _update_selection_cursor_from_menu_position();
-                
-                
-                //eventarrayindex++;
+                    my_text_generator.set_left_alignment();
+                    my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
+                    my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
+                    _display_status("YOUR TURN");
+                    _update_hud_text();
+                    _update_selection_cursor_from_menu_position();
+                    
+                    
+                    //eventarrayindex++;
 
-                //Make array
+                    //Make array
 
 
-                state = 3; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
-
-               
+                    state = 3; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
+                }
+                bn::core::update();
 
                 break;
             }
@@ -413,7 +428,7 @@ void game_scene::update()
                             int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gather;
                             current_weight=current_weight+weight_to_add;
                             current_power=current_power+power_to_add;
-                            current_runes=current_runes+runes_to_add;
+                            runes_which_might_disappear=runes_which_might_disappear+runes_to_add;
                             _update_hud_text();
                             //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
                             //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
@@ -456,6 +471,9 @@ void game_scene::update()
                     
                     else if(menu_position==1)
                     {
+                        current_runes += runes_which_might_disappear;
+                        runes_which_might_disappear = 0;
+                        _update_hud_text();
                         state=5;
                     }
                     //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(player1deck.size())));
@@ -473,7 +491,7 @@ void game_scene::update()
                     Player1Tableau.clear();
                     current_power = 0;
                     current_weight = 0;
-                    //TODO: Make runes become value beforehand or whatever
+                    runes_which_might_disappear=0;
                     _update_hud_text();
                     state=5;
                 }
@@ -482,7 +500,30 @@ void game_scene::update()
             }
             case 5: //Combat
             {
-                _display_status("PRESS A TO RESOLVE COMBAT");
+                _display_status("SUMMONING COMPLETE","PRESS A TO RESOLVE COMBAT");
+                if(bn::keypad::a_pressed())
+                {
+                    if(current_power>enemy_attack)
+                    {
+                        _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
+                        state = 6;
+                    }
+                    if(current_power<enemy_attack)
+                    {
+                        _display_status("ENEMY'S ATK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
+                        state = 6;
+                    }
+                    if(current_power==enemy_attack)
+                    {
+                        _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");
+                        state = 6;
+                    }
+                }
+                bn::core::update();
+                break;
+            }
+            case 6:
+            {
                 bn::core::update();
                 break;
             }
@@ -515,26 +556,31 @@ void game_scene::_update_hud_text()
     bn::string<20> weight_hud_text("WEIGHT: ");
     weight_hud_text.append(bn::to_string<8>(current_weight));
     weight_hud_text.append("/4");
-    my_text_generator.generate(-115, 50, weight_hud_text, weight_text_sprites);
+    my_text_generator.generate(-115, -72, weight_hud_text, weight_text_sprites);
 
     runes_text_sprites.clear();
     bn::string<20> runes_hud_text("RUNES: ");
     runes_hud_text.append(bn::to_string<8>(current_runes));
-    my_text_generator.generate(-115, 61, runes_hud_text, runes_text_sprites);
+    if(runes_which_might_disappear>0)
+    {
+        runes_hud_text.append("+");
+        runes_hud_text.append(runes_which_might_disappear);
+    }
+    my_text_generator.generate(-115, -61, runes_hud_text, runes_text_sprites);
 
     power_text_sprites.clear();
     bn::string<20> power_hud_text("ATTACK: ");
     power_hud_text.append(bn::to_string<8>(current_power));
-    my_text_generator.generate(-115, 72, power_hud_text, power_text_sprites);
+    my_text_generator.generate(-115, -50, power_hud_text, power_text_sprites);
 }
 
 void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)
 {
     my_text_generator.set_center_alignment();
     status_text_one_sprites.clear();
-    my_text_generator.generate(0, -66, statustextone, status_text_one_sprites);
+    my_text_generator.generate(0, 61, statustextone, status_text_one_sprites);
     status_text_two_sprites.clear();
-    my_text_generator.generate(0, -55, statustexttwo, status_text_two_sprites);
+    my_text_generator.generate(0, 72, statustexttwo, status_text_two_sprites);
 }
 //void game_scene::_point_cursor_at(const bn::sprite_item)
 //{

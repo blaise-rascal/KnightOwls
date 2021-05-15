@@ -76,17 +76,17 @@ class game_scene
         int current_weight;
         int current_power;
         int current_runes;
-        int total_runes;
+        int runes_which_might_disappear;
         //weight_hud_text.append(bn::to_string<8>(current_weight));
 
     
 
         int menu_position;
         int state;
-        int enemyattack;
+        int enemy_attack;
         int last_tableau_x_pos;
         int last_merc_tableau_x_pos;
-        int runes_at_start_of_round;
+        //int runes_at_start_of_round;
         //int enemyindex;
 
         //declare text sprites
