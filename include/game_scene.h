@@ -72,10 +72,18 @@ class game_scene
        /* bn::string<20> weight_hud_text;
         //bn::sprite_text_generator& _text_generator;
 */
-
+        //ART LIST
+        //symbol for ship + life bar
+        //symbol for attack (swords crossed)
+        //symbol for weight (scale)
+        //symbol for runes with x
+        //boat
+        //enemies
+        //6 ish more owls (super versions?)
         int current_weight;
         int current_power;
         int current_runes;
+        int current_hull;
         int runes_which_might_disappear;
         //weight_hud_text.append(bn::to_string<8>(current_weight));
 
@@ -91,6 +99,7 @@ class game_scene
 
         //declare text sprites
         bn::vector<bn::sprite_ptr, 20> weight_text_sprites;
+        bn::vector<bn::sprite_ptr, 20> hull_text_sprites;
         bn::vector<bn::sprite_ptr, 20> runes_text_sprites;
         bn::vector<bn::sprite_ptr, 20> power_text_sprites;
         bn::vector<bn::sprite_ptr, 6> deploy_label_text_sprites;
@@ -101,6 +110,7 @@ class game_scene
 
         //vectors containing card & state information
         bn::vector<int, 100> player1deck;
+        bn::vector<int, 100> player1deck_at_start_of_round; //Uh, I guess I need both this AND cards removed? if I want to have a ___, that is
         bn::vector<CardInfo,10> CardInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
         bn::vector<bn::sprite_ptr, 5> MercenaryTableau;
@@ -110,6 +120,7 @@ class game_scene
         void _update_hud_text();
         void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "");
         void _update_selection_cursor_from_menu_position();
+        void _return_owls_to_tree();
 };
 //}
 

@@ -187,10 +187,11 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_weight(0),
     current_power(0),
     current_runes(0),
+    current_hull(3),
     runes_which_might_disappear(0),
     menu_position(0),
     state(0),
-    enemy_attack(20),
+    enemy_attack(10),
     last_tableau_x_pos(-110),
     
     last_merc_tableau_x_pos(-20)
@@ -339,16 +340,20 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
-            case 101: // Loop; wait for A press to add starting runes
+            case 101: // Loop; wait for A press to add new enemy. (ALSO set temp vector equal to current deck)
             {
                 if(bn::keypad::a_pressed())
                 {
-                    
-                    _display_status("ENEMY APPEARS! ATTACK = ", "PRESS A TO CONTINUE");
+                    bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACK = ");
+                    display_text_line_one.append(bn::to_string<4>(enemy_attack));
+                    _display_status(display_text_line_one, "PRESS A TO CONTINUE");
                     bn::string<16> enemy_attack_text("ATK: ");
                     enemy_attack_text.append(bn::to_string<4>(enemy_attack));
                     my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
                     state = 1;
+
+                    //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
+                    player1deck_at_start_of_round = player1deck;
                 }
                 bn::core::update();
                 break; 
@@ -357,7 +362,7 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    _display_status("NEW COMBAT ROUND: 4 RUNES GENERATED", "PRESS A TO CONTINUE");
+                    _display_status("NEW ROUND START! 4 RUNES GENERATED", "PRESS A TO CONTINUE");
                     current_runes+=RUNES_PER_TURN;
                     _update_hud_text();
                     state = 2;
@@ -378,7 +383,7 @@ void game_scene::update()
                     my_text_generator.set_left_alignment();
                     my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
                     my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
-                    _display_status("YOUR TURN");
+                    _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
                     _update_hud_text();
                     _update_selection_cursor_from_menu_position();
                     
@@ -488,11 +493,7 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    Player1Tableau.clear();
-                    current_power = 0;
-                    current_weight = 0;
-                    runes_which_might_disappear=0;
-                    _update_hud_text();
+                    _return_owls_to_tree();
                     state=5;
                 }
                 bn::core::update();
@@ -500,29 +501,87 @@ void game_scene::update()
             }
             case 5: //Combat
             {
+                //KILL SELECTION CURSOR, LABELS
+                _selection_cursor_sprite.set_visible(false);
+                deploy_label_text_sprites.clear();
+                pass_label_text_sprites.clear();
                 _display_status("SUMMONING COMPLETE","PRESS A TO RESOLVE COMBAT");
                 if(bn::keypad::a_pressed())
                 {
                     if(current_power>enemy_attack)
                     {
                         _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
-                        state = 6;
+                        state = 8;
                     }
                     if(current_power<enemy_attack)
                     {
                         _display_status("ENEMY'S ATK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
-                        state = 6;
+                        state=6;
                     }
                     if(current_power==enemy_attack)
                     {
                         _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");
-                        state = 6;
+                        state = 8;
                     }
                 }
                 bn::core::update();
                 break;
             }
-            case 6:
+            case 6: // Defeat! Take 1 damage
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    current_hull=current_hull-1;
+                    if(current_hull==0)
+                    {
+                        _display_status("SHIP DESTROYED! GAME OVER");
+                        state = 7;
+                    }
+                    else{
+                        state = 8;
+                        _display_status("SHIP TAKES ONE DAMAGE.","PRESS A TO CONTINUE");
+                        _update_hud_text();
+                    }
+                }
+                bn::core::update();
+                break;
+            }
+            case 7: // Game over
+            {if(bn::keypad::a_pressed())
+                {
+                    _display_status("GAME OVER!");
+
+                }
+                bn::core::update();
+                break;
+            }
+            case 8: // return owls and buy new ones
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    if(Player1Tableau.size()==0){
+                        _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
+                        state = 10;
+                    }
+                    else{
+                        _display_status("OWLS RETURNED TO CASTLE.","PRESS A TO CONTINUE");
+                        _return_owls_to_tree();
+                    }
+                }
+                bn::core::update();
+                break;
+            }
+            case 9:
+            {
+                if(bn::keypad::a_pressed())
+                {
+                   _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
+                   state = 10;
+                }
+                bn::core::update();
+                break;
+            }
+            case 10:
             {
                 bn::core::update();
                 break;
@@ -564,7 +623,7 @@ void game_scene::_update_hud_text()
     if(runes_which_might_disappear>0)
     {
         runes_hud_text.append("+");
-        runes_hud_text.append(runes_which_might_disappear);
+        runes_hud_text.append(bn::to_string<8>(runes_which_might_disappear));
     }
     my_text_generator.generate(-115, -61, runes_hud_text, runes_text_sprites);
 
@@ -572,6 +631,11 @@ void game_scene::_update_hud_text()
     bn::string<20> power_hud_text("ATTACK: ");
     power_hud_text.append(bn::to_string<8>(current_power));
     my_text_generator.generate(-115, -50, power_hud_text, power_text_sprites);
+
+    hull_text_sprites.clear();
+    bn::string<20> hull_hud_text("HULL: ");
+    hull_hud_text.append(bn::to_string<8>(current_hull));
+    my_text_generator.generate(-115, -39, hull_hud_text, hull_text_sprites);
 }
 
 void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)
@@ -581,6 +645,16 @@ void game_scene::_display_status(const bn::string<50>& statustextone, const bn::
     my_text_generator.generate(0, 61, statustextone, status_text_one_sprites);
     status_text_two_sprites.clear();
     my_text_generator.generate(0, 72, statustexttwo, status_text_two_sprites);
+}
+
+
+void game_scene::_return_owls_to_tree()
+{
+    Player1Tableau.clear();
+    current_power = 0;
+    current_weight = 0;
+    runes_which_might_disappear=0;
+    _update_hud_text();
 }
 //void game_scene::_point_cursor_at(const bn::sprite_item)
 //{
