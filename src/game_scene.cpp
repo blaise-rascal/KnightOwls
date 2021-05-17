@@ -17,7 +17,6 @@
 //TODO: clean up includes, remove from game those things built extraneously by $make clean $make
 #include "bn_fixed_point.h"
 
-#include "bn_sprite_items_chiyu.h"
 
 #include "bn_sprite_tiles_ptr.h"
 
@@ -126,7 +125,6 @@ player 1: choose to SUMMON!, pass, examine
 new plan: just an endless attack, but you know what your enemy will hit you with; increases every round; but if you scratch out, you still gain 4 astral power? Also it persists between rounds? sure
 */
 namespace{
-        //initialize sprites
         
         const bn::string<6> deploy_label_text("SUMMON");
         const bn::string<4> pass_label_text("PASS");
@@ -227,6 +225,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(3);
 
     _selection_cursor_sprite.set_visible(false);
+    _selection_cursor_sprite.set_z_order(-100); //lower z order means it shows up higher. wacky huh?
     //_display_status(bn::to_string<8>(CardInfoVector.at(1).name));
     //my_text_generator.set_center_alignment();
     //my_text_generator.set_left_alignment();
@@ -308,7 +307,7 @@ void game_scene::update()
                     {
                         bool foundcard=false;
                         int card_to_add=1000;
-                        int weight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
+                        int probweight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
                         temp_rando=temp_rando/total_merc_probs;//Remove the last n digits
                         int count_up_weights=0;
                         for(int card_to_check=0; card_to_check < CardInfoVector.size(); card_to_check++)//TODO maybe make this a while loop (more efficient). eh who cares
@@ -316,7 +315,7 @@ void game_scene::update()
                             if(foundcard == false)
                             {
                                 count_up_weights+=CardInfoVector.at(card_to_check).probabilityweight;
-                                if(weight_to_add < count_up_weights)
+                                if(probweight_to_add < count_up_weights)
                                 {
                                     foundcard = true;
                                     card_to_add = card_to_check;
@@ -333,7 +332,7 @@ void game_scene::update()
                         //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                         last_merc_tableau_x_pos+=20;
                     }
-                    _display_status("THE STARS REVEAL ___", "PRESS A TO CONTINUE");
+                    _display_status("THE STARS ALIGN", "PRESS A TO CONTINUE");
                     
                     state = 101;
                 }
@@ -381,8 +380,8 @@ void game_scene::update()
                 {
                 //TODO: Reset values to zero of member variables
                     my_text_generator.set_left_alignment();
-                    my_text_generator.generate(-100, 30, deploy_label_text, deploy_label_text_sprites);
-                    my_text_generator.generate(0, 30, pass_label_text, pass_label_text_sprites);
+                    my_text_generator.generate(-100, 30, deploy_label_text, first_menu_option_text_sprites);//DEPLOY
+                    my_text_generator.generate(0, 30, pass_label_text, second_menu_option_text_sprites);//PASS
                     _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
                     _update_hud_text();
                     _update_selection_cursor_from_menu_position();
@@ -448,12 +447,13 @@ void game_scene::update()
 
                             }
                             else{
-                                second_line_status.append("WEIGHT+");
+                                /*second_line_status.append("WEIGHT+");
                                 second_line_status.append(bn::to_string<4>(weight_to_add));
                                 second_line_status.append(", ATTACK+");
                                 second_line_status.append(bn::to_string<4>(power_to_add));
                                 second_line_status.append(", RUNES+");
-                                second_line_status.append(bn::to_string<4>(runes_to_add));
+                                second_line_status.append(bn::to_string<4>(runes_to_add));*/
+                                second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
                             }
                             //display status
                             _display_status(first_line_status,second_line_status);
@@ -503,8 +503,9 @@ void game_scene::update()
             {
                 //KILL SELECTION CURSOR, LABELS
                 _selection_cursor_sprite.set_visible(false);
-                deploy_label_text_sprites.clear();
-                pass_label_text_sprites.clear();
+                first_menu_option_text_sprites.clear();
+                second_menu_option_text_sprites.clear();
+                third_menu_option_text_sprites.clear();
                 _display_status("SUMMONING COMPLETE","PRESS A TO RESOLVE COMBAT");
                 if(bn::keypad::a_pressed())
                 {
@@ -555,34 +556,48 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
-            case 8: // return owls and buy new ones
+            case 8: // Either return owls or just move to buy phase
             {
                 if(bn::keypad::a_pressed())
                 {
                     if(Player1Tableau.size()==0){
-                        _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
                         state = 10;
                     }
                     else{
                         _display_status("OWLS RETURNED TO CASTLE.","PRESS A TO CONTINUE");
                         _return_owls_to_tree();
+                        state = 9;
                     }
                 }
                 bn::core::update();
                 break;
             }
-            case 9:
+            case 9: //Just returned owls, waiting on button press to 
             {
                 if(bn::keypad::a_pressed())
                 {
-                   _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
                    state = 10;
                 }
                 bn::core::update();
                 break;
             }
-            case 10:
+            case 10: //Intro to owl buy state
             {
+                 _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
+                 
+                my_text_generator.generate(-120, 30, "SHOP", first_menu_option_text_sprites);//PURCHASE
+                my_text_generator.generate(-40, 30, "PASS", second_menu_option_text_sprites);//PASS
+                my_text_generator.generate(40, 30, "EXAMINE", third_menu_option_text_sprites);//PASS
+                 _point_cursor_at_sprite(MercenaryTableau.at(0));
+                state = 11;
+                break;
+            }
+            case 11: //Owl buy loop
+            {
+                //Shop Pass Examine
+                //BUY PHASE, ARROWS TO MOVE, A TO SELECT
+                //WARRIOR: ATK+2,WGT+0,RUNES+3
+                //LRA: PURCHASE, B: CANCEL
                 bn::core::update();
                 break;
             }
@@ -595,7 +610,7 @@ void game_scene::update()
         
     }
 }
-
+//MENU: vector of vector of sprites?
 void game_scene::_update_selection_cursor_from_menu_position()
 {
     if(menu_position == 0)
@@ -647,7 +662,6 @@ void game_scene::_display_status(const bn::string<50>& statustextone, const bn::
     my_text_generator.generate(0, 72, statustexttwo, status_text_two_sprites);
 }
 
-
 void game_scene::_return_owls_to_tree()
 {
     Player1Tableau.clear();
@@ -656,9 +670,29 @@ void game_scene::_return_owls_to_tree()
     runes_which_might_disappear=0;
     _update_hud_text();
 }
-//void game_scene::_point_cursor_at(const bn::sprite_item)
-//{
 
-//}
+void game_scene::_point_cursor_at_sprite(const bn::sprite_ptr& target_sprite)
+{
+    
+    _selection_cursor_sprite.set_y(target_sprite.y());
+    _selection_cursor_sprite.set_x(target_sprite.x()-5);
+    _selection_cursor_sprite.set_visible(true);
+}
+
+bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_index)
+{
+    
+    int weight_to_add = CardInfoVector.at(card_info_index).weight;
+    int power_to_add = CardInfoVector.at(card_info_index).power;
+    int runes_to_add = CardInfoVector.at(card_info_index).gather;
+    bn::string<50> _description_string("");
+    _description_string.append("WEIGHT+");
+    _description_string.append(bn::to_string<4>(weight_to_add));
+    _description_string.append(", ATTACK+");
+    _description_string.append(bn::to_string<4>(power_to_add));
+    _description_string.append(", RUNES+");
+    _description_string.append(bn::to_string<4>(runes_to_add));
+    return(_description_string);
+}
 
 //point_cursor_at_sprite, point_cursor_at_string

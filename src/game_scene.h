@@ -102,10 +102,13 @@ class game_scene
         bn::vector<bn::sprite_ptr, 20> hull_text_sprites;
         bn::vector<bn::sprite_ptr, 20> runes_text_sprites;
         bn::vector<bn::sprite_ptr, 20> power_text_sprites;
-        bn::vector<bn::sprite_ptr, 6> deploy_label_text_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_one_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
-        bn::vector<bn::sprite_ptr, 4> pass_label_text_sprites;
+        
+        bn::vector<bn::sprite_ptr, 6> first_menu_option_text_sprites;
+        bn::vector<bn::sprite_ptr, 4> second_menu_option_text_sprites;
+        bn::vector<bn::sprite_ptr, 8> third_menu_option_text_sprites;
+
         bn::vector<bn::sprite_ptr, 20> enemy_attack_text_sprites;
 
         //vectors containing card & state information
@@ -121,6 +124,9 @@ class game_scene
         void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "");
         void _update_selection_cursor_from_menu_position();
         void _return_owls_to_tree();
+        void _point_cursor_at_sprite(const bn::sprite_ptr& target_sprite);
+        bn::string<50> _generate_description_from_owl_index(int card_info_index);
+
 };
 //}
 
