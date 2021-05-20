@@ -126,8 +126,8 @@ new plan: just an endless attack, but you know what your enemy will hit you with
 */
 namespace{
         
-        const bn::string<6> deploy_label_text("SUMMON");
-        const bn::string<4> pass_label_text("PASS");
+        //const bn::string<6> deploy_label_text("SUMMON");
+        //const bn::string<4> pass_label_text("PASS");
         //const bn::array<int, 8> EventArray([0,0,1,1,2,2,3,3]); //Hmm, it'd be cool to have probabilities later on... Also maybe array of 
         //Things that an enemy can be:
         /*
@@ -139,7 +139,7 @@ namespace{
             -# of enemies
             -sprite for each enemy?
             -location of each enemy... ugh... all of a sudden i need a 4 position arrays*/
-        const int MENU_POSITION_MAX = 1;
+        
         const int MERCS_FOR_SALE = 3;
         const int RUNES_PER_TURN = 4;
         //const bn::string<6> deploy_label_text("  DRAW");
@@ -192,7 +192,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     enemy_attack(10),
     last_tableau_x_pos(-110),
     
-    last_merc_tableau_x_pos(-20)
+    last_merc_tableau_x_pos(-20),
+    menu_position_max(1)
     //enemyindex(0)
 {
 //pointer_to_text_generator(text_generator)
@@ -361,10 +362,7 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    _display_status("NEW ROUND START! 4 RUNES GENERATED", "PRESS A TO CONTINUE");
-                    current_runes+=RUNES_PER_TURN;
-                    _update_hud_text();
-                    state = 2;
+                    state = 10001;
                     //Add 4 units to mercenary vectors
                     //TODO: Maybe have player push to keep adding? We'll see if it feels random enough...
                     //Also TODO: Maybe run this random generator many times to be sure that it is working as expected; also keep in mind that max(random_num) must be greater than total_merc_probs*
@@ -374,14 +372,20 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
+            case 10001:
+            {
+                _display_status("NEW ROUND START! 4 RUNES GENERATED", "PRESS A TO CONTINUE");
+                current_runes+=RUNES_PER_TURN;
+                _update_hud_text();
+                state = 2;
+                break;
+            }
             case 2: // Loop; wait to switch to menu
             {
                 if(bn::keypad::a_pressed())
                 {
                 //TODO: Reset values to zero of member variables
-                    my_text_generator.set_left_alignment();
-                    my_text_generator.generate(-100, 30, deploy_label_text, first_menu_option_text_sprites);//DEPLOY
-                    my_text_generator.generate(0, 30, pass_label_text, second_menu_option_text_sprites);//PASS
+                    _generate_menu(2, "SUMMON", "PASS");
                     _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
                     _update_hud_text();
                     _update_selection_cursor_from_menu_position();
@@ -400,25 +404,8 @@ void game_scene::update()
             }
             case 3: //Player1 Turn Loop
             {
-                if(bn::keypad::left_pressed())
-                {
-                    menu_position--;
-                    if(menu_position<0)
-                    {
-                        menu_position = MENU_POSITION_MAX;
-                    }
-                    
-                    _update_selection_cursor_from_menu_position();
-                }
-                if(bn::keypad::right_pressed())
-                {
-                    menu_position++;
-                    if(menu_position > MENU_POSITION_MAX)
-                    {
-                        menu_position = 0;
-                    }
-                    _update_selection_cursor_from_menu_position();
-                }
+                _navigate_through_menu();
+                
                 if(bn::keypad::a_pressed())
                 {
                     if(menu_position==0)
@@ -502,10 +489,9 @@ void game_scene::update()
             case 5: //Combat
             {
                 //KILL SELECTION CURSOR, LABELS
-                _selection_cursor_sprite.set_visible(false);
-                first_menu_option_text_sprites.clear();
-                second_menu_option_text_sprites.clear();
-                third_menu_option_text_sprites.clear();
+                
+                _clear_menu();
+
                 _display_status("SUMMONING COMPLETE","PRESS A TO RESOLVE COMBAT");
                 if(bn::keypad::a_pressed())
                 {
@@ -581,23 +567,33 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
-            case 10: //Intro to owl buy state
+            case 10: //Intro to buy menu state
             {
                  _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
                  
-                my_text_generator.generate(-120, 30, "SHOP", first_menu_option_text_sprites);//PURCHASE
-                my_text_generator.generate(-40, 30, "PASS", second_menu_option_text_sprites);//PASS
-                my_text_generator.generate(40, 30, "EXAMINE", third_menu_option_text_sprites);//PASS
-                 _point_cursor_at_sprite(MercenaryTableau.at(0));
+                _generate_menu(3, "SHOP", "EXAMINE TREE", "PASS");
+                 //_point_cursor_at_sprite(MercenaryTableau.at(0));
                 state = 11;
                 break;
             }
-            case 11: //Owl buy loop
+            case 11: //Buy menu loop
             {
                 //Shop Pass Examine
                 //BUY PHASE, ARROWS TO MOVE, A TO SELECT
                 //WARRIOR: ATK+2,WGT+0,RUNES+3
                 //LRA: PURCHASE, B: CANCEL
+                
+                _navigate_through_menu();
+                if(bn::keypad::a_pressed())
+                {
+                    if(menu_position==2)
+                    {
+                        _clear_menu();
+                        state= 10001;
+                    }
+
+                
+                }
                 bn::core::update();
                 break;
             }
@@ -610,18 +606,7 @@ void game_scene::update()
         
     }
 }
-//MENU: vector of vector of sprites?
-void game_scene::_update_selection_cursor_from_menu_position()
-{
-    if(menu_position == 0)
-    {
-        _selection_cursor_sprite.set_x(-40);
-    }
-    else{
-        _selection_cursor_sprite.set_x(40);
-    }
-    _selection_cursor_sprite.set_visible(true);
-}
+
 
 void game_scene::_update_hud_text()
 {
@@ -672,10 +657,9 @@ void game_scene::_return_owls_to_tree()
 }
 
 void game_scene::_point_cursor_at_sprite(const bn::sprite_ptr& target_sprite)
-{
-    
+{   
     _selection_cursor_sprite.set_y(target_sprite.y());
-    _selection_cursor_sprite.set_x(target_sprite.x()-5);
+    _selection_cursor_sprite.set_x(target_sprite.x()-26);
     _selection_cursor_sprite.set_visible(true);
 }
 
@@ -687,12 +671,74 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     int runes_to_add = CardInfoVector.at(card_info_index).gather;
     bn::string<50> _description_string("");
     _description_string.append("WEIGHT+");
-    _description_string.append(bn::to_string<4>(weight_to_add));
+    _description_string.append(bn::to_string<5>(weight_to_add));
     _description_string.append(", ATTACK+");
-    _description_string.append(bn::to_string<4>(power_to_add));
+    _description_string.append(bn::to_string<5>(power_to_add));
     _description_string.append(", RUNES+");
-    _description_string.append(bn::to_string<4>(runes_to_add));
+    _description_string.append(bn::to_string<5>(runes_to_add));
     return(_description_string);
 }
 
+
+void game_scene::_generate_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three)
+{
+    my_text_generator.set_center_alignment();
+
+    first_menu_option_text_sprites.clear();
+    second_menu_option_text_sprites.clear();
+    third_menu_option_text_sprites.clear();
+    my_text_generator.generate(0, 0, menu_option_one, first_menu_option_text_sprites);
+    my_text_generator.generate(0, 11, menu_option_two, second_menu_option_text_sprites);
+    my_text_generator.generate(0, 22, menu_option_three, third_menu_option_text_sprites);
+    menu_position_max = num_options -1;
+    menu_position = 0;
+    _selection_cursor_sprite.set_visible(true);
+    _update_selection_cursor_from_menu_position();
+
+}
+
+void game_scene::_navigate_through_menu()
+{
+    if(bn::keypad::up_pressed())
+    {
+        menu_position--;
+        if(menu_position<0)
+        {
+            menu_position = 0;
+        }
+        _update_selection_cursor_from_menu_position();
+    }
+    if(bn::keypad::down_pressed())
+    {
+        menu_position++;
+        if(menu_position > menu_position_max)
+        {
+            menu_position = menu_position_max;
+        }
+        _update_selection_cursor_from_menu_position();
+    }
+}
+
 //point_cursor_at_sprite, point_cursor_at_string
+//MENU: vector of vector of sprites?
+void game_scene::_update_selection_cursor_from_menu_position()
+{
+    if(menu_position == 0)
+    {
+        _point_cursor_at_sprite(first_menu_option_text_sprites.at(0));
+    }
+    else if(menu_position == 1){
+        _point_cursor_at_sprite(second_menu_option_text_sprites.at(0));
+    }
+    else{ //if you want to see error handling, there is none! bwahaha
+        _point_cursor_at_sprite(third_menu_option_text_sprites.at(0));
+    }
+}
+
+void game_scene::_clear_menu()
+{
+    _selection_cursor_sprite.set_visible(false);
+    first_menu_option_text_sprites.clear();
+    second_menu_option_text_sprites.clear();
+    third_menu_option_text_sprites.clear();
+}

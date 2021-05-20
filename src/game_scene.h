@@ -94,6 +94,7 @@ class game_scene
         int enemy_attack;
         int last_tableau_x_pos;
         int last_merc_tableau_x_pos;
+        int menu_position_max;
         //int runes_at_start_of_round;
         //int enemyindex;
 
@@ -113,7 +114,7 @@ class game_scene
 
         //vectors containing card & state information
         bn::vector<int, 100> player1deck;
-        bn::vector<int, 100> player1deck_at_start_of_round; //Uh, I guess I need both this AND cards removed? if I want to have a ___, that is
+        bn::vector<int, 100> player1deck_at_start_of_round; //Uh, I guess I need both this AND cards removed? if I want to have a way to examine the tree, that is
         bn::vector<CardInfo,10> CardInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
         bn::vector<bn::sprite_ptr, 5> MercenaryTableau;
@@ -126,6 +127,9 @@ class game_scene
         void _return_owls_to_tree();
         void _point_cursor_at_sprite(const bn::sprite_ptr& target_sprite);
         bn::string<50> _generate_description_from_owl_index(int card_info_index);
+        void _generate_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three = "");
+        void _navigate_through_menu();
+        void _clear_menu();
 
 };
 //}
