@@ -57,6 +57,13 @@ class game_scene
             int tileindex;
             int probabilityweight;
         };
+        //TODO: Maybe make const?  
+        struct WaveInfo { 
+            int attack;
+            //how many sprites
+            //art for the enemies
+            //eventually, probability of different attacks, add items to tree, etc.
+        };
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
         bn::regular_bg_ptr _ocean_bg;
@@ -91,10 +98,11 @@ class game_scene
 
         int menu_position;
         int state;
-        int enemy_attack;
         int last_tableau_x_pos;
         int last_merc_tableau_x_pos;
         int menu_position_max;
+        int current_wave;
+        bool won_wave;
         //int runes_at_start_of_round;
         //int enemyindex;
 
@@ -116,6 +124,7 @@ class game_scene
         bn::vector<int, 100> player1deck;
         bn::vector<int, 100> player1deck_at_start_of_round; //Uh, I guess I need both this AND cards removed? if I want to have a way to examine the tree, that is
         bn::vector<CardInfo,10> CardInfoVector;
+        bn::vector<WaveInfo,10> WaveInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
         bn::vector<bn::sprite_ptr, 5> MercenaryTableau;
         bn::vector<int, 5> MercenaryDeck;

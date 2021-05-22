@@ -7,28 +7,24 @@
 #include "bn_regular_bg_ptr.h"
 
 #include "bn_keypad.h"
-
 #include "bn_math.h"
 #include "bn_string.h"
 #include "bn_array.h"
 #include "bn_random.h"
 #include "bn_sprite_text_generator.h"
-
-//TODO: clean up includes, remove from game those things built extraneously by $make clean $make
 #include "bn_fixed_point.h"
 
-
 #include "bn_sprite_tiles_ptr.h"
-
 #include "bn_sprite_items_knight_owls.h"
 #include "bn_sprite_items_selection_cursor.h"
-//#include "bn_sprite_items_hero_bomb_icon.h"
-
 #include "bn_regular_bg_items_oceanbackground.h"
 
 #include "game_scene.h"
 
 #include "variable_8x8_sprite_font.h"
+
+//TODO: clean up includes, remove from game those things built extraneously by $make clean $make
+
 /*
 
 REFERENCE ABOUT MEANING OF :: OPERATOR
@@ -142,6 +138,7 @@ namespace{
         
         const int MERCS_FOR_SALE = 3;
         const int RUNES_PER_TURN = 4;
+        const int MAX_BOAT_WEIGHT = 4;
         //const bn::string<6> deploy_label_text("  DRAW");
 }
 
@@ -189,19 +186,25 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     runes_which_might_disappear(0),
     menu_position(0),
     state(0),
-    enemy_attack(10),
     last_tableau_x_pos(-110),
     
     last_merc_tableau_x_pos(-20),
-    menu_position_max(1)
+    menu_position_max(1),
+    current_wave(0),
+    won_wave(false)
     //enemyindex(0)
 {
 //pointer_to_text_generator(text_generator)
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
 //{
     //generate text
-
-
+    // y = 15 * 1.2^2
+    WaveInfoVector.push_back({15});
+    WaveInfoVector.push_back({18});
+    WaveInfoVector.push_back({22});
+    //WaveInfoVector.push_back({26});
+    //WaveInfoVector.push_back({31});
+    //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, probabilityweight
     CardInfoVector.push_back({"MAGE",           7,0,0,1,1,1});
@@ -344,19 +347,24 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACK = ");
-                    display_text_line_one.append(bn::to_string<4>(enemy_attack));
-                    _display_status(display_text_line_one, "PRESS A TO CONTINUE");
-                    bn::string<16> enemy_attack_text("ATK: ");
-                    enemy_attack_text.append(bn::to_string<4>(enemy_attack));
-                    my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
-                    state = 1;
-
-                    //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
-                    player1deck_at_start_of_round = player1deck;
+                    state = 900;
                 }
                 bn::core::update();
                 break; 
+            }
+            case 900:
+            {
+                bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACK = ");
+                display_text_line_one.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
+                _display_status(display_text_line_one, "PRESS A TO CONTINUE");
+                bn::string<16> enemy_attack_text("ATK: ");
+                enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
+                my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
+                state = 1;
+
+                //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
+                player1deck_at_start_of_round = player1deck;
+                break;
             }
             case 1: // Loop; wait for A press to add starting runes
             {
@@ -385,7 +393,7 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                 //TODO: Reset values to zero of member variables
-                    _generate_menu(2, "SUMMON", "PASS");
+                    _generate_menu(3, "SUMMON", "EXAMINE","PASS");
                     _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
                     _update_hud_text();
                     _update_selection_cursor_from_menu_position();
@@ -427,19 +435,13 @@ void game_scene::update()
                             bn::string<50> first_line_status("SUMMONED ");
                             bn::string<50> second_line_status("");
                             first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
-                            if(current_weight>4){
+                            if(current_weight>MAX_BOAT_WEIGHT){
                                 
                                 second_line_status.append("BOAT OVERLOADED! PRESS A TO UNLOAD");
                                 state = 4;
 
                             }
                             else{
-                                /*second_line_status.append("WEIGHT+");
-                                second_line_status.append(bn::to_string<4>(weight_to_add));
-                                second_line_status.append(", ATTACK+");
-                                second_line_status.append(bn::to_string<4>(power_to_add));
-                                second_line_status.append(", RUNES+");
-                                second_line_status.append(bn::to_string<4>(runes_to_add));*/
                                 second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
                             }
                             //display status
@@ -460,8 +462,11 @@ void game_scene::update()
                             _display_status("NO MORE ITEMS TO DRAW");
                         }
                     }
-                    
                     else if(menu_position==1)
+                    {
+                        _display_status("FUNCTION NOT YET IMPLEMENTED");
+                    }
+                    else if(menu_position==2)
                     {
                         current_runes += runes_which_might_disappear;
                         runes_which_might_disappear = 0;
@@ -495,19 +500,22 @@ void game_scene::update()
                 _display_status("SUMMONING COMPLETE","PRESS A TO RESOLVE COMBAT");
                 if(bn::keypad::a_pressed())
                 {
-                    if(current_power>enemy_attack)
+                    if(current_power>WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
+                        won_wave=true;
                         state = 8;
                     }
-                    if(current_power<enemy_attack)
+                    if(current_power<WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("ENEMY'S ATK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
+                        won_wave=false;
                         state=6;
                     }
-                    if(current_power==enemy_attack)
+                    if(current_power==WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");
+                        won_wave=true;
                         state = 8;
                     }
                 }
@@ -521,7 +529,7 @@ void game_scene::update()
                     current_hull=current_hull-1;
                     if(current_hull==0)
                     {
-                        _display_status("SHIP DESTROYED! GAME OVER");
+                        _display_status("SHIP DESTROYED! GAME OVER.","RESETING THE GAME NOT IMPLEMENTED");
                         state = 7;
                     }
                     else{
@@ -534,11 +542,12 @@ void game_scene::update()
                 break;
             }
             case 7: // Game over
-            {if(bn::keypad::a_pressed())
+            {
+                /*if(bn::keypad::a_pressed())
                 {
                     _display_status("GAME OVER!");
 
-                }
+                }*/
                 bn::core::update();
                 break;
             }
@@ -586,14 +595,50 @@ void game_scene::update()
                 _navigate_through_menu();
                 if(bn::keypad::a_pressed())
                 {
-                    if(menu_position==2)
+                    if(menu_position==0)
+                    {
+                        _display_status("W");
+                        bn::string<50> first_line_status(_generate_description_from_owl_index(player1deck.at(0)));
+                        bn::string<50> second_line_status("<>A: SELECT, B: CANCEL");
+                        //second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
+                        _display_status(first_line_status,second_line_status);
+                    }
+                    else if(menu_position==1)
+                    {
+                        _display_status("FUNCTION NOT YET IMPLEMENTED");
+                    }
+                    else if(menu_position==2)
                     {
                         _clear_menu();
-                        state= 10001;
+                        if(won_wave==true)
+                        {
+                            current_wave+=1;
+                            if(current_wave==WaveInfoVector.size()-1)
+                            {
+                                _display_status("YOU WIN!!!!!!");
+                                state = 12;
+                            }
+                            else
+                            {
+                                //restart the round, but with a new enemy
+                                state = 900;
+                            }
+                        }
+                        else
+                        {
+                            //restart the round, but with the same enemy
+                            state = 10001;
+                        }
+                        
                     }
 
                 
                 }
+                bn::core::update();
+                break;
+            }
+            case 12:{
+                _display_status("YOU WIN!!!!!!");
                 bn::core::update();
                 break;
             }
@@ -614,7 +659,8 @@ void game_scene::_update_hud_text()
     my_text_generator.set_left_alignment();
     bn::string<20> weight_hud_text("WEIGHT: ");
     weight_hud_text.append(bn::to_string<8>(current_weight));
-    weight_hud_text.append("/4");
+    weight_hud_text.append("/");
+    weight_hud_text.append(bn::to_string<2>(MAX_BOAT_WEIGHT));
     my_text_generator.generate(-115, -72, weight_hud_text, weight_text_sprites);
 
     runes_text_sprites.clear();
@@ -730,7 +776,7 @@ void game_scene::_update_selection_cursor_from_menu_position()
     else if(menu_position == 1){
         _point_cursor_at_sprite(second_menu_option_text_sprites.at(0));
     }
-    else{ //if you want to see error handling, there is none! bwahaha
+    else{ //if you want to see error handling, there is none! bwahaha (really, this should be a switch statement)
         _point_cursor_at_sprite(third_menu_option_text_sprites.at(0));
     }
 }
