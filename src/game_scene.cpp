@@ -336,7 +336,7 @@ void game_scene::update()
                         //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                         last_merc_tableau_x_pos+=20;
                     }
-                    _display_status("THE STARS ALIGN", "PRESS A TO CONTINUE");
+                    _display_status("MERCENARIES APPEAR!", "PRESS A TO CONTINUE");
                     
                     state = 101;
                 }
@@ -362,8 +362,7 @@ void game_scene::update()
                 my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
                 state = 1;
 
-                //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
-                player1deck_at_start_of_round = player1deck;
+                
                 break;
             }
             case 1: // Loop; wait for A press to add starting runes
@@ -382,7 +381,11 @@ void game_scene::update()
             }
             case 10001:
             {
-                _display_status("NEW ROUND START! 4 RUNES GENERATED", "PRESS A TO CONTINUE");
+                //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
+                player1deck_at_start_of_round = player1deck;
+
+
+                _display_status("THE STARS DISPENSE 4 RUNES", "PRESS A TO CONTINUE");
                 current_runes+=RUNES_PER_TURN;
                 _update_hud_text();
                 state = 2;
@@ -504,7 +507,14 @@ void game_scene::update()
                     {
                         _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
                         won_wave=true;
+                        enemy_attack_text_sprites.clear();
                         state = 8;
+                        //If you got to the end of all the waves, you win!
+                        if(current_wave==WaveInfoVector.size() - 1)
+                        {
+                            _display_status("YOU WIN!!!!!!");
+                            state = 12;
+                        }
                     }
                     if(current_power<WaveInfoVector.at(current_wave).attack)
                     {
@@ -516,7 +526,14 @@ void game_scene::update()
                     {
                         _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");
                         won_wave=true;
+                        enemy_attack_text_sprites.clear();
                         state = 8;
+                        //If you got to the end of all the waves, you win!
+                        if(current_wave==WaveInfoVector.size() - 1)
+                        {
+                            _display_status("YOU WIN!!!!!!");
+                            state = 12;
+                        }
                     }
                 }
                 bn::core::update();
@@ -613,16 +630,10 @@ void game_scene::update()
                         if(won_wave==true)
                         {
                             current_wave+=1;
-                            if(current_wave==WaveInfoVector.size()-1)
-                            {
-                                _display_status("YOU WIN!!!!!!");
-                                state = 12;
-                            }
-                            else
-                            {
-                                //restart the round, but with a new enemy
-                                state = 900;
-                            }
+                            
+                            //restart the round, but with a new enemy
+                            state = 900;
+                            
                         }
                         else
                         {
@@ -699,7 +710,9 @@ void game_scene::_return_owls_to_tree()
     current_power = 0;
     current_weight = 0;
     runes_which_might_disappear=0;
+    last_tableau_x_pos = -110;
     _update_hud_text();
+    player1deck = player1deck_at_start_of_round;
 }
 
 void game_scene::_point_cursor_at_sprite(const bn::sprite_ptr& target_sprite)
