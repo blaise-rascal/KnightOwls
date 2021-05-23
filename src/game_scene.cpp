@@ -139,6 +139,7 @@ namespace{
         const int MERCS_FOR_SALE = 3;
         const int RUNES_PER_TURN = 4;
         const int MAX_BOAT_WEIGHT = 4;
+        const int MAX_HULL = 3;
         //const bn::string<6> deploy_label_text("  DRAW");
 }
 
@@ -182,7 +183,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_weight(0),
     current_power(0),
     current_runes(0),
-    current_hull(3),
+    current_hull(0),
     runes_which_might_disappear(0),
     menu_position(0),
     state(0),
@@ -194,6 +195,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     won_wave(false)
     //enemyindex(0)
 {
+    current_hull=MAX_HULL;
 //pointer_to_text_generator(text_generator)
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
 //{
@@ -385,7 +387,7 @@ void game_scene::update()
                 player1deck_at_start_of_round = player1deck;
 
 
-                _display_status("THE STARS DISPENSE 4 RUNES", "PRESS A TO CONTINUE");
+                /*_display_status("HULL REPAIRED AT START OF ROUND???", "PRESS A TO CONTINUE");
                 current_runes+=RUNES_PER_TURN;
                 _update_hud_text();
                 state = 2;
@@ -394,21 +396,21 @@ void game_scene::update()
             case 2: // Loop; wait to switch to menu
             {
                 if(bn::keypad::a_pressed())
-                {
+                {*/
                 //TODO: Reset values to zero of member variables
-                    _generate_menu(3, "SUMMON", "EXAMINE","PASS");
-                    _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
-                    _update_hud_text();
-                    _update_selection_cursor_from_menu_position();
-                    
-                    
-                    //eventarrayindex++;
+                _generate_menu(3, "SUMMON", "EXAMINE","PASS");
+                _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
+                _update_hud_text();
+               // _update_selection_cursor_from_menu_position();
+                
+                
+                //eventarrayindex++;
 
-                    //Make array
+                //Make array
 
 
-                    state = 3; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
-                }
+                state = 3; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
+                //}
                 bn::core::update();
 
                 break;
@@ -471,9 +473,7 @@ void game_scene::update()
                     }
                     else if(menu_position==2)
                     {
-                        current_runes += runes_which_might_disappear;
-                        runes_which_might_disappear = 0;
-                        _update_hud_text();
+                        
                         state=5;
                     }
                     //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(player1deck.size())));
@@ -499,45 +499,77 @@ void game_scene::update()
                 //KILL SELECTION CURSOR, LABELS
                 
                 _clear_menu();
-
-                _display_status("SUMMONING COMPLETE","PRESS A TO RESOLVE COMBAT");
+                //int test = 5;
+                bn::string<50> first_line_status("SUMMONING OVER. ");  
+                first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
+                first_line_status.append(" RUNES GATHERED");
+                //bn::string<50> second_line_status("<>A: SELECT, B: CANCEL");
+                _display_status(first_line_status,"PRESS A TO RESOLVE COMBAT");
+                
+                current_runes += runes_which_might_disappear;
+                runes_which_might_disappear = 0;
+                _update_hud_text();
+                state = 14;
+                break;
+            }
+            case 14:
+            {
                 if(bn::keypad::a_pressed())
                 {
-                    if(current_power>WaveInfoVector.at(current_wave).attack)
-                    {
-                        _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
-                        won_wave=true;
-                        enemy_attack_text_sprites.clear();
-                        state = 8;
-                        //If you got to the end of all the waves, you win!
-                        if(current_wave==WaveInfoVector.size() - 1)
-                        {
-                            _display_status("YOU WIN!!!!!!");
-                            state = 12;
-                        }
-                    }
                     if(current_power<WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("ENEMY'S ATK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
                         won_wave=false;
                         state=6;
                     }
+
+                    if(current_power>WaveInfoVector.at(current_wave).attack)
+                    {
+                        _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
+                    }
+                    
                     if(current_power==WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");
+                        _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");    
+                    }
+
+                    if(current_power>=WaveInfoVector.at(current_wave).attack)
+                    {
                         won_wave=true;
                         enemy_attack_text_sprites.clear();
-                        state = 8;
+                        
                         //If you got to the end of all the waves, you win!
                         if(current_wave==WaveInfoVector.size() - 1)
                         {
-                            _display_status("YOU WIN!!!!!!");
+                            _display_status("YOU WIN!!!!!!"); //TODO: I think break into separate class
                             state = 12;
                         }
+                    
+                        else{
+                            state = 13;
+                        }
+
                     }
                 }
                 bn::core::update();
                 break;
+            }
+            case 13:
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    _display_status("REWARD: SHIP REPAIRED 1 DAMAGE","PRESS A TO CONTINUE");//REWARD: SHIP REPAIRED 1 DAMAGE
+                    current_hull=current_hull+1;
+                    if(current_hull>MAX_HULL)
+                    {
+                        current_hull=MAX_HULL;
+                    }
+                    _update_hud_text();
+                    state = 8;
+                }
+                bn::core::update();
+                break;
+
             }
             case 6: // Defeat! Take 1 damage
             {
@@ -546,13 +578,14 @@ void game_scene::update()
                     current_hull=current_hull-1;
                     if(current_hull==0)
                     {
-                        _display_status("SHIP DESTROYED! GAME OVER.","RESETING THE GAME NOT IMPLEMENTED");
+                        _display_status("SHIP DESTROYED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
                         state = 7;
                     }
                     else{
                         state = 8;
                         _display_status("SHIP TAKES ONE DAMAGE.","PRESS A TO CONTINUE");
                         _update_hud_text();
+                        
                     }
                 }
                 bn::core::update();
@@ -584,7 +617,7 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
-            case 9: //Just returned owls, waiting on button press to 
+            case 9: //Just returned owls, waiting on button press to enyer buy phase
             {
                 if(bn::keypad::a_pressed())
                 {
@@ -597,7 +630,7 @@ void game_scene::update()
             {
                  _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
                  
-                _generate_menu(3, "SHOP", "EXAMINE TREE", "PASS");
+                _generate_menu(3, "SHOP", "EXAMINE", "PASS");
                  //_point_cursor_at_sprite(MercenaryTableau.at(0));
                 state = 11;
                 break;
