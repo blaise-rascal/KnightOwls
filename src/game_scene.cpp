@@ -399,6 +399,7 @@ void game_scene::update()
                 {*/
                 //TODO: Reset values to zero of member variables
                 _generate_menu(3, "SUMMON", "EXAMINE","PASS");
+                _generate_virt_menu(3, "SUMMON", "EXAMINE","PASS");
                 _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
                 _update_hud_text();
                // _update_selection_cursor_from_menu_position();
@@ -418,6 +419,7 @@ void game_scene::update()
             case 3: //Player1 Turn Loop
             {
                 _navigate_through_menu();
+                _navigate_through_virt_menu();
                 
                 if(bn::keypad::a_pressed())
                 {
@@ -499,6 +501,7 @@ void game_scene::update()
                 //KILL SELECTION CURSOR, LABELS
                 
                 _clear_menu();
+                _clear_virt_menu();
                 //int test = 5;
                 bn::string<50> first_line_status("SUMMONING OVER. ");  
                 first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
@@ -585,7 +588,7 @@ void game_scene::update()
                         state = 8;
                         _display_status("SHIP TAKES ONE DAMAGE.","PRESS A TO CONTINUE");
                         _update_hud_text();
-                        
+
                     }
                 }
                 bn::core::update();
@@ -630,7 +633,7 @@ void game_scene::update()
             {
                  _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
                  
-                _generate_menu(3, "SHOP", "EXAMINE", "PASS");
+                _generate_virt_menu(3, "SHOP", "EXAMINE", "PASS");
                  //_point_cursor_at_sprite(MercenaryTableau.at(0));
                 state = 11;
                 break;
@@ -642,16 +645,19 @@ void game_scene::update()
                 //WARRIOR: ATK+2,WGT+0,RUNES+3
                 //LRA: PURCHASE, B: CANCEL
                 
-                _navigate_through_menu();
+                _navigate_through_virt_menu();
                 if(bn::keypad::a_pressed())
                 {
                     if(menu_position==0)
                     {
-                        _display_status("W");
-                        bn::string<50> first_line_status(_generate_description_from_owl_index(player1deck.at(0)));
-                        bn::string<50> second_line_status("<>A: SELECT, B: CANCEL");
+                        //_display_status("W");
+                        //bn::string<50> first_line_status(_generate_description_from_owl_index(player1deck.at(0)));
+                        //bn::string<50> second_line_status("<>A: SELECT, B: CANCEL");
                         //second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
-                        _display_status(first_line_status,second_line_status);
+                        //_display_status(first_line_status,second_line_status);
+                        _start_hor_merc_menu();
+                        state=15;
+
                     }
                     else if(menu_position==1)
                     {
@@ -659,7 +665,7 @@ void game_scene::update()
                     }
                     else if(menu_position==2)
                     {
-                        _clear_menu();
+                        _clear_virt_menu();
                         if(won_wave==true)
                         {
                             current_wave+=1;
@@ -682,7 +688,13 @@ void game_scene::update()
                 break;
             }
             case 12:{
-                _display_status("YOU WIN!!!!!!");
+                _display_status("VOYAGE COMPLETE. YOU WIN!");
+                bn::core::update();
+                break;
+            }
+            case 15:{//BUY MENU!
+                //menu position should still be 0
+                //_navigate_through_horizontal_menu;
                 bn::core::update();
                 break;
             }
@@ -772,7 +784,7 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
 }
 
 
-void game_scene::_generate_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three)
+void game_scene::_generate_virt_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three)
 {
     my_text_generator.set_center_alignment();
 
@@ -785,11 +797,11 @@ void game_scene::_generate_menu(int num_options, const bn::string<12>& menu_opti
     menu_position_max = num_options -1;
     menu_position = 0;
     _selection_cursor_sprite.set_visible(true);
-    _update_selection_cursor_from_menu_position();
+    _update_selection_cursor_from_virt_menu_position();
 
 }
 
-void game_scene::_navigate_through_menu()
+void game_scene::_navigate_through_virt_menu()
 {
     if(bn::keypad::up_pressed())
     {
@@ -798,7 +810,7 @@ void game_scene::_navigate_through_menu()
         {
             menu_position = 0;
         }
-        _update_selection_cursor_from_menu_position();
+        _update_selection_cursor_from_virt_menu_position();
     }
     if(bn::keypad::down_pressed())
     {
@@ -807,13 +819,13 @@ void game_scene::_navigate_through_menu()
         {
             menu_position = menu_position_max;
         }
-        _update_selection_cursor_from_menu_position();
+        _update_selection_cursor_from_virt_menu_position();
     }
 }
 
 //point_cursor_at_sprite, point_cursor_at_string
 //MENU: vector of vector of sprites?
-void game_scene::_update_selection_cursor_from_menu_position()
+void game_scene::_update_selection_cursor_from_virt_menu_position()
 {
     if(menu_position == 0)
     {
@@ -822,15 +834,39 @@ void game_scene::_update_selection_cursor_from_menu_position()
     else if(menu_position == 1){
         _point_cursor_at_sprite(second_menu_option_text_sprites.at(0));
     }
-    else{ //if you want to see error handling, there is none! bwahaha (really, this should be a switch statement)
+    else{ //if you want to see error handling, there is none! bwahaha (really, this should be a switch statement. or the text sprites should be a vector so this whole decision chain would be unnecessary)
         _point_cursor_at_sprite(third_menu_option_text_sprites.at(0));
     }
 }
 
-void game_scene::_clear_menu()
+
+/*void game_scene::_update_selection_cursor_from_hor_menu_position()
+{
+    if(menu_position == 0)
+    {
+        _point_cursor_at_sprite(first_menu_option_text_sprites.at(0));
+    }
+    else if(menu_position == 1){
+        _point_cursor_at_sprite(second_menu_option_text_sprites.at(0));
+    }
+    else{ //if you want to see error handling, there is none! bwahaha (really, this should be a switch statement. or the text sprites should be a vector so this whole decision chain would be unnecessary)
+        _point_cursor_at_sprite(third_menu_option_text_sprites.at(0));
+    }
+}*/
+
+void game_scene::_clear_virt_menu()
 {
     _selection_cursor_sprite.set_visible(false);
     first_menu_option_text_sprites.clear();
     second_menu_option_text_sprites.clear();
     third_menu_option_text_sprites.clear();
+}
+
+void game_scene::_start_hor_merc_menu()
+{
+    menu_position_max = MERCS_FOR_SALE - 1;
+    menu_position = 0;
+    _selection_cursor_sprite.set_visible(true);
+    _display_status("GOTTHISFAR");
+    //_update_selection_cursor_from_hor_menu_position();
 }
