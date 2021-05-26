@@ -398,7 +398,6 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {*/
                 //TODO: Reset values to zero of member variables
-                _generate_menu(3, "SUMMON", "EXAMINE","PASS");
                 _generate_virt_menu(3, "SUMMON", "EXAMINE","PASS");
                 _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
                 _update_hud_text();
@@ -418,7 +417,6 @@ void game_scene::update()
             }
             case 3: //Player1 Turn Loop
             {
-                _navigate_through_menu();
                 _navigate_through_virt_menu();
                 
                 if(bn::keypad::a_pressed())
@@ -500,7 +498,6 @@ void game_scene::update()
             {
                 //KILL SELECTION CURSOR, LABELS
                 
-                _clear_menu();
                 _clear_virt_menu();
                 //int test = 5;
                 bn::string<50> first_line_status("SUMMONING OVER. ");  
