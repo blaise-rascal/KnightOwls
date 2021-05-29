@@ -133,13 +133,15 @@ class game_scene
         void _update_hud_text();
         void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "");
         void _update_selection_cursor_from_virt_menu_position();
-        //void _update_selection_cursor_from_hor_menu_position();
+        void _update_selection_cursor_from_hor_menu_position();
         void _return_owls_to_tree();
-        void _point_cursor_at_sprite(const bn::sprite_ptr& target_sprite);
+        void _point_cursor_at_letter(const bn::sprite_ptr& target_sprite);
+        void _point_cursor_at_owl(const bn::sprite_ptr& target_sprite);
         bn::string<50> _generate_description_from_owl_index(int card_info_index);
         void _generate_virt_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three = "");
         void _start_hor_merc_menu();
         void _navigate_through_virt_menu();
+        void _navigate_through_hor_menu();
         void _clear_virt_menu();
 
 };

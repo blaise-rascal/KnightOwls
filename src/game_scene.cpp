@@ -213,7 +213,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"ARCHER",         7,0,3,0,2,1});
     CardInfoVector.push_back({"WARRIOR",        1,1,6,1,0,0});
     CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,3,0});
-    CardInfoVector.push_back({"SPEAR MASTER",   12,0,7,0,4,1});
+    CardInfoVector.push_back({"SPEAR-OWL",   12,0,7,0,4,1});
     /*
     CardInfoVector.push_back({"MAGE",           7,0,0,1,0,10});
     CardInfoVector.push_back({"ARCHER",         7,0,3,0,5,10});
@@ -516,24 +516,24 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    if(current_power<WaveInfoVector.at(current_wave).attack)
+                    if(current_power < WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("ENEMY'S ATK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
                         won_wave=false;
                         state=6;
                     }
 
-                    if(current_power>WaveInfoVector.at(current_wave).attack)
+                    if(current_power > WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
                     }
                     
-                    if(current_power==WaveInfoVector.at(current_wave).attack)
+                    if(current_power == WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");    
                     }
 
-                    if(current_power>=WaveInfoVector.at(current_wave).attack)
+                    if(current_power >= WaveInfoVector.at(current_wave).attack)
                     {
                         won_wave=true;
                         enemy_attack_text_sprites.clear();
@@ -544,7 +544,7 @@ void game_scene::update()
                             _display_status("YOU WIN!!!!!!"); //TODO: I think break into separate class
                             state = 12;
                         }
-                    
+                        //Otherwise get a reward of healing 1 health, then SHOPPING!
                         else{
                             state = 13;
                         }
@@ -692,6 +692,18 @@ void game_scene::update()
             case 15:{//BUY MENU!
                 //menu position should still be 0
                 //_navigate_through_horizontal_menu;
+                _navigate_through_hor_menu();
+
+                bn::string<50> first_line_status("");
+                bn::string<50> second_line_status("ARROWS TO MOVE, A TO SELECT, B TO CANCEL");
+                first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
+                first_line_status.append(": ");
+                first_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position)));
+                _display_status(first_line_status,second_line_status);
+                if(bn::keypad::b_pressed())
+                {
+                    state = 10;
+                }
                 bn::core::update();
                 break;
             }
@@ -757,12 +769,20 @@ void game_scene::_return_owls_to_tree()
     player1deck = player1deck_at_start_of_round;
 }
 
-void game_scene::_point_cursor_at_sprite(const bn::sprite_ptr& target_sprite)
+void game_scene::_point_cursor_at_letter(const bn::sprite_ptr& target_sprite)
 {   
     _selection_cursor_sprite.set_y(target_sprite.y());
     _selection_cursor_sprite.set_x(target_sprite.x()-26);
     _selection_cursor_sprite.set_visible(true);
 }
+
+void game_scene::_point_cursor_at_owl(const bn::sprite_ptr& target_sprite)
+{   
+    _selection_cursor_sprite.set_y(target_sprite.y());
+    _selection_cursor_sprite.set_x(target_sprite.x()-16);
+    _selection_cursor_sprite.set_visible(true);
+}
+
 
 bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_index)
 {
@@ -820,36 +840,50 @@ void game_scene::_navigate_through_virt_menu()
     }
 }
 
+void game_scene::_navigate_through_hor_menu()
+{
+    if(bn::keypad::left_pressed())
+    {
+        menu_position--;
+        if(menu_position<0)
+        {
+            menu_position = 0;
+        }
+        _update_selection_cursor_from_hor_menu_position();
+    }
+    if(bn::keypad::right_pressed())
+    {
+        menu_position++;
+        if(menu_position > menu_position_max)
+        {
+            menu_position = menu_position_max;
+        }
+        _update_selection_cursor_from_hor_menu_position();
+    }
+}
+
+
 //point_cursor_at_sprite, point_cursor_at_string
 //MENU: vector of vector of sprites?
 void game_scene::_update_selection_cursor_from_virt_menu_position()
 {
     if(menu_position == 0)
     {
-        _point_cursor_at_sprite(first_menu_option_text_sprites.at(0));
+        _point_cursor_at_letter(first_menu_option_text_sprites.at(0));
     }
     else if(menu_position == 1){
-        _point_cursor_at_sprite(second_menu_option_text_sprites.at(0));
+        _point_cursor_at_letter(second_menu_option_text_sprites.at(0));
     }
     else{ //if you want to see error handling, there is none! bwahaha (really, this should be a switch statement. or the text sprites should be a vector so this whole decision chain would be unnecessary)
-        _point_cursor_at_sprite(third_menu_option_text_sprites.at(0));
+        _point_cursor_at_letter(third_menu_option_text_sprites.at(0));
     }
 }
 
 
-/*void game_scene::_update_selection_cursor_from_hor_menu_position()
+void game_scene::_update_selection_cursor_from_hor_menu_position()
 {
-    if(menu_position == 0)
-    {
-        _point_cursor_at_sprite(first_menu_option_text_sprites.at(0));
-    }
-    else if(menu_position == 1){
-        _point_cursor_at_sprite(second_menu_option_text_sprites.at(0));
-    }
-    else{ //if you want to see error handling, there is none! bwahaha (really, this should be a switch statement. or the text sprites should be a vector so this whole decision chain would be unnecessary)
-        _point_cursor_at_sprite(third_menu_option_text_sprites.at(0));
-    }
-}*/
+    _point_cursor_at_owl(MercenaryTableau.at(menu_position));
+}
 
 void game_scene::_clear_virt_menu()
 {
@@ -864,6 +898,6 @@ void game_scene::_start_hor_merc_menu()
     menu_position_max = MERCS_FOR_SALE - 1;
     menu_position = 0;
     _selection_cursor_sprite.set_visible(true);
-    _display_status("GOTTHISFAR");
-    //_update_selection_cursor_from_hor_menu_position();
+    //_display_status("GOTTHISFAR");
+    _update_selection_cursor_from_hor_menu_position();
 }
