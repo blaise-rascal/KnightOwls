@@ -248,7 +248,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"ARCHER",         7,0,3,0,2,1});
     CardInfoVector.push_back({"WARRIOR",        1,1,6,1,0,0});
     CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,3,0});
-    CardInfoVector.push_back({"SPEAR-OWL",   12,0,7,0,4,1});
+    CardInfoVector.push_back({"SPEAR-OWL",      12,0,7,0,4,1});
     /*
     CardInfoVector.push_back({"MAGE",           7,0,0,1,0,10});
     CardInfoVector.push_back({"ARCHER",         7,0,3,0,5,10});
@@ -332,18 +332,25 @@ void game_scene::update()
                 
                 
                 //_display_status(bn::to_string<50>(total_merc_probs));
-                _display_status("A CHILL WIND BLOWS...","PRESS A TO START VOYAGE");
+                _display_status("A CHILL WIND BLOWS...","PRESS START TO BEGIN VOYAGE");
                 state =100;
                 break;
             }
-            case 100: //Loop while waiting for A press - when pressed, summon mercs
+            case 100: //Loop while waiting for start press - when pressed, summon mercs
             {
-                if(bn::keypad::a_pressed())
+                if(bn::keypad::start_pressed())
                 {
                     
                     //_display_status(bn::to_string<50>(total_merc_probs));
-                    
+                    /*
                     int temp_rando = bn::abs(random_num);
+                    
+                    
+                    //////////////////////////////////////////////////////////////
+                    //                         OLD CODE                         //
+                    //                  GENERATES 3 RANDOM OWLS                 //
+                    //////////////////////////////////////////////////////////////
+
                     for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
                     {
                         bool foundcard=false;
@@ -365,6 +372,22 @@ void game_scene::update()
                         }
                         //TODO: handle error if foundcard is false (though it'll be obvious, you can't add vector 1000)
                         //Add to mercenary deck
+                        MercenaryDeck.push_back(card_to_add);
+                        
+                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));//player1deck.at(index_to_remove).tileindex));
+                        MercenaryTableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
+                        //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                        last_merc_tableau_x_pos+=20;
+                    }*/
+
+                    //////////////////////////////////////////////////////////////
+                    //                         NEW CODE                         //
+                    //               GENERATES 3 PREDETERMINED OWLS             //
+                    //////////////////////////////////////////////////////////////
+                    for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
+                    {
+                        int card_to_add=0;//mage
                         MercenaryDeck.push_back(card_to_add);
                         
                         bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
