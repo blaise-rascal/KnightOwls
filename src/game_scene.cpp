@@ -810,6 +810,7 @@ void game_scene::update()
                 }
                 else if(bn::keypad::a_pressed())
                 {
+                    _selection_cursor_sprite.set_visible(false);
                     if(current_runes >= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost)
                     {
                         bn::string<50> first_line_status("");
@@ -835,6 +836,7 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                     state = 15;
+                    _selection_cursor_sprite.set_visible(true);
                 }
                 bn::core::update();
                 break;
