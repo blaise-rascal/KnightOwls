@@ -103,6 +103,8 @@ class game_scene
         int menu_position_max;
         int current_wave;
         bool won_wave;
+        int total_merc_probs;
+        int random_num;
         //int runes_at_start_of_round;
         //int enemyindex;
 
@@ -143,6 +145,7 @@ class game_scene
         void _navigate_through_virt_menu();
         void _navigate_through_hor_menu();
         void _clear_virt_menu();
+        void _replace_merc_with_random_owl(int position);
 
 };
 //}

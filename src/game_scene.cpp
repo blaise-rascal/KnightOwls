@@ -175,6 +175,8 @@ namespace{
         const int RUNES_PER_TURN = 4;
         const int MAX_BOAT_WEIGHT = 4;
         const int MAX_HULL = 3;
+        const int STARTING_MERC_INDEX = 0;
+        //const bn::array<3> MERC_POSITIONS
         //const bn::string<6> deploy_label_text("  DRAW");
 }
 
@@ -227,7 +229,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     last_merc_tableau_x_pos(-20),
     menu_position_max(1),
     current_wave(0),
-    won_wave(false)
+    won_wave(false),
+    total_merc_probs(0),
+    random_num(0)
     //enemyindex(0)
 {
     current_hull=MAX_HULL;
@@ -244,17 +248,12 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, probabilityweight
-    CardInfoVector.push_back({"MAGE",           7,0,0,1,1,1});
-    CardInfoVector.push_back({"ARCHER",         7,0,3,0,2,1});
-    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,0,0});
-    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,3,0});
-    CardInfoVector.push_back({"SPEAR-OWL",      12,0,7,0,4,1});
-    /*
-    CardInfoVector.push_back({"MAGE",           7,0,0,1,0,10});
-    CardInfoVector.push_back({"ARCHER",         7,0,3,0,5,10});
-    CardInfoVector.push_back({"WARRIOR",        1,1,6,1,10,0});
-    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,11,2,15,0});
-    CardInfoVector.push_back({"SPEAR MASTER",         12,0,7,0,20,1});*/
+    CardInfoVector.push_back({"MAGE",           0,0,0,  1,1,1});//4
+    CardInfoVector.push_back({"ARCHER",         0,0,3,  0,2,1});//4
+    CardInfoVector.push_back({"WARRIOR",        1,1,5,  1,0,0});
+    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,10, 2,3,0});
+    CardInfoVector.push_back({"SPEAR-OWL",      0,0,7,  0,4,1});//8
+
     //make starting deck
     player1deck.push_back(0);
     player1deck.push_back(0);
@@ -310,20 +309,19 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 void game_scene::update()
 {
     bn::random random_generator;
-    int random_num; // Do not alter this value! It continues spinning each frame
-    int total_merc_probs = 0;
+    //int random_num;
+
+    //total merc probs started as 0, and is calculated here
     for(int i =0; i<CardInfoVector.size();i++)
     {
-
         total_merc_probs += CardInfoVector.at(i).probabilityweight;
     }
-    //_chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
     while(true)
     {   
         //This is a deterministic random generator, so it must be spun every frame to not return the same numbers every boot.
         //Luckily this is not too slow to affect performance.
         //TODO: If I implement a title screen, this should start spinning then for maximum randomness
-        random_num = random_generator.get();
+        random_num = random_generator.get(); // Do not alter this value! It continues spinning each frame
 
         switch(state)
         {
@@ -387,7 +385,7 @@ void game_scene::update()
                     //////////////////////////////////////////////////////////////
                     for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
                     {
-                        int card_to_add=0;//mage
+                        int card_to_add=STARTING_MERC_INDEX;
                         MercenaryDeck.push_back(card_to_add);
                         
                         bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
@@ -403,7 +401,7 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
-            case 101: // Loop; wait for A press to add new enemy. (ALSO set temp vector equal to current deck)
+            case 101: // Loop; wait for A press to add new enemy.
             {
                 if(bn::keypad::a_pressed())
                 {
@@ -421,10 +419,11 @@ void game_scene::update()
                 enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
                 my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
                 state = 1;
-
+                /*If not first round, ROTATE OWLS!*/
                 
                 break;
             }
+            
             case 1: // Loop; wait for A press to add starting runes
             {
                 if(bn::keypad::a_pressed())
@@ -469,10 +468,11 @@ void game_scene::update()
 
                 state = 3; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
                 //}
-                bn::core::update();
+                //bn::core::update();
 
                 break;
             }
+            
             case 3: //Player1 Turn Loop
             {
                 _navigate_through_virt_menu();
@@ -617,7 +617,7 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                     
-                    bn::string<50> first_line_status("REWARDS: SHIP +1HP, +");  
+                    bn::string<50> first_line_status("REWARDS: HEAL 1HP, +");  
                     first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
                     first_line_status.append("RUNES");
                     
@@ -669,14 +669,29 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
+                    // test this. it may not be correct
+
                     if(Player1Tableau.size()==0){
-                        state = 10;
+                        if(won_wave==true)
+                        {
+                            state = 10;
+                        }
+                        else
+                        {
+                            state=10001;
+                        }
                     }
                     else{
-                        //RUNE GATHER
                         _display_status("OWLS RETURNED TO CASTLE.","PRESS A TO CONTINUE");
                         _return_owls_to_tree();
-                        state = 9;
+                        if(won_wave==true)
+                        { 
+                            state = 9;
+                        }
+                        else
+                        {
+                            state=10001;
+                        }
                     }
                 }
                 bn::core::update();
@@ -728,7 +743,9 @@ void game_scene::update()
                     else if(menu_position==2)
                     {
                         _clear_virt_menu();
-                        if(won_wave==true)
+                        current_wave+=1;
+                        state=900;
+                        /*if(won_wave==true)
                         {
                             current_wave+=1;
                             
@@ -740,7 +757,7 @@ void game_scene::update()
                         {
                             //restart the round, but with the same enemy
                             state = 10001;
-                        }
+                        }*/
                     }
                 }
                 bn::core::update();
@@ -756,7 +773,7 @@ void game_scene::update()
                 //_navigate_through_horizontal_menu;
                 _navigate_through_hor_menu();
 
-                bn::string<50> first_line_status("");//TODO: Make this not update every fram
+                bn::string<50> first_line_status("");//TODO: Make this not update every frame
                 bn::string<50> second_line_status("ARROWS TO MOVE, A TO SELECT, B TO CANCEL");
                 first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
                 first_line_status.append(": ");
@@ -795,13 +812,46 @@ void game_scene::update()
                 {
                     if(current_runes >= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost)
                     {
-                        _display_status("YA GOT IT BUB","YOUR MY FAVORITE CUSTOMER");
+                        bn::string<50> first_line_status("");
+                        first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
+                        first_line_status.append(" ADDED TO TREE"); // clear that sprite!
+                        MercenaryTableau.at(menu_position).set_visible(false);
+                        player1deck.push_back(MercenaryDeck.at(menu_position));
+                        current_runes -= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost;
+                        _update_hud_text();
+                        _display_status(first_line_status,"PRESS A TO CONTINUE");
+                        state = 19;
+                    }
+                    else
+                    {
+                        _display_status("NOT ENOUGH RUNES","PRESS A TO CONTINUE");
+                        state = 18;
                     }
                 }
                 bn::core::update();
                 break;
             }
-
+            case 18:{
+                if(bn::keypad::a_pressed())
+                {
+                    state = 15;
+                }
+                bn::core::update();
+                break;
+            }
+            case 19:{
+                if(bn::keypad::a_pressed())
+                {
+                    _replace_merc_with_random_owl(menu_position);
+                    bn::string<50> first_line_status("NEW MERCENARY REVEALED: ");
+                    first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
+                    _display_status(first_line_status,"PRESS A TO CONTINUE");
+                    MercenaryTableau.at(menu_position).set_visible(true);
+                    state = 18;
+                }
+                bn::core::update();
+                break;
+            }
             default:
             {
                 BN_ERROR("Invalid state");
@@ -853,13 +903,34 @@ void game_scene::_display_status(const bn::string<50>& statustextone, const bn::
     my_text_generator.generate(0, 72, statustexttwo, status_text_two_sprites);
 }
 
-/*void game_scene::_add_random_owl_to_mercs(int position)
+void game_scene::_replace_merc_with_random_owl(int position)
 {
+    int card_to_add=10000;
+    int temp_rando=random_num;
+    bool foundcard=false;
+    
+    int probweight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
+                        
+    int count_up_weights=0;
+    int card_to_check=0;
+    while(foundcard==false)
+    {
+        count_up_weights+=CardInfoVector.at(card_to_check).probabilityweight;
+        if(probweight_to_add < count_up_weights)
+        {
+            foundcard = true;
+            card_to_add = card_to_check;
+        }
+        card_to_check++;
+    }
+    //TODO: handle error if foundcard is false
 
+    MercenaryTableau.at(position).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));
+    MercenaryDeck.at(position)=card_to_add;
 }
 
 
-void game_scene::_add_specific_owl_to_mercs(int position, int owlindex)
+/*void game_scene::_replace_merc_with_specific_owl(int position, int owlindex)
 {
 
 }*/
