@@ -1,3 +1,29 @@
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//                  Knight Owls game by Tom Horwath (Blaise Rascal)                             //
+//                                                                                              //
+//                This source code is terrible! View at your own risk!                          //
+//                   Code is shared for education purposes ONLY.                                //
+//                 You can use code snippets, but don't use the art,                            //
+//                    music, or game design without my permission.                              //
+//                Game engine used: https://github.com/GValiente/butano                         //
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//                                                                                              //
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 #include "bn_core.h"
 #include "bn_display.h"
 #include "bn_sprite_item.h"
@@ -23,6 +49,10 @@
 
 #include "variable_8x8_sprite_font.h"
 
+
+
+
+
 //TODO: clean up includes, remove from game those things built extraneously by $make clean $make
 
 /*
@@ -39,7 +69,12 @@ int main(){
 */
 //Maybe 
 /*
-pseudocode here!!!!
+
+
+***************************************************
+***************INITIAL PSEUDOCODE******************
+***************************************************
+
 
 player1currentdeck vector <100> of ints (used for drawing examinetableau, and for drawing new cards)
 player1allcardsbought vector <100> of ints (copy) -> (used so you come back to the same place next round)
@@ -399,7 +434,7 @@ void game_scene::update()
                 {*/
                 //TODO: Reset values to zero of member variables
                 _generate_virt_menu(3, "SUMMON", "EXAMINE","PASS");
-                _display_status("SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
+                _display_status("NEW ROUND START! SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
                 _update_hud_text();
                // _update_selection_cursor_from_menu_position();
                 
@@ -501,13 +536,13 @@ void game_scene::update()
                 _clear_virt_menu();
                 //int test = 5;
                 bn::string<50> first_line_status("SUMMONING OVER. ");  
-                first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
-                first_line_status.append(" RUNES GATHERED");
+                //first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
+                //first_line_status.append(" RUNES GATHERED");
                 //bn::string<50> second_line_status("<>A: SELECT, B: CANCEL");
                 _display_status(first_line_status,"PRESS A TO RESOLVE COMBAT");
                 
-                current_runes += runes_which_might_disappear;
-                runes_which_might_disappear = 0;
+                //current_runes += runes_which_might_disappear;
+                //runes_which_might_disappear = 0;
                 _update_hud_text();
                 state = 14;
                 break;
@@ -558,7 +593,14 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    _display_status("REWARD: SHIP REPAIRED 1 DAMAGE","PRESS A TO CONTINUE");//REWARD: SHIP REPAIRED 1 DAMAGE
+                    
+                    bn::string<50> first_line_status("REWARDS: SHIP +1HP, +");  
+                    first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
+                    first_line_status.append("RUNES");
+                    
+                    current_runes += runes_which_might_disappear;
+                    runes_which_might_disappear = 0;
+                    _display_status(first_line_status,"PRESS A TO CONTINUE");//REWARD: SHIP REPAIRED 1 DAMAGE, GATHER RUNES
                     current_hull=current_hull+1;
                     if(current_hull>MAX_HULL)
                     {
@@ -569,13 +611,14 @@ void game_scene::update()
                 }
                 bn::core::update();
                 break;
-
             }
+            
             case 6: // Defeat! Take 1 damage
             {
                 if(bn::keypad::a_pressed())
                 {
                     current_hull=current_hull-1;
+                    _update_hud_text();
                     if(current_hull==0)
                     {
                         _display_status("SHIP DESTROYED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
@@ -584,8 +627,6 @@ void game_scene::update()
                     else{
                         state = 8;
                         _display_status("SHIP TAKES ONE DAMAGE.","PRESS A TO CONTINUE");
-                        _update_hud_text();
-
                     }
                 }
                 bn::core::update();
@@ -609,6 +650,7 @@ void game_scene::update()
                         state = 10;
                     }
                     else{
+                        //RUNE GATHER
                         _display_status("OWLS RETURNED TO CASTLE.","PRESS A TO CONTINUE");
                         _return_owls_to_tree();
                         state = 9;
@@ -676,10 +718,7 @@ void game_scene::update()
                             //restart the round, but with the same enemy
                             state = 10001;
                         }
-                        
                     }
-
-                
                 }
                 bn::core::update();
                 break;
@@ -694,7 +733,7 @@ void game_scene::update()
                 //_navigate_through_horizontal_menu;
                 _navigate_through_hor_menu();
 
-                bn::string<50> first_line_status("");
+                bn::string<50> first_line_status("");//TODO: Make this not update every fram
                 bn::string<50> second_line_status("ARROWS TO MOVE, A TO SELECT, B TO CANCEL");
                 first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
                 first_line_status.append(": ");
@@ -704,9 +743,42 @@ void game_scene::update()
                 {
                     state = 10;
                 }
+                else if(bn::keypad::a_pressed())
+                {
+                    state = 16;
+                }
                 bn::core::update();
                 break;
             }
+            case 16:{
+                bn::string<50> first_line_status("PURCHASE ");//TODO: Make this not update every fram
+                first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
+                first_line_status.append(" FOR ");
+                first_line_status.append(bn::to_string<8>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
+                first_line_status.append(" RUNES?");
+                bn::string<50> second_line_status("A: YES, B: NO");
+                _display_status(first_line_status,second_line_status);
+                state = 17;
+                break;
+            }
+            case 17:{
+
+                if(bn::keypad::b_pressed())
+                {
+                    _start_hor_merc_menu(); //TODO: Should probably make a state for this...
+                    state = 15;
+                }
+                else if(bn::keypad::a_pressed())
+                {
+                    if(current_runes >= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost)
+                    {
+                        _display_status("YA GOT IT BUB","YOUR MY FAVORITE CUSTOMER");
+                    }
+                }
+                bn::core::update();
+                break;
+            }
+
             default:
             {
                 BN_ERROR("Invalid state");
@@ -757,6 +829,17 @@ void game_scene::_display_status(const bn::string<50>& statustextone, const bn::
     status_text_two_sprites.clear();
     my_text_generator.generate(0, 72, statustexttwo, status_text_two_sprites);
 }
+
+/*void game_scene::_add_random_owl_to_mercs(int position)
+{
+
+}
+
+
+void game_scene::_add_specific_owl_to_mercs(int position, int owlindex)
+{
+
+}*/
 
 void game_scene::_return_owls_to_tree()
 {
