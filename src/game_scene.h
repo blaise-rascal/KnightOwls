@@ -145,7 +145,7 @@ class game_scene
         void _navigate_through_virt_menu();
         void _navigate_through_hor_menu();
         void _clear_virt_menu();
-        void _replace_merc_with_random_owl(int position);
+        void _replace_merc_with_random_owl(int which_merc_position);
 
 };
 //}

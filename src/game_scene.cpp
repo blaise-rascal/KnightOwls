@@ -235,11 +235,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //enemyindex(0)
 {
     current_hull=MAX_HULL;
-//pointer_to_text_generator(text_generator)
-    //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
 //{
     //generate text
     // y = 15 * 1.2^2
+    // Under tyis 
     WaveInfoVector.push_back({15});
     WaveInfoVector.push_back({18});
     WaveInfoVector.push_back({22});
@@ -248,11 +247,11 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, probabilityweight
-    CardInfoVector.push_back({"MAGE",           0,0,0,  1,1,1});//4
-    CardInfoVector.push_back({"ARCHER",         0,0,3,  0,2,1});//4
+    CardInfoVector.push_back({"MAGE",           3,0,0,  1,1,1});//4
+    CardInfoVector.push_back({"ARCHER",         3,0,3,  0,2,1});//4
     CardInfoVector.push_back({"WARRIOR",        1,1,5,  1,0,0});
     CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,10, 2,3,0});
-    CardInfoVector.push_back({"SPEAR-OWL",      0,0,7,  0,4,1});//8
+    CardInfoVector.push_back({"SPEAR-OWL",      6,0,7,  0,4,1});//8
 
     //make starting deck
     player1deck.push_back(0);
@@ -418,22 +417,52 @@ void game_scene::update()
                 bn::string<16> enemy_attack_text("ATK: ");
                 enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
                 my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
-                state = 1;
+                if(current_wave == 0)
+                {
+                    state = 1;
+                }
                 /*If not first round, ROTATE OWLS!*/
-                
+                else
+                {
+                    state = 20;
+                }
                 break;
             }
-            
-            case 1: // Loop; wait for A press to add starting runes
+            case 20:
+            {
+                // Loop; wait for A press to rotate
+                if(bn::keypad::a_pressed())
+                {
+                    //Start the for loop at 1 because we do not rotate the first merc (it gets rotated out of existence)
+                    for(int merc_to_rotate=1; merc_to_rotate<MERCS_FOR_SALE; merc_to_rotate++)
+                    {
+
+                        MercenaryDeck.at(merc_to_rotate-1)=MercenaryDeck.at(merc_to_rotate);
+                        MercenaryTableau.at(merc_to_rotate-1).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(MercenaryDeck.at(merc_to_rotate)).tileindex));
+
+                    }
+                    _replace_merc_with_random_owl(MERCS_FOR_SALE-1);
+                    bn::string<50> first_line_status("STAR ROTATION! ");
+                    /*first_line_status.append(bn::to_string<11>(temp_rando));
+                    first_line_status.append(", ");
+                    first_line_status.append(bn::to_string<11>(total_merc_probs));
+                    first_line_status.append(", ");
+                    first_line_status.append(bn::to_string<11>(probweight_to_add));
+                    first_line_status.append(", ");*/
+                    first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
+                    first_line_status.append(" REVEALED");
+                    _display_status(first_line_status,"PRESS A TO CONTINUE");
+
+                    state = 1;
+                }
+                bn::core::update();
+                break;
+            }
+            case 1: // Loop; wait for A press to start summon phase
             {
                 if(bn::keypad::a_pressed())
                 {
                     state = 10001;
-                    //Add 4 units to mercenary vectors
-                    //TODO: Maybe have player push to keep adding? We'll see if it feels random enough...
-                    //Also TODO: Maybe run this random generator many times to be sure that it is working as expected; also keep in mind that max(random_num) must be greater than total_merc_probs*
-                    
-                    
                 }
                 bn::core::update();
                 break;
@@ -619,7 +648,7 @@ void game_scene::update()
                     
                     bn::string<50> first_line_status("REWARDS: HEAL 1HP, +");  
                     first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
-                    first_line_status.append("RUNES");
+                    first_line_status.append(" RUNES");
                     
                     current_runes += runes_which_might_disappear;
                     runes_which_might_disappear = 0;
@@ -845,10 +874,18 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                     _replace_merc_with_random_owl(menu_position);
+                    
+                    MercenaryTableau.at(menu_position).set_visible(true);
+                    
                     bn::string<50> first_line_status("NEW MERCENARY REVEALED: ");
+                    /*first_line_status.append(bn::to_string<11>(temp_rando));
+                    first_line_status.append(", ");
+                    first_line_status.append(bn::to_string<11>(total_merc_probs));
+                    first_line_status.append(", ");
+                    first_line_status.append(bn::to_string<11>(probweight_to_add));
+                    first_line_status.append(", ");*/
                     first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
                     _display_status(first_line_status,"PRESS A TO CONTINUE");
-                    MercenaryTableau.at(menu_position).set_visible(true);
                     state = 18;
                 }
                 bn::core::update();
@@ -905,14 +942,16 @@ void game_scene::_display_status(const bn::string<50>& statustextone, const bn::
     my_text_generator.generate(0, 72, statustexttwo, status_text_two_sprites);
 }
 
-void game_scene::_replace_merc_with_random_owl(int position)
+void game_scene::_replace_merc_with_random_owl(int which_merc_position)
 {
     int card_to_add=10000;
-    int temp_rando=random_num;
+    int temp_rando=bn::abs(random_num);
+    int probweight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
+
+
     bool foundcard=false;
     
-    int probweight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
-                        
+
     int count_up_weights=0;
     int card_to_check=0;
     while(foundcard==false)
@@ -925,17 +964,14 @@ void game_scene::_replace_merc_with_random_owl(int position)
         }
         card_to_check++;
     }
+    
     //TODO: handle error if foundcard is false
 
-    MercenaryTableau.at(position).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));
-    MercenaryDeck.at(position)=card_to_add;
+    MercenaryTableau.at(which_merc_position).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));
+    MercenaryDeck.at(which_merc_position)=card_to_add;
 }
 
 
-/*void game_scene::_replace_merc_with_specific_owl(int position, int owlindex)
-{
-
-}*/
 
 void game_scene::_return_owls_to_tree()
 {
