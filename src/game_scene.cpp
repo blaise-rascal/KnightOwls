@@ -385,7 +385,24 @@ void game_scene::update()
                         //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                         last_merc_tableau_x_pos+=20;
                     }*/
-
+//What SHOULD be done: summon 3 random owls at end of combat round (and when purchased show what's underneath)
+//Maybe guarantee that an owl in the first round will be a mage? hmm
+//summoned energy burst!
+//+5 attack, +1 runes, +1 static
+//summoned mega energy burst!
+//+10 attack, +2 runes, +2 static
+//Help Mode is ON.
+//While Help Mode is enabled, tips will pop up, explaining how to play.
+//You can disable Help Mode at any time in the PAUSE MENU by pressing START.
+//HELP MODE TIP
+//
+//Only your flying units count for flying enemies!... nah... maybe]
+//SPELLBOOK:  strange text at top
+//All the owls in your spellbook are displayed here.
+//When you summon an owl, it is chosen at random from the ones remaining in your spellbook.
+//The ones you have already summoned are marked with an X.
+//in owl language: RESTIA FOLAR <-e umlaut
+//The _____ is the elaborate summoning ritual in which we call on 
                     //////////////////////////////////////////////////////////////
                     //                         NEW CODE                         //
                     //               GENERATES 3 PREDETERMINED OWLS             //
