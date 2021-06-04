@@ -237,21 +237,29 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_hull=MAX_HULL;
 //{
     //generate text
-    // y = 15 * 1.2^2
-    // Under tyis 
-    WaveInfoVector.push_back({15});
-    WaveInfoVector.push_back({18});
+    // y = 12 * 1.2^2
+    // You 
+    WaveInfoVector.push_back({12});
+    WaveInfoVector.push_back({14});
+    WaveInfoVector.push_back({16});
+    WaveInfoVector.push_back({19});
     WaveInfoVector.push_back({22});
+    WaveInfoVector.push_back({25});
+    WaveInfoVector.push_back({29});
+    WaveInfoVector.push_back({34});
+    WaveInfoVector.push_back({39});
+    WaveInfoVector.push_back({46});
     //WaveInfoVector.push_back({26});
     //WaveInfoVector.push_back({31});
     //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, probabilityweight
-    CardInfoVector.push_back({"MAGE",           3,0,0,  1,1,1});//4
-    CardInfoVector.push_back({"ARCHER",         3,0,3,  0,2,1});//4
+    CardInfoVector.push_back({"MAGE",           3,0,0,  1,1,1});
+    CardInfoVector.push_back({"ARCHER",         3,0,3,  0,2,1});
     CardInfoVector.push_back({"WARRIOR",        1,1,5,  1,0,0});
     CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,10, 2,3,0});
-    CardInfoVector.push_back({"SPEAR-OWL",      6,0,7,  0,4,1});//8
+    CardInfoVector.push_back({"SPEAR-OWL",      5,0,6,  0,4,1});
+    CardInfoVector.push_back({"MYSTIC",         5,0,0,  2,5,1});
 
     //make starting deck
     player1deck.push_back(0);
