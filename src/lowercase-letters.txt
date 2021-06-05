@@ -1,0 +1,9 @@
+udlr - updownleftright
+ab - a b
+st - start?
+c - coin
+i - static
+k - attack
+mn - mine
+yz - yours
+e - little space

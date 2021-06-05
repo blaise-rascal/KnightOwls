@@ -401,8 +401,13 @@ void game_scene::update()
 //All the owls in your spellbook are displayed here.
 //When you summon an owl, it is chosen at random from the ones remaining in your spellbook.
 //The ones you have already summoned are marked with an X.
-//in owl language: RESTIA FOLAR <-e umlaut
-//The _____ is the elaborate summoning ritual in which we call on 
+//in owl language: RESTIAI FOLAR <-e umlaut
+//The _____ is the elaborate summoning ritual in which talented summoners call on spirits from Owlhalla to aid them in battle.
+//Static too high! You lose control.
+//The summoning spell explodes!
+//BRUISER and THUG
+//ADD __ to your spellbook?
+//SUMMON, SPELLBOOK, PASS
                     //////////////////////////////////////////////////////////////
                     //                         NEW CODE                         //
                     //               GENERATES 3 PREDETERMINED OWLS             //
@@ -418,7 +423,8 @@ void game_scene::update()
                         //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                         last_merc_tableau_x_pos+=20;
                     }
-                    _display_status("MERCENARIES APPEAR!", "PRESS A TO CONTINUE");
+                    //_display_status("MERCENARIES APPEAR! udlr", "a:CONTINUE, +1c +1k, +1c");
+                    _display_status("abcdefgh udlrijmnyz", "a:CONTINUE, +10ec +8ek +4ei");
                     
                     state = 101;
                 }
@@ -436,10 +442,10 @@ void game_scene::update()
             }
             case 900:
             {
-                bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACK = ");
+                bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACKk = ");
                 display_text_line_one.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
-                _display_status(display_text_line_one, "PRESS A TO CONTINUE");
-                bn::string<16> enemy_attack_text("ATK: ");
+                _display_status(display_text_line_one, "a:CONTINUE");
+                bn::string<16> enemy_attack_text("k");
                 enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
                 my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
                 if(current_wave == 0)
@@ -476,7 +482,7 @@ void game_scene::update()
                     first_line_status.append(", ");*/
                     first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
                     first_line_status.append(" REVEALED");
-                    _display_status(first_line_status,"PRESS A TO CONTINUE");
+                    _display_status(first_line_status,"a:CONTINUE");
 
                     state = 1;
                 }
@@ -510,7 +516,7 @@ void game_scene::update()
                 {*/
                 //TODO: Reset values to zero of member variables
                 _generate_virt_menu(3, "SUMMON", "EXAMINE","PASS");
-                _display_status("NEW ROUND START! SUMMONING PHASE","ARROWS TO MOVE, A TO SELECT");
+                _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
                 _update_hud_text();
                // _update_selection_cursor_from_menu_position();
                 
