@@ -50,9 +50,126 @@
 #include "variable_8x8_sprite_font.h"
 
 
+
+
+
 //TODO: clean up includes, remove from game those things built extraneously by $make clean $make
 
+/*
+
+REFERENCE ABOUT MEANING OF :: OPERATOR
+
+namespace abc {
+    int variable;
+};
+
+int main(){
+    cin >> abc::variable;
+}
+*/
+//Maybe 
+/*
+
+
+***************************************************
+***************INITIAL PSEUDOCODE******************
+***************************************************
+
+
+player1currentdeck vector <100> of ints (used for drawing examinetableau, and for drawing new cards)
+player1allcardsbought vector <100> of ints (copy) -> (used so you come back to the same place next round)
+player1fallencards vector <100> of ints, and indices in position array, and indices in sprite array (used for examinetableau, and also to see if you have enough for fusion, and also to decide where to place next sprite)
+^^It's possible this vector should be combined with the vector of sprite pointers
+array of <100> cardinfo (array of card struct objects) plus number currentlyintableau
+
+- reference to sheet? (nah)
+- reference to frame? nah just int of which frame
+- name
+- weight
+- cost
+- power
+- (rarity?)
+- amountcurrentlyintableau (yes!!)
+- odds of getting bought
+- description? could just be generated?
+-IF FUSION STONE: what to fuse, how many needed (otherwise blank), frame to change to after fusion, description
+//note that weapons are also possible; can be treated like fusion stones on fused sprites
+const array of card positions (x, y) & their order (this array is the priority)
+
+player1inplaytableau vector <100> of sprite pointers
+player1examinetableau vector <100> of sprite pointers
+
+AT BEGINNING OF ENTIRE GAME
+    -coinflip (only if multiplayer)
+    -round#=1 (or 0 or whatever)
+    -summon 3 random mercenaries
+    -initialize arrays
+    -calculate total oddsweight
+>beginning of round:
+    -increment round number, enemy gets cp according to round#
+    -restore currentdeck = allcardsbought, currentweight&gather = 0, attack = 
+    -clear fallencards, make their position indices -1 (or 0 if cardpositions starts at 1)
+    -clear mercenarytableau, generate 3 random mercenaries using oddsweight. store in a vector of mercenary indices and display a mercenary sprite ptr (plus text for each one suggesting the cost)
+
+player 1: choose to SUMMON!, pass, examine
+>summon
+ -erase random from from player1currentdeck.
+ -add that int to fallencards.
+ -increment that index in cardinfo
+ -to find position, iterate through fallencards positions, and make equal to the highest number+1
+ -summon that sprite frame at that position in positionarray
+ -add weight & gather values to max, update display
+ -handle fusion stones:
+    -for each fusion stone, if at least one exist:
+        -determine how many4 can be fused (numberhave / numberneeded)
+        -remove that many sprites from the tableau, by iterating through fallencards, and removing until all necessary removed - making sure to update the tableau, and fallensprites, and the card counts, and combat power, weight
+        -finally add the correct number of fused sprites to the tableau
+ -if currentweight>weightmax, put combatpower & gather to zero, clear sprites in tableau, go to combat state
+ //each type of sprite can only be used in at most one recipe. otherwise there is ambiguity when you play a sprite that fulfils multiple stones, which one should be fulfiled.
+
+>pass - go to combat state
+>examine
+    -go to examine state
+    -for indeckvector, make that many sprites & just add them in a grid
+    -for intableauvector, make that many sprites and just add them in a grid
+    -maybe examine, but mostly just wait for button press to leave, and return to player 1 state (destroy the sprites)
+
+>combat state
+-compare damage. if equal or player is higher, COMBAT RESULTS: ROUND WON. NO DAMAGE
+-otherwise ROUND LOST, BOAT TOOK 1 DAMAGE. you take 3 damage you lose!!!
+-go to buy state. I mean, I COULD just let you buy anything...
+
+//HOW NOT GROW OUT OF CONTROL ... add rocks somehow? Maybe enemies add rocks sometimes?
+
+
+>BUY STATE
+-remove owls from tableau, reset #s in amountintableau (ideally you could also examine at this point - but now examining is just 1 window for startingdeck)
+-options include buy, inspect, pass. can move to select items, when you buy something:
+    -it replaces itself with something random
+    -add card to backup vector
+    -remove that much from AE
+
+-at end of buy state; replace all cards with new cards - clear text vectors, clear sprite vectors, clear array, pick 3 new random, generate text, sprite, etc. Or maybe they get moved down the line like star realms
+//I should have a function to move the cursor to a sprite (you'd pass it the final non-empty sprite in a text array)
+//also maybe a global spriteptr for currently hovered sprite (or an int or something)
+
+new plan: just an endless attack, but you know what your enemy will hit you with; increases every round; but if you scratch out, you still gain 4 astral power? Also it persists between rounds? sure
+*/
 namespace{
+        
+        //const bn::string<6> deploy_label_text("SUMMON");
+        //const bn::string<4> pass_label_text("PASS");
+        //const bn::array<int, 8> EventArray([0,0,1,1,2,2,3,3]); //Hmm, it'd be cool to have probabilities later on... Also maybe array of 
+        //Things that an enemy can be:
+        /*
+            -Attack value 1 
+                -probability
+            -Attack value 2
+                -probability
+
+            -# of enemies
+            -sprite for each enemy?
+            -location of each enemy... ugh... all of a sudden i need a 4 position arrays*/
         
         const int MERCS_FOR_SALE = 3;
         const int RUNES_PER_TURN = 4;
@@ -63,6 +180,36 @@ namespace{
         //const bn::string<6> deploy_label_text("  DRAW");
 }
 
+
+/*
+        bn::sprite_ptr bomb_sprite = bn::sprite_items::hero_bomb_icon.create_sprite(10, 0);
+        //bomb_sprite.set_bg_priority(2); 
+        bn::sprite_ptr selection_cursor_sprite = bn::sprite_items::selection_cursor.create_sprite(-30, 30);
+
+        //bf::status status;
+*/
+        //string declarations
+        //bn::string<20> weight_hud_text("WEIGHT: ");
+        /*const bn::string<6> deploy_label_text("DEPLOY");
+        const bn::string<4> pass_label_text("PASS");
+        //bn::sprite_text_generator& _text_generator;
+
+
+        int current_weight = 0;
+        //weight_hud_text.append(bn::to_string<8>(current_weight));
+
+    
+
+        int menu_position = 0;
+        const int MENU_POSITION_MAX = 1;
+
+        //declare text sprites
+        bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
+        bn::vector<bn::sprite_ptr, 6> deploy_text_sprites;
+        bn::vector<bn::sprite_ptr, 4> pass_text_sprites;
+
+        
+}*/
 
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
@@ -128,7 +275,44 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
     _selection_cursor_sprite.set_visible(false);
     _selection_cursor_sprite.set_z_order(-100); //lower z order means it shows up higher. wacky huh?
+    //_display_status(bn::to_string<8>(CardInfoVector.at(1).name));
+    //my_text_generator.set_center_alignment();
+    //my_text_generator.set_left_alignment();
 
+    
+    
+    
+    //initialize sprites
+   // chiyu_sprite = bn::sprite_items::chiyu.create_sprite(-120, -80);
+    /*bn::sprite_ptr bomb_sprite = bn::sprite_items::hero_bomb_icon.create_sprite(10, 0);
+    //bomb_sprite.set_bg_priority(2); 
+    bn::sprite_ptr selection_cursor_sprite = bn::sprite_items::selection_cursor.create_sprite(-30, 30);
+
+    //bf::status status;
+
+    //string declarations*/
+    //bn::string<20> weight_hud_text("WEIGHT: ");/*
+    //const bn::string<6> deploy_label_text("DEPLOY");
+    //const bn::string<4> pass_label_text("PASS");
+    //bn::sprite_text_generator& _text_generator;
+
+
+    //int current_weight = 0;
+    //weight_hud_text.append(bn::to_string<8>(current_weight));
+    
+
+
+    //int menu_position = 0;
+/*
+    //declare text sprites
+    bn::vector<bn::sprite_ptr, 32> weight_text_sprites;
+    bn::vector<bn::sprite_ptr, 6> deploy_text_sprites;
+    bn::vector<bn::sprite_ptr, 4> pass_text_sprites;
+
+
+    pointer_to_text_generator.generate(-100, 40, deploy_label_text, deploy_text_sprites);
+    pointer_to_text_generator.generate(10, 40, pass_label_text, pass_text_sprites);
+    _update_weight_text();*/
 }
 
 void game_scene::update()
@@ -161,7 +345,7 @@ void game_scene::update()
                     //int card_to_add=0;
                     MercenaryDeck.push_back(0);
                     bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
-                    NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
+                    NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0);
                     MercenaryTableau.push_back(NewTableauImg);
                     last_merc_tableau_x_pos+=20;
                     MercenaryTableau.at(mercstoadd).set_visible(false);
@@ -169,7 +353,50 @@ void game_scene::update()
                 state = 101;
                 break;
             }
+            /*case 100: //Loop while waiting for start press - when pressed, summon mercs
+            {
+                if(bn::keypad::start_pressed())
+                {
+                    
+                    //_display_status(bn::to_string<50>(total_merc_probs));
+                    /*
+                    int temp_rando = bn::abs(random_num);
+                    
+                    
+                    //////////////////////////////////////////////////////////////
+                    //                         OLD CODE                         //
+                    //                  GENERATES 3 RANDOM OWLS                 //
+                    //////////////////////////////////////////////////////////////
 
+                    for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
+                    {
+                        bool foundcard=false;
+                        int card_to_add=1000;
+                        int probweight_to_add=temp_rando%total_merc_probs;//Look at the last n digits, where n is total weight sum
+                        temp_rando=temp_rando/total_merc_probs;//Remove the last n digits
+                        int count_up_weights=0;
+                        for(int card_to_check=0; card_to_check < CardInfoVector.size(); card_to_check++)//TODO maybe make this a while loop (more efficient). eh who cares
+                        {
+                            if(foundcard == false)
+                            {
+                                count_up_weights+=CardInfoVector.at(card_to_check).probabilityweight;
+                                if(probweight_to_add < count_up_weights)
+                                {
+                                    foundcard = true;
+                                    card_to_add = card_to_check;
+                                }
+                            }
+                        }
+                        //TODO: handle error if foundcard is false (though it'll be obvious, you can't add vector 1000)
+                        //Add to mercenary deck
+                        MercenaryDeck.push_back(card_to_add);
+                        
+                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));//player1deck.at(index_to_remove).tileindex));
+                        MercenaryTableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
+                        //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                        last_merc_tableau_x_pos+=20;
+                    }*/
 //What SHOULD be done: summon 3 random owls at end of combat round (and when purchased show what's underneath)
 //Maybe guarantee that an owl in the first round will be a mage? hmm
 //summoned energy burst!
@@ -193,10 +420,32 @@ void game_scene::update()
 //BRUISER and THUG
 //ADD __ to your spellbook?
 //SUMMON, SPELLBOOK, PASS
+                    //////////////////////////////////////////////////////////////
+                    //                         NEW CODE                         //
+                    //               GENERATES 3 PREDETERMINED OWLS             //
+                    //////////////////////////////////////////////////////////////
+                    /*for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
+                    {
+                        int card_to_add=STARTING_MERC_INDEX;
+                        MercenaryDeck.push_back(card_to_add);
+                        
+                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(card_to_add).tileindex));//player1deck.at(index_to_remove).tileindex));
+                        MercenaryTableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
+                        //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
+                        last_merc_tableau_x_pos+=20;
+                    }
+                    //_display_status("MERCENARIES APPEAR! udlr", "a:CONTINUE, +1c +1k, +1c");
+                    _display_status("abcdefgh udlrijmnyz", "a:CONTINUE, +10ec +8ek +4ei");
                     
-            case 101: // Loop; wait for start press to add new enemy.
+                    state = 101;
+                }
+                bn::core::update();
+                break;
+            }*/
+            case 101: // Loop; wait for A press to add new enemy.
             {
-                if(bn::keypad::start_pressed())
+                if(bn::keypad::a_pressed())
                 {
                     state = 900;
                 }
@@ -205,16 +454,53 @@ void game_scene::update()
             }
             case 900:
             {
-                bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACKk=");
+                bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACKk = ");
                 display_text_line_one.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
                 _display_status(display_text_line_one, "a:CONTINUE");
                 bn::string<16> enemy_attack_text("k");
                 enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
                 my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
-                
+                //if(current_wave == 0)
+                //{
                 state = 1;
-                break;
+                //}
+                /*If not first round, ROTATE OWLS!*/
+                //else
+               // {
+               //     state = 20;
+               // }
+                //break;
             }
+            /*case used to be twenty:
+            {
+                // Loop; wait for A press to rotate
+                if(bn::keypad::a_pressed())
+                {
+                    //Start the for loop at 1 because we do not rotate the first merc (it gets rotated out of existence)
+                    for(int merc_to_rotate=1; merc_to_rotate<MERCS_FOR_SALE; merc_to_rotate++)
+                    {
+
+                        MercenaryDeck.at(merc_to_rotate-1)=MercenaryDeck.at(merc_to_rotate);
+                        MercenaryTableau.at(merc_to_rotate-1).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(MercenaryDeck.at(merc_to_rotate)).tileindex));
+
+                    }
+                    _replace_merc_with_random_owl(MERCS_FOR_SALE-1);
+                    bn::string<50> first_line_status("STAR ROTATION! ");
+                    /*first_line_status.append(bn::to_string<11>(temp_rando));
+                    first_line_status.append(", ");
+                    first_line_status.append(bn::to_string<11>(total_merc_probs));
+                    first_line_status.append(", ");
+                    first_line_status.append(bn::to_string<11>(probweight_to_add));
+                    first_line_status.append(", ");*//*
+                    first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
+                    first_line_status.append(" REVEALED");
+                    _display_status(first_line_status,"a:CONTINUE");
+
+                    state = 1;
+                }
+                bn::core::update();
+                break;
+            }*/
             case 1: // Loop; wait for A press to start summon phase
             {
                 if(bn::keypad::a_pressed())
@@ -230,16 +516,38 @@ void game_scene::update()
                 player1deck_at_start_of_round = player1deck;
 
 
+                /*_display_status("HULL REPAIRED AT START OF ROUND???", "PRESS A TO CONTINUE");
+                current_runes+=RUNES_PER_TURN;
+                _update_hud_text();
+                state = 2;
+                break;
+            }
+            case 2: // Loop; wait to switch to menu
+            {
+                if(bn::keypad::a_pressed())
+                {*/
+                //TODO: Reset values to zero of member variables
                 _generate_virt_menu(3, "SUMMON", "EXAMINE","PASS");
                 _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
                 _update_hud_text();
-                state = 3;
+               // _update_selection_cursor_from_menu_position();
+                
+                
+                //eventarrayindex++;
+
+                //Make array
+
+
+                state = 3; //TODO: Maybe make this be "next state" so that we don't accidentally execute the code of 2 states in one frame
+                //}
+                //bn::core::update();
+
                 break;
             }
             
             case 3: //Player1 Turn Loop
             {
-                _navigate_through_virt_menu();//TODO: Make into separate state!
+                _navigate_through_virt_menu();
                 
                 if(bn::keypad::a_pressed())
                 {
@@ -295,8 +603,10 @@ void game_scene::update()
                     }
                     else if(menu_position==2)
                     {
+                        
                         state=5;
                     }
+                    //_display_status(bn::to_string<15>(i).append(",").append(bn::to_string<4>(player1deck.size())));
                 }
 
 
@@ -317,10 +627,17 @@ void game_scene::update()
             case 5: //Combat
             {
                 //KILL SELECTION CURSOR, LABELS
+                
                 _clear_virt_menu();
-
-                bn::string<50> first_line_status("SUMMONING OVER. ");
+                //int test = 5;
+                bn::string<50> first_line_status("SUMMONING OVER. ");  
+                //first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
+                //first_line_status.append(" RUNES GATHERED");
+                //bn::string<50> second_line_status("<>A: SELECT, B: CANCEL");
                 _display_status(first_line_status,"PRESS A TO RESOLVE COMBAT");
+                
+                //current_runes += runes_which_might_disappear;
+                //runes_which_might_disappear = 0;
                 _update_hud_text();
                 state = 14;
                 break;
@@ -412,6 +729,11 @@ void game_scene::update()
             }
             case 7: // Game over
             {
+                /*if(bn::keypad::a_pressed())
+                {
+                    _display_status("GAME OVER!");
+
+                }*/
                 bn::core::update();
                 break;
             }
@@ -502,6 +824,11 @@ void game_scene::update()
                 {
                     if(menu_position==0)
                     {
+                        //_display_status("W");
+                        //bn::string<50> first_line_status(_generate_description_from_owl_index(player1deck.at(0)));
+                        //bn::string<50> second_line_status("<>A: SELECT, B: CANCEL");
+                        //second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
+                        //_display_status(first_line_status,second_line_status);
                         _start_hor_merc_menu();
                         state=15;
 
@@ -540,8 +867,19 @@ void game_scene::update()
             }
             case 15:{//BUY MENU!
                 //menu position should still be 0
+                //_navigate_through_horizontal_menu;
                 _navigate_through_hor_menu();
 
+                bn::string<50> first_line_status("");
+                bn::string<50> second_line_status("ARROWS TO MOVE, A TO SELECT, B TO CANCEL");
+                first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
+                first_line_status.append(": ");
+                first_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position)));
+                _display_status(first_line_status,second_line_status);
+                state = 22;
+                break;
+            }
+            case 22:{
                 if(bn::keypad::b_pressed())
                 {
                     state = 10;
@@ -831,13 +1169,6 @@ void game_scene::_update_selection_cursor_from_virt_menu_position()
 
 void game_scene::_update_selection_cursor_from_hor_menu_position()
 {
-    
-    bn::string<50> first_line_status("");
-    bn::string<50> second_line_status("lr:MOVE, a:SELECT, b:CANCEL");
-    first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
-    first_line_status.append(": ");
-    first_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position)));
-    _display_status(first_line_status,second_line_status);
     _point_cursor_at_owl(MercenaryTableau.at(menu_position));
 }
 
