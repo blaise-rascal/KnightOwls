@@ -231,7 +231,7 @@ void game_scene::update()
                 player1deck_at_start_of_round = player1deck;
 
 
-                _generate_virt_menu(3, "SUMMON", "EXAMINE","PASS");
+                _generate_virt_menu(3, "SUMMON", "SPELLBOOK", "PASS");
                 _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
                 _update_hud_text();
                 state = 3;
@@ -262,22 +262,32 @@ void game_scene::update()
 
                             bn::string<50> first_line_status("SUMMONED ");
                             bn::string<50> second_line_status("");
+                            bn::string<50> third_line_status("");
                             first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
+                            if(CardInfoVector.at(player1deck.at(index_to_remove)).weight==1)
+                            {
+                                first_line_status.append("!!!");
+                            }
+                            else if(CardInfoVector.at(player1deck.at(index_to_remove)).weight==2)
+                            {
+                                first_line_status.append("!!!!!!");
+                            }
+                            second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
                             if(current_weight>MAX_BOAT_WEIGHT){
                                 
-                                second_line_status.append("STATIC TOO HIGH! a:CONTINUE");
-                                state = 4;
-
+                                third_line_status.append("iSTATICi TOO HIGH! a:CONTINUE");
+                                state = 22;
                             }
                             else{
-                                second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
+                                //remain in this state
+                                third_line_status.append("ud:MOVE, a:SELECT");
                             }
                             //display status
-                            _display_status(first_line_status,second_line_status);
+                            _display_status(first_line_status,second_line_status,third_line_status);
 
                             //Display sprite
                             //newspriteposition= vector.at(size-1).position + 5
-                            bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0);
+                            bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 10);
                             NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(index_to_remove)).tileindex));//player1deck.at(index_to_remove).tileindex));
                             Player1Tableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
                             //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
@@ -300,8 +310,18 @@ void game_scene::update()
                     }
                 }
 
-
                 
+                bn::core::update();
+                break;
+            }
+            case 22:
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    _return_owls_to_tree();
+                    _display_status("YOU LOSE CONTROL.","THE SUMMONING SPELL EXPLODES!","a:CONTINUE");
+                    state=4;
+                }
                 bn::core::update();
                 break;
             }
@@ -309,7 +329,6 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    _return_owls_to_tree();
                     state=5;
                 }
                 bn::core::update();
@@ -376,7 +395,7 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                     
-                    bn::string<50> first_line_status("REWARDS: HEAL 1m, +");  
+                    bn::string<50> first_line_status("REWARDS: HEAL 1m. GATHERED+");  
                     first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
                     first_line_status.append("c");
                     
@@ -462,6 +481,11 @@ void game_scene::update()
             }
             case 20://intro to mercs appear
             {
+                //Choose all the mercs
+                //There will always be a mage for sale
+                //There will always be an archer for sale
+                //
+                //Put 
                 for(int mercstogenerate=0; mercstogenerate<MERCS_FOR_SALE; mercstogenerate++)
                 {
                     //int card_to_add=0;
@@ -487,9 +511,9 @@ void game_scene::update()
             }
             case 10: //Intro to buy menu state
             {
-                _display_status("BUY PHASE","ARROWS TO MOVE, A TO SELECT");
+                _display_status("BUY PHASE","ud:MOVE, a:SELECT");
                  
-                _generate_virt_menu(3, "SHOP", "EXAMINE", "PASS");
+                _generate_virt_menu(3, "SHOP", "SPELLBOOK", "PASS");
                  //_point_cursor_at_sprite(MercenaryTableau.at(0));
                 state = 11;
                 break;
@@ -549,7 +573,7 @@ void game_scene::update()
                 first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
                 first_line_status.append(" FOR ");
                 first_line_status.append(bn::to_string<8>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
-                first_line_status.append(" RUNES?");
+                first_line_status.append("c?");
                 bn::string<50> second_line_status("A: YES, B: NO");
                 _display_status(first_line_status,second_line_status);
                 state = 17;
@@ -569,7 +593,7 @@ void game_scene::update()
                     {
                         bn::string<50> first_line_status("");
                         first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
-                        first_line_status.append(" ADDED TO TREE"); // clear that sprite!
+                        first_line_status.append(" ADDED TO SPELLBOOK"); // clear that sprite!
                         MercenaryTableau.at(menu_position).set_visible(false);
                         player1deck.push_back(MercenaryDeck.at(menu_position));
                         current_runes -= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost;
@@ -579,7 +603,7 @@ void game_scene::update()
                     }
                     else
                     {
-                        _display_status("NOT ENOUGH RUNES","PRESS A TO CONTINUE");
+                        _display_status("NOT ENOUGH c","PRESS A TO CONTINUE");
                         state = 18;
                     }
                 }
@@ -672,7 +696,7 @@ void game_scene::_update_hud_text()
             wave_hud_text.append("y");//closed
         }
     }
-    my_text_generator.generate(117, -72, wave_hud_text, wave_text_sprites);
+    my_text_generator.generate(118, -72, wave_hud_text, wave_text_sprites);
 
 
 
@@ -707,13 +731,28 @@ void game_scene::_update_hud_text()
     
 }
 
-void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)
+void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo, const bn::string<50>& statustextthree)
 {
     my_text_generator.set_center_alignment();
     status_text_one_sprites.clear();
-    my_text_generator.generate(0, 61, statustextone, status_text_one_sprites);
     status_text_two_sprites.clear();
-    my_text_generator.generate(0, 72, statustexttwo, status_text_two_sprites);
+    status_text_three_sprites.clear();
+    if(statustexttwo.length()>0 && statustextthree.length()>0)//all three lines occupied
+    {
+        my_text_generator.generate(0, 50, statustextone, status_text_one_sprites);
+        my_text_generator.generate(0, 61, statustexttwo, status_text_two_sprites);
+        my_text_generator.generate(0, 72, statustextthree, status_text_three_sprites);
+    }
+    else if(statustexttwo.length()>0)//two lines occupied
+    {
+        my_text_generator.generate(0, 55, statustextone, status_text_one_sprites);
+        my_text_generator.generate(0, 67, statustexttwo, status_text_two_sprites);
+    }
+    else//one line occupied
+    {
+        my_text_generator.generate(0, 61, statustextone, status_text_one_sprites);
+    }
+    //todo: error handling for this
 }
 
 void game_scene::_replace_merc_with_random_owl(int which_merc_position)
@@ -873,11 +912,15 @@ void game_scene::_update_selection_cursor_from_hor_menu_position()
 {
     
     bn::string<50> first_line_status("");
-    bn::string<50> second_line_status("lr:MOVE, a:SELECT, b:CANCEL");
+    bn::string<50> second_line_status("");
+    bn::string<50> third_line_status("lr:MOVE, a:SELECT, b:CANCEL");
     first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
-    first_line_status.append(": ");
-    first_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position)));
-    _display_status(first_line_status,second_line_status);
+    first_line_status.append(" (COST: ");
+    first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
+    first_line_status.append("c)");
+    second_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position)));
+    
+    _display_status(first_line_status,second_line_status,third_line_status);
     _point_cursor_at_owl(MercenaryTableau.at(menu_position));
 }
 

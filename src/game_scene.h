@@ -117,6 +117,7 @@ class game_scene
         bn::vector<bn::sprite_ptr, 10> power_text_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_one_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
+        bn::vector<bn::sprite_ptr, 50> status_text_three_sprites;
         
         bn::vector<bn::sprite_ptr, 6> first_menu_option_text_sprites;
         bn::vector<bn::sprite_ptr, 4> second_menu_option_text_sprites; //huh? why isn't this getting overflowed? the second menu option is "examine" which is more than 4 sprites...
@@ -135,7 +136,7 @@ class game_scene
 
         //functions
         void _update_hud_text();
-        void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "");
+        void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "", const bn::string<50>& statustextthree = "");
         void _update_selection_cursor_from_virt_menu_position();
         void _update_selection_cursor_from_hor_menu_position();
         void _return_owls_to_tree();
