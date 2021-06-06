@@ -49,7 +49,7 @@ class game_scene
     private:
         //TODO: Maybe make const?  
         struct CardInfo { 
-            bn::string<15> name;
+            bn::string<17> name;
             int cost;
             int weight;
             int power;
@@ -109,18 +109,20 @@ class game_scene
         //int enemyindex;
 
         //declare text sprites
-        bn::vector<bn::sprite_ptr, 20> weight_text_sprites;
-        bn::vector<bn::sprite_ptr, 20> hull_text_sprites;
-        bn::vector<bn::sprite_ptr, 20> runes_text_sprites;
-        bn::vector<bn::sprite_ptr, 20> power_text_sprites;
+        bn::vector<bn::sprite_ptr, 10> weight_text_sprites; // probably only needs to be like 7
+        bn::vector<bn::sprite_ptr, 4> hull_text_sprites; // probably only needs to be 4
+        bn::vector<bn::sprite_ptr, 20> wave_text_sprites; // needs to be equal to the number of waves... 
+        bn::vector<bn::sprite_ptr, 10> total_runes_text_sprites;
+        bn::vector<bn::sprite_ptr, 10> runes_that_might_disappear_text_sprites;
+        bn::vector<bn::sprite_ptr, 10> power_text_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_one_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
         
         bn::vector<bn::sprite_ptr, 6> first_menu_option_text_sprites;
-        bn::vector<bn::sprite_ptr, 4> second_menu_option_text_sprites;
+        bn::vector<bn::sprite_ptr, 4> second_menu_option_text_sprites; //huh? why isn't this getting overflowed? the second menu option is "examine" which is more than 4 sprites...
         bn::vector<bn::sprite_ptr, 8> third_menu_option_text_sprites;
 
-        bn::vector<bn::sprite_ptr, 20> enemy_attack_text_sprites;
+        bn::vector<bn::sprite_ptr, 7> enemy_attack_text_sprites; // probably needs to be like 4
 
         //vectors containing card & state information
         bn::vector<int, 100> player1deck;

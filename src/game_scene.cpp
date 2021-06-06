@@ -107,12 +107,12 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, probabilityweight
-    CardInfoVector.push_back({"MAGE",           3,0,0,  1,1,1});
-    CardInfoVector.push_back({"ARCHER",         3,0,3,  0,2,1});
-    CardInfoVector.push_back({"WARRIOR",        1,1,5,  1,0,0});
-    CardInfoVector.push_back({"HEAVY WARRIOR",  1,2,10, 2,3,0});
-    CardInfoVector.push_back({"SPEAR-OWL",      5,0,6,  0,4,1});
-    CardInfoVector.push_back({"MYSTIC",         5,0,0,  2,5,1});
+    CardInfoVector.push_back({"MAGE",               3,0,0,  1,1,1});
+    CardInfoVector.push_back({"ARCHER",             3,0,3,  0,2,1});
+    CardInfoVector.push_back({"ENERGY BURST",       1,1,5,  1,0,0});
+    CardInfoVector.push_back({"MEGA ENERGY BURST",  1,2,10, 2,3,0});
+    CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,  0,4,1});
+    CardInfoVector.push_back({"MYSTIC",             5,0,0,  2,5,1});
 
     //CardInfoTempDeckWithoutReplacement
 
@@ -205,12 +205,13 @@ void game_scene::update()
             }
             case 900:
             {
+                my_text_generator.set_center_alignment();
                 bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACKk=");
                 display_text_line_one.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
                 _display_status(display_text_line_one, "a:CONTINUE");
                 bn::string<16> enemy_attack_text("k");
                 enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
-                my_text_generator.generate(70, 0, enemy_attack_text, enemy_attack_text_sprites);
+                my_text_generator.generate(70, -17, enemy_attack_text, enemy_attack_text_sprites);
                 
                 state = 1;
                 break;
@@ -264,7 +265,7 @@ void game_scene::update()
                             first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
                             if(current_weight>MAX_BOAT_WEIGHT){
                                 
-                                second_line_status.append("BOAT OVERLOADED! PRESS A TO UNLOAD");
+                                second_line_status.append("STATIC TOO HIGH! a:CONTINUE");
                                 state = 4;
 
                             }
@@ -331,19 +332,19 @@ void game_scene::update()
                 {
                     if(current_power < WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("ENEMY'S ATK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
+                        _display_status("ENEMY'S k IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
                         won_wave=false;
                         state=6;
                     }
 
                     if(current_power > WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR ATK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
+                        _display_status("YOUR k IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
                     }
                     
                     if(current_power == WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR ATK = ENEMY ATK. VICTORY!","PRESS A TO CONTINUE");    
+                        _display_status("YOUR k = ENEMY'S k. VICTORY!","PRESS A TO CONTINUE");    
                     }
 
                     if(current_power >= WaveInfoVector.at(current_wave).attack)
@@ -351,8 +352,11 @@ void game_scene::update()
                         won_wave=true;
                         enemy_attack_text_sprites.clear();
                         
+                        current_wave+=1;
+                        _update_hud_text();
+                        //TRY TO PUT CURRENT_WAVE ++ HERE
                         //If you got to the end of all the waves, you win!
-                        if(current_wave==WaveInfoVector.size() - 1)
+                        if(current_wave==WaveInfoVector.size())
                         {
                             _display_status("YOU WIN!!!!!!"); //TODO: I think break into separate class
                             state = 12;
@@ -372,9 +376,9 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                     
-                    bn::string<50> first_line_status("REWARDS: HEAL 1HP, +");  
+                    bn::string<50> first_line_status("REWARDS: HEAL 1m, +");  
                     first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
-                    first_line_status.append(" RUNES");
+                    first_line_status.append("c");
                     
                     current_runes += runes_which_might_disappear;
                     runes_which_might_disappear = 0;
@@ -397,7 +401,7 @@ void game_scene::update()
                 {
                     current_hull=current_hull-1;
                     _update_hud_text();
-                    if(current_hull==0)
+                    if(current_hull<0)
                     {
                         _display_status("SHIP DESTROYED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
                         state = 7;
@@ -513,21 +517,8 @@ void game_scene::update()
                     else if(menu_position==2)
                     {
                         _clear_virt_menu();
-                        current_wave+=1;
                         state=900;
-                        /*if(won_wave==true)
-                        {
-                            current_wave+=1;
-                            
-                            //restart the round, but with a new enemy
-                            state = 900;
-                            
-                        }
-                        else
-                        {
-                            //restart the round, but with the same enemy
-                            state = 10001;
-                        }*/
+
                     }
                 }
                 bn::core::update();
@@ -638,33 +629,82 @@ void game_scene::update()
 
 void game_scene::_update_hud_text()
 {
-    weight_text_sprites.clear();
+    //TODO: make this just make & use 1 string rather than making a million. lol
     my_text_generator.set_left_alignment();
-    bn::string<20> weight_hud_text("WEIGHT: ");
+    //needed: enemy wave sprites, runes which might disappear sprite
+    hull_text_sprites.clear();
+    bn::string<20> hull_hud_text("");
+    for(int hull_to_check = 0; hull_to_check < MAX_HULL; hull_to_check++)
+    {
+        if(hull_to_check<current_hull)
+        {
+            hull_hud_text.append("m");
+        }
+        else{
+            hull_hud_text.append("n");
+        }
+    }
+    // The butano creator told me I should leave an 8 px border around the screen, but actual gba games would leave, like a 1 px border from the edge
+    // Let's do 4px from the edge so that his feelings aren't hurt
+    my_text_generator.generate(-116, -72, hull_hud_text, hull_text_sprites);
+
+    total_runes_text_sprites.clear();
+    bn::string<20> total_runes_hud_text("cx");
+    total_runes_hud_text.append(bn::to_string<8>(current_runes));
+    my_text_generator.generate(-116, -61, total_runes_hud_text, total_runes_text_sprites);
+
+
+
+
+
+
+    my_text_generator.set_right_alignment();
+    //needed: enemy wave sprites, runes which might disappear sprite
+    wave_text_sprites.clear();
+    bn::string<20> wave_hud_text("");
+    for(int wave_to_check = 0; wave_to_check < WaveInfoVector.size(); wave_to_check++)
+    {
+        if(wave_to_check < current_wave)//wave to check = 0 current wave = 4
+        {
+            wave_hud_text.append("z");//open
+        }
+        else{
+            wave_hud_text.append("y");//closed
+        }
+    }
+    my_text_generator.generate(117, -72, wave_hud_text, wave_text_sprites);
+
+
+
+
+    my_text_generator.set_center_alignment();
+
+    power_text_sprites.clear();
+    bn::string<20> power_hud_text("k");
+    power_hud_text.append(bn::to_string<8>(current_power));
+    my_text_generator.generate(-70, -39, power_hud_text, power_text_sprites);
+
+   
+
+    runes_that_might_disappear_text_sprites.clear();
+    bn::string<20> runes_that_might_disappear_hud_text("c+");
+    runes_that_might_disappear_hud_text.append(bn::to_string<8>(runes_which_might_disappear));
+    my_text_generator.generate(-70, -28, runes_that_might_disappear_hud_text, runes_that_might_disappear_text_sprites);
+
+    //-39
+    weight_text_sprites.clear();
+    bn::string<20> weight_hud_text("i");
     weight_hud_text.append(bn::to_string<8>(current_weight));
     weight_hud_text.append("/");
     weight_hud_text.append(bn::to_string<2>(MAX_BOAT_WEIGHT));
-    my_text_generator.generate(-115, -72, weight_hud_text, weight_text_sprites);
+    my_text_generator.generate(-70, -17, weight_hud_text, weight_text_sprites);
 
-    runes_text_sprites.clear();
-    bn::string<20> runes_hud_text("RUNES: ");
-    runes_hud_text.append(bn::to_string<8>(current_runes));
-    if(runes_which_might_disappear>0)
-    {
-        runes_hud_text.append("+");
-        runes_hud_text.append(bn::to_string<8>(runes_which_might_disappear));
-    }
-    my_text_generator.generate(-115, -61, runes_hud_text, runes_text_sprites);
+    //-115 -39
+    //-115 -50
+    //-115 -61
+    //-115 -72
 
-    power_text_sprites.clear();
-    bn::string<20> power_hud_text("ATTACK: ");
-    power_hud_text.append(bn::to_string<8>(current_power));
-    my_text_generator.generate(-115, -50, power_hud_text, power_text_sprites);
-
-    hull_text_sprites.clear();
-    bn::string<20> hull_hud_text("HULL: ");
-    hull_hud_text.append(bn::to_string<8>(current_hull));
-    my_text_generator.generate(-115, -39, hull_hud_text, hull_text_sprites);
+    
 }
 
 void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo)
@@ -740,12 +780,12 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     int power_to_add = CardInfoVector.at(card_info_index).power;
     int runes_to_add = CardInfoVector.at(card_info_index).gather;
     bn::string<50> _description_string("");
-    _description_string.append("WEIGHT+");
-    _description_string.append(bn::to_string<5>(weight_to_add));
-    _description_string.append(", ATTACK+");
+    _description_string.append("k+");
     _description_string.append(bn::to_string<5>(power_to_add));
-    _description_string.append(", RUNES+");
+    _description_string.append(" c+");
     _description_string.append(bn::to_string<5>(runes_to_add));
+    _description_string.append(" i+");
+    _description_string.append(bn::to_string<5>(weight_to_add));
     return(_description_string);
 }
 
