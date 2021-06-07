@@ -63,6 +63,7 @@ namespace{
         //const bn::string<6> deploy_label_text("  DRAW");
 }
 
+//soon to do, better slection cursor, better energy bursts
 
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
@@ -72,7 +73,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
     current_power(0),
-    current_runes(0),
+    current_runes(100),
     current_hull(0),
     runes_which_might_disappear(0),
     menu_position(0),
@@ -534,7 +535,7 @@ void game_scene::update()
                     MercenaryTableau.at(merctoillustrate).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(MercenaryDeck.at(merctoillustrate)).tileindex));
                     MercenaryTableau.at(merctoillustrate).set_visible(true);
                 }
-                _display_status("MAKE THE MERCS APPEAR NOW!","PRESS A TO CONTINUE");
+                _display_status("MERCENARIES APPEAR.","YOU MAY PURCHASE THEM WITH c","a:CONTINUE");
                 state = 21;
                 break;
             }
@@ -568,17 +569,10 @@ void game_scene::update()
                 {
                     if(menu_position==0)
                     {
-                        bool allnegativeone = true;
-                        for(int i = 0; i<MercenaryDeck.size(); i++)
+                        
+                        if(_is_merc_deck_empty())
                         {
-                            if(MercenaryDeck.at(i) != -1)
-                            {
-                                allnegativeone=false;
-                            }
-                        }
-                        if(allnegativeone)
-                        {
-                            _display_status("NONE LEFT TO PURCHASE","a:CONTINUE")
+                            _display_status("NONE LEFT TO PURCHASE","a:CONTINUE");
                             state=21;
                         }
                         else{
@@ -605,7 +599,7 @@ void game_scene::update()
                 break;
             }
             case 19:{//to integrate or not...
-                _start_hor_merc_menu;
+                _start_hor_merc_menu();
                 state=15;
                 break;
             }
@@ -630,7 +624,7 @@ void game_scene::update()
                 first_line_status.append(" FOR ");
                 first_line_status.append(bn::to_string<8>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
                 first_line_status.append("c?");
-                bn::string<50> second_line_status("A: YES, B: NO");
+                bn::string<50> second_line_status("a: YES, b: NO");
                 _display_status(first_line_status,second_line_status);
                 state = 17;
                 break;
@@ -639,8 +633,10 @@ void game_scene::update()
 
                 if(bn::keypad::b_pressed())//decided not to purchase, go back to hor menu
                 {
-                    _start_hor_merc_menu(); //TODO: Should probably make a state for this...
-                    state = 15;
+                    //_selection_cursor_sprite.set_visible(true);
+                    //_display_status("GOTTHISFAR");
+                    _update_selection_cursor_from_hor_menu_position();
+                    state=15;
                 }
                 else if(bn::keypad::a_pressed())
                 {
@@ -651,16 +647,26 @@ void game_scene::update()
                         first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
                         first_line_status.append(" ADDED TO SPELLBOOK"); // clear that sprite!
                         MercenaryTableau.at(menu_position).set_visible(false);
-                        MercenaryDeck.at(menu_position)=-1; //-1 means that sprite is not present
                         player1deck.push_back(MercenaryDeck.at(menu_position));
                         current_runes -= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost;
                         _update_hud_text();
-                        _display_status(first_line_status,"PRESS A TO CONTINUE");
-                        state = 18;
+                        _display_status(first_line_status,"a: CONTINUE");
+
+                        
+                        MercenaryDeck.at(menu_position) = -1; //-1 means that sprite is not present
+
+                        if(_is_merc_deck_empty()==true)
+                        {
+                            state = 21;
+                        }
+                        else
+                        {
+                            state = 18;
+                        }
                     }
                     else
                     {
-                        _display_status("NOT ENOUGH c","PRESS A TO CONTINUE");
+                        _display_status("NOT ENOUGH c","a: CONTINUE");
                         state = 18;
                     }
                 }
@@ -670,8 +676,8 @@ void game_scene::update()
             case 18:{
                 if(bn::keypad::a_pressed())
                 {
-                    state = 15;
-                    _selection_cursor_sprite.set_visible(true);
+                    state = 19;
+                    //_selection_cursor_sprite.set_visible(true);
                 }
                 bn::core::update();
                 break;
@@ -937,7 +943,7 @@ void game_scene::_navigate_through_hor_menu()
             if(MercenaryDeck.at(one_to_check) != -1 && found_first_available==false)
             {
                 found_first_available=true;
-                menu_position=i;
+                menu_position=one_to_check;
             }
         }
         //if found_first_available is still false, then you stay in the same place
@@ -956,7 +962,7 @@ void game_scene::_navigate_through_hor_menu()
             if(MercenaryDeck.at(one_to_check) != -1 && found_first_available==false)
             {
                 found_first_available=true;
-                menu_position=i;
+                menu_position=one_to_check;
             }
         }
         _update_selection_cursor_from_hor_menu_position();
@@ -1003,25 +1009,29 @@ void game_scene::_clear_virt_menu()
     first_menu_option_text_sprites.clear();
     second_menu_option_text_sprites.clear();
     third_menu_option_text_sprites.clear();
+    for(int i = 0; i<MercenaryDeck.size(); i++)
+    {
+        MercenaryTableau.at(i).set_visible(false);
+    }
 }
 
 void game_scene::_start_hor_merc_menu()
 {
-    menu_position_max = MERCS_FOR_SALE - 1;
+    menu_position_max = MERCS_FOR_SALE - 1; //todo: delete this line
 
     /////
     bool found_first_available=false;
     int firstavailable = 1000;
-    int onetocheck=0;
+    int one_to_check=0;
     while(!found_first_available)
     {
-        if(MercenaryDeck.at(onetocheck) != -1)
+        if(MercenaryDeck.at(one_to_check) != -1)
         {
             found_first_available=true;
-            firstavailable=i;
+            firstavailable=one_to_check;
         }
         else{
-            onetocheck++;
+            one_to_check++;
         }
     }
     menu_position = firstavailable;
@@ -1031,4 +1041,17 @@ void game_scene::_start_hor_merc_menu()
     _selection_cursor_sprite.set_visible(true);
     //_display_status("GOTTHISFAR");
     _update_selection_cursor_from_hor_menu_position();
+}
+
+bool game_scene::_is_merc_deck_empty()
+{
+    bool allnegativeone = true;
+    for(int i = 0; i<MercenaryDeck.size(); i++)
+    {
+        if(MercenaryDeck.at(i) != -1)
+        {
+            allnegativeone=false;
+        }
+    }
+    return allnegativeone;
 }
