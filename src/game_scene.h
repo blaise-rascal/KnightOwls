@@ -105,6 +105,7 @@ class game_scene
         bool won_wave;
         int total_merc_probs;
         int random_num;
+        bool player_stat_box_active;
         //int runes_at_start_of_round;
         //int enemyindex;
 

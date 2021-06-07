@@ -73,7 +73,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
     current_power(0),
-    current_runes(100),
+    current_runes(0),
     current_hull(0),
     runes_which_might_disappear(0),
     menu_position(0),
@@ -85,7 +85,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_wave(0),
     won_wave(false),
     total_merc_probs(0),
-    random_num(0)
+    random_num(0),
+    player_stat_box_active(false)
     //enemyindex(0)
 {
     current_hull=MAX_HULL;
@@ -177,6 +178,7 @@ void game_scene::update()
                     last_merc_tableau_x_pos+=20;
                     MercenaryTableau.at(mercstoadd).set_visible(false);
                 }
+                _update_hud_text();
                 state = 101;
                 break;
             }
@@ -217,12 +219,12 @@ void game_scene::update()
             case 900:
             {
                 my_text_generator.set_center_alignment();
-                bn::string<50> display_text_line_one("ENEMY APPEARS! ATTACKk=");
+                bn::string<50> display_text_line_one("ENEMY APPEARS! kATTACK = ");
                 display_text_line_one.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
                 _display_status(display_text_line_one, "a:CONTINUE");
                 bn::string<16> enemy_attack_text("k");
                 enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
-                my_text_generator.generate(70, -17, enemy_attack_text, enemy_attack_text_sprites);
+                my_text_generator.generate(70, -27, enemy_attack_text, enemy_attack_text_sprites);
                 
                 state = 1;
                 break;
@@ -240,7 +242,7 @@ void game_scene::update()
             {
                 //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
                 player1deck_at_start_of_round = player1deck;
-
+                player_stat_box_active=true;
 
                 _generate_virt_menu(3, "SUMMON", "SPELLBOOK", "PASS");
                 _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
@@ -286,7 +288,7 @@ void game_scene::update()
                             second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
                             if(current_weight>MAX_BOAT_WEIGHT){
                                 
-                                third_line_status.append("iSTATICi TOO HIGH! a:CONTINUE");
+                                third_line_status.append("iSTATIC TOO HIGH! a:CONTINUE");
                                 state = 22;
                             }
                             else{
@@ -298,7 +300,7 @@ void game_scene::update()
 
                             //Display sprite
                             //newspriteposition= vector.at(size-1).position + 5
-                            bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 10);
+                            bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 20);
                             NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(index_to_remove)).tileindex));//player1deck.at(index_to_remove).tileindex));
                             Player1Tableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
                             //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
@@ -362,19 +364,19 @@ void game_scene::update()
                 {
                     if(current_power < WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("ENEMY'S k IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
+                        _display_status("ENEMY'S kATTACK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
                         won_wave=false;
                         state=6;
                     }
 
                     if(current_power > WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR k IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
+                        _display_status("YOUR kATTACK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
                     }
                     
                     if(current_power == WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR k = ENEMY'S k. VICTORY!","PRESS A TO CONTINUE");    
+                        _display_status("YOUR kATTACK = ENEMY'S kATTACK.","VICTORY!","PRESS A TO CONTINUE");    
                     }
 
                     if(current_power >= WaveInfoVector.at(current_wave).attack)
@@ -406,18 +408,19 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                     
-                    bn::string<50> first_line_status("REWARDS: HEAL 1m. GATHERED+");  
-                    first_line_status.append(bn::to_string<8>(runes_which_might_disappear));
-                    first_line_status.append("c");
+                    bn::string<50> second_line_status("GATHERED +");  
+                    second_line_status.append(bn::to_string<8>(runes_which_might_disappear));
+                    second_line_status.append(" cSPIRIT-DUST");
                     
                     current_runes += runes_which_might_disappear;
                     runes_which_might_disappear = 0;
-                    _display_status(first_line_status,"PRESS A TO CONTINUE");//REWARD: SHIP REPAIRED 1 DAMAGE, GATHER RUNES
+                    _display_status("REWARDS: HEAL 1 mHP", second_line_status, "PRESS A TO CONTINUE");//REWARD: SHIP REPAIRED 1 DAMAGE, GATHER RUNES
                     current_hull=current_hull+1;
                     if(current_hull>MAX_HULL)
                     {
                         current_hull=MAX_HULL;
                     }
+                    player_stat_box_active=false;
                     _update_hud_text();
                     state = 8;
                 }
@@ -433,12 +436,12 @@ void game_scene::update()
                     _update_hud_text();
                     if(current_hull<0)
                     {
-                        _display_status("SHIP DESTROYED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
+                        _display_status("YOU DIED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
                         state = 7;
                     }
                     else{
                         state = 8;
-                        _display_status("SHIP TAKES ONE DAMAGE.","PRESS A TO CONTINUE");
+                        _display_status("THE ENEMY STRIKES!","YOU LOSE ONE mHP.","a:CONTINUE");
                     }
                 }
                 bn::core::update();
@@ -466,10 +469,10 @@ void game_scene::update()
                         }
                     }
                     else{
-                        _display_status("ALL SUMMONED OWLS DISPERSE.","PRESS A TO CONTINUE");
                         _return_owls_to_tree();
                         if(won_wave==true)
                         { 
+                            _display_status("ALL SUMMONED OWLS DISPERSE.","a:CONTINUE");
                             state = 9;
                         }
                         else
@@ -535,7 +538,8 @@ void game_scene::update()
                     MercenaryTableau.at(merctoillustrate).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(MercenaryDeck.at(merctoillustrate)).tileindex));
                     MercenaryTableau.at(merctoillustrate).set_visible(true);
                 }
-                _display_status("MERCENARIES APPEAR.","YOU MAY PURCHASE THEM WITH c","a:CONTINUE");
+                _display_status("A RIFT TO OWLHALLA APPEARS!","YOU MAY CONSCRIPT NEW OWLS WITH c.","a:CONTINUE");
+                
                 state = 21;
                 break;
             }
@@ -624,7 +628,7 @@ void game_scene::update()
                 first_line_status.append(" FOR ");
                 first_line_status.append(bn::to_string<8>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
                 first_line_status.append("c?");
-                bn::string<50> second_line_status("a: YES, b: NO");
+                bn::string<50> second_line_status("a:YES, b:NO");
                 _display_status(first_line_status,second_line_status);
                 state = 17;
                 break;
@@ -650,7 +654,7 @@ void game_scene::update()
                         player1deck.push_back(MercenaryDeck.at(menu_position));
                         current_runes -= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost;
                         _update_hud_text();
-                        _display_status(first_line_status,"a: CONTINUE");
+                        _display_status(first_line_status,"a:CONTINUE");
 
                         
                         MercenaryDeck.at(menu_position) = -1; //-1 means that sprite is not present
@@ -666,7 +670,7 @@ void game_scene::update()
                     }
                     else
                     {
-                        _display_status("NOT ENOUGH c","a: CONTINUE");
+                        _display_status("NOT ENOUGH cSPIRIT-DUST","a: CONTINUE");
                         state = 18;
                     }
                 }
@@ -762,30 +766,31 @@ void game_scene::_update_hud_text()
     my_text_generator.generate(118, -72, wave_hud_text, wave_text_sprites);
 
 
-
-
-    my_text_generator.set_center_alignment();
-
     power_text_sprites.clear();
-    bn::string<20> power_hud_text("k");
-    power_hud_text.append(bn::to_string<8>(current_power));
-    my_text_generator.generate(-70, -39, power_hud_text, power_text_sprites);
-
-   
-
     runes_that_might_disappear_text_sprites.clear();
-    bn::string<20> runes_that_might_disappear_hud_text("c+");
-    runes_that_might_disappear_hud_text.append(bn::to_string<8>(runes_which_might_disappear));
-    my_text_generator.generate(-70, -28, runes_that_might_disappear_hud_text, runes_that_might_disappear_text_sprites);
-
-    //-39
     weight_text_sprites.clear();
-    bn::string<20> weight_hud_text("i");
-    weight_hud_text.append(bn::to_string<8>(current_weight));
-    weight_hud_text.append("/");
-    weight_hud_text.append(bn::to_string<2>(MAX_BOAT_WEIGHT));
-    my_text_generator.generate(-70, -17, weight_hud_text, weight_text_sprites);
 
+    if(player_stat_box_active==true)
+    {
+        my_text_generator.set_center_alignment();
+
+        bn::string<20> power_hud_text("k");
+        power_hud_text.append(bn::to_string<8>(current_power));
+        my_text_generator.generate(-70, -38, power_hud_text, power_text_sprites);
+
+    
+
+        bn::string<20> runes_that_might_disappear_hud_text("c+");
+        runes_that_might_disappear_hud_text.append(bn::to_string<8>(runes_which_might_disappear));
+        my_text_generator.generate(-70, -27, runes_that_might_disappear_hud_text, runes_that_might_disappear_text_sprites);
+
+        //-39
+        bn::string<20> weight_hud_text("i");
+        weight_hud_text.append(bn::to_string<8>(current_weight));
+        weight_hud_text.append("/");
+        weight_hud_text.append(bn::to_string<2>(MAX_BOAT_WEIGHT));
+        my_text_generator.generate(-70, -16, weight_hud_text, weight_text_sprites);
+    }
     //-115 -39
     //-115 -50
     //-115 -61
@@ -863,14 +868,14 @@ void game_scene::_return_owls_to_tree()
 void game_scene::_point_cursor_at_letter(const bn::sprite_ptr& target_sprite)
 {   
     _selection_cursor_sprite.set_y(target_sprite.y());
-    _selection_cursor_sprite.set_x(target_sprite.x()-26);
+    _selection_cursor_sprite.set_x(target_sprite.x()-25);
     _selection_cursor_sprite.set_visible(true);
 }
 
 void game_scene::_point_cursor_at_owl(const bn::sprite_ptr& target_sprite)
 {   
     _selection_cursor_sprite.set_y(target_sprite.y());
-    _selection_cursor_sprite.set_x(target_sprite.x()-16);
+    _selection_cursor_sprite.set_x(target_sprite.x()-15);
     _selection_cursor_sprite.set_visible(true);
 }
 
