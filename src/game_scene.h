@@ -55,7 +55,7 @@ class game_scene
             int power;
             int gather;
             int tileindex;
-            int probabilityweight;
+            bool availableforsale;
         };
         //TODO: Maybe make const?  
         struct WaveInfo { 
@@ -131,8 +131,10 @@ class game_scene
         bn::vector<CardInfo,10> CardInfoVector;
         bn::vector<WaveInfo,10> WaveInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
-        bn::vector<bn::sprite_ptr, 5> MercenaryTableau;
-        bn::vector<int, 5> MercenaryDeck;
+        bn::vector<bn::sprite_ptr, 6> MercenaryTableau;
+        bn::vector<int, 6> MercenaryDeck;
+        bn::vector<int, 6> AllDrawableMercs;
+        bn::vector<int, 6> TempMercDeckToDrawFrom;
 
         //functions
         void _update_hud_text();
@@ -148,7 +150,7 @@ class game_scene
         void _navigate_through_virt_menu();
         void _navigate_through_hor_menu();
         void _clear_virt_menu();
-        void _replace_merc_with_random_owl(int which_merc_position);
+        //void _replace_merc_with_random_owl(int which_merc_position);
 
 };
 //}
