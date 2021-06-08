@@ -109,12 +109,14 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, availableforsale
-    CardInfoVector.push_back({"MAGE",               3,0,0,  1,1,true});
-    CardInfoVector.push_back({"ARCHER",             3,0,3,  0,2,true});
-    CardInfoVector.push_back({"ENERGY BURST",       1000,1,5,  1,0,false});
-    CardInfoVector.push_back({"MEGA ENERGY BURST",  1000,2,10, 2,3,false});
-    CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,  0,4,true});
-    CardInfoVector.push_back({"MYSTIC",             5,0,0,  2,5,true});
+    CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,true});
+    CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,true});
+    CardInfoVector.push_back({"ENERGY BURST",       0,1,5,      1,6,false});
+    CardInfoVector.push_back({"MEGA ENERGY BURST",  0,2,10,     2,7,false});
+    CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,      0,4,true});
+    CardInfoVector.push_back({"MYSTIC",             5,0,0,      2,5,true});
+    CardInfoVector.push_back({"THUG",               8,0,10,     0,0,true});
+    CardInfoVector.push_back({"BRUISER",            12,0,17,    0,3,true});
     //                                              8 for high money generation
     //                                              8 for high damage
 
