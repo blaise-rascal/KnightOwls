@@ -22,6 +22,13 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//NEW IDEA: You lose an HP whenever the spell explodes
+//But then you remain at the same enemy
+
+//If you pass against an enemy, then you move onto the next one no matter what?
+//But if their attack is higher you take a damage? (and otherwise you heal 1?)
+//-gives you the option to pass even if you would lose combat
+
 
 
 #include "bn_core.h"
@@ -109,14 +116,16 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, availableforsale
-    CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,true});
-    CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,true});
+    CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false});
+    CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,false});
     CardInfoVector.push_back({"ENERGY BURST",       0,1,5,      1,6,false});
     CardInfoVector.push_back({"MEGA ENERGY BURST",  0,2,10,     2,7,false});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,      0,4,true});
     CardInfoVector.push_back({"MYSTIC",             5,0,0,      2,5,true});
     CardInfoVector.push_back({"THUG",               8,0,10,     0,0,true});
-    CardInfoVector.push_back({"BRUISER",            12,0,17,    0,3,true});
+    CardInfoVector.push_back({"BRUISER",            12,0,16,    0,3,true});
+    CardInfoVector.push_back({"SCIENTIST",          9,0,0,      4,8,true});
+    CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true});
     //                                              8 for high money generation
     //                                              8 for high damage
 
@@ -246,7 +255,7 @@ void game_scene::update()
                 player1deck_at_start_of_round = player1deck;
                 player_stat_box_active=true;
 
-                _generate_virt_menu(3, "SUMMON", "SPELLBOOK", "PASS");
+                _generate_virt_menu(3, "SUMMON", "SPELLBOOK", "FIGHT!");
                 _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
                 _update_hud_text();
                 state = 3;
@@ -343,7 +352,7 @@ void game_scene::update()
             case 4: //Overloaded!
             {
                 if(bn::keypad::a_pressed())
-                {
+                {//TODO: JUST LOSE A LIFE AND GO BACK. ALSO, SAY WIN AND LOSE STUFF
                     state=5;
                 }
                 bn::core::update();
