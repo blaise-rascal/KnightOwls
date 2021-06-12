@@ -766,9 +766,20 @@ void game_scene::_update_hud_text()
     bn::string<20> wave_hud_text("");
     for(int wave_to_check = 0; wave_to_check < WaveInfoVector.size(); wave_to_check++)
     {
-        if(wave_to_check < current_wave)//wave to check = 0 current wave = 4
+        if(wave_to_check==WaveInfoVector.size()-1)
+        {
+            if(wave_to_check==current_wave)
+                wave_hud_text.append("p");//red skull
+            else
+                wave_hud_text.append("o"); //white skull
+        }
+        else if(wave_to_check < current_wave)
         {
             wave_hud_text.append("z");//open
+        }
+        else if(wave_to_check == current_wave)
+        {
+            wave_hud_text.append("w");//where you are
         }
         else{
             wave_hud_text.append("y");//closed
