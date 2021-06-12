@@ -6,4 +6,6 @@ i - static
 k - attack
 mn - mine
 yz - yours
+op - skull
+w - where
 e - little space

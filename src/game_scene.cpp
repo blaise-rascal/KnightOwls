@@ -64,7 +64,7 @@ namespace{
         const int MERCS_FOR_SALE = 6;
         const int RUNES_PER_TURN = 4;
         const int MAX_BOAT_WEIGHT = 4;
-        const int MAX_HULL = 3;
+        const int MAX_HULL = 4;
         const int STARTING_MERC_INDEX = 0;
         //const bn::array<3> MERC_POSITIONS
         //const bn::string<6> deploy_label_text("  DRAW");
@@ -93,24 +93,24 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     won_wave(false),
     total_merc_probs(0),
     random_num(0),
-    player_stat_box_active(false)
-    //enemyindex(0)
+    player_stat_box_active(false),
+    enemy_stat_box_active(false),
+    exploded_once(false)
 {
     current_hull=MAX_HULL;
-//{
-    //generate text
+
     // y = 12 * 1.2^2
-    // You 
-    WaveInfoVector.push_back({12});
-    WaveInfoVector.push_back({14});
-    WaveInfoVector.push_back({16});
-    WaveInfoVector.push_back({19});
-    WaveInfoVector.push_back({22});
-    WaveInfoVector.push_back({25});
-    WaveInfoVector.push_back({29});
-    WaveInfoVector.push_back({34});
-    WaveInfoVector.push_back({39});
-    WaveInfoVector.push_back({46});
+    //attack, reward, penalty
+    WaveInfoVector.push_back({12,1,1});
+    WaveInfoVector.push_back({14,1,1});
+    WaveInfoVector.push_back({16,1,1});
+    WaveInfoVector.push_back({19,1,1});
+    WaveInfoVector.push_back({22,1,1});
+    WaveInfoVector.push_back({25,1,1});
+    WaveInfoVector.push_back({29,1,1});
+    WaveInfoVector.push_back({34,1,1});
+    WaveInfoVector.push_back({39,1,1});
+    WaveInfoVector.push_back({46,-1, 9999});//-1 is victory, 9999 is death
     //WaveInfoVector.push_back({26});
     //WaveInfoVector.push_back({31});
     //WaveInfoVector.push_back({37});
@@ -118,8 +118,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //                         name, cost, weight, power, gather, tileindex, availableforsale
     CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false});
     CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,false});
-    CardInfoVector.push_back({"ENERGY BURST",       0,1,5,      1,6,false});
-    CardInfoVector.push_back({"MEGA ENERGY BURST",  0,2,10,     2,7,false});
+    CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
+    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,      0,4,true});
     CardInfoVector.push_back({"MYSTIC",             5,0,0,      2,5,true});
     CardInfoVector.push_back({"THUG",               8,0,10,     0,0,true});
@@ -229,14 +229,14 @@ void game_scene::update()
             }
             case 900:
             {
-                my_text_generator.set_center_alignment();
                 bn::string<50> display_text_line_one("ENEMY APPEARS! kATTACK = ");
-                display_text_line_one.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
+                display_text_line_one.append(bn::to_string<5>(WaveInfoVector.at(current_wave).attack));
                 _display_status(display_text_line_one, "a:CONTINUE");
-                bn::string<16> enemy_attack_text("k");
-                enemy_attack_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
-                my_text_generator.generate(70, -27, enemy_attack_text, enemy_attack_text_sprites);
+
                 
+                enemy_stat_box_active=true;
+                _update_enemy_stat_box();
+                exploded_once=false;
                 state = 1;
                 break;
             }
@@ -256,7 +256,15 @@ void game_scene::update()
                 player_stat_box_active=true;
 
                 _generate_virt_menu(3, "SUMMON", "SPELLBOOK", "FIGHT!");
-                _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
+                if(exploded_once==false)
+                {
+                    exploded_once=true;
+                    _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
+                }
+                else
+                {
+                    _display_status("TRY, TRY AGAIN...","ud:MOVE, a:SELECT");
+                }
                 _update_hud_text();
                 state = 3;
                 break;
@@ -298,6 +306,7 @@ void game_scene::update()
                             }
                             second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
                             if(current_weight>MAX_BOAT_WEIGHT){
+                                _selection_cursor_sprite.set_visible(false);
                                 
                                 third_line_status.append("iSTATIC TOO HIGH! a:CONTINUE");
                                 state = 22;
@@ -338,11 +347,10 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
-            case 22:
+            case 22: //Overloaded
             {
                 if(bn::keypad::a_pressed())
                 {
-                    _return_owls_to_tree();
                     _display_status("YOU LOSE CONTROL.","THE SUMMONING SPELL EXPLODES!","a:CONTINUE");
                     state=4;
                 }
@@ -353,7 +361,16 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {//TODO: JUST LOSE A LIFE AND GO BACK. ALSO, SAY WIN AND LOSE STUFF
-                    state=5;
+                    
+                    _return_owls_to_tree();
+                    _display_status("ALL SUMMONED OWLS DISPERSE.","YOU LOSE 1me IN THE BLAST.","a:CONTINUE");
+                    current_hull=current_hull-1;
+                    _update_hud_text();
+                    if(current_hull<=0)
+                    {
+                        state = 7;
+                    }
+                    else state = 1;
                 }
                 bn::core::update();
                 break;
@@ -363,7 +380,7 @@ void game_scene::update()
                 //KILL SELECTION CURSOR, LABELS
                 _clear_virt_menu();
 
-                bn::string<50> first_line_status("SUMMONING OVER. ");
+                bn::string<50> first_line_status("SUMMONING OVER.");
                 _display_status(first_line_status,"PRESS A TO RESOLVE COMBAT");
                 _update_hud_text();
                 state = 14;
@@ -375,6 +392,7 @@ void game_scene::update()
                 {
                     if(current_power < WaveInfoVector.at(current_wave).attack)
                     {
+                        
                         _display_status("ENEMY'S kATTACK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
                         won_wave=false;
                         state=6;
@@ -383,33 +401,23 @@ void game_scene::update()
                     if(current_power > WaveInfoVector.at(current_wave).attack)
                     {
                         _display_status("YOUR kATTACK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
+                        won_wave=true;
+                        state=13;
                     }
                     
                     if(current_power == WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR kATTACK = ENEMY'S kATTACK.","VICTORY!","PRESS A TO CONTINUE");    
-                    }
-
-                    if(current_power >= WaveInfoVector.at(current_wave).attack)
-                    {
+                        _display_status("YOUR kATTACK = ENEMY'S kATTACK.","VICTORY!","PRESS A TO CONTINUE");
                         won_wave=true;
-                        enemy_attack_text_sprites.clear();
-                        
-                        current_wave+=1;
-                        _update_hud_text();
-                        //TRY TO PUT CURRENT_WAVE ++ HERE
-                        //If you got to the end of all the waves, you win!
-                        if(current_wave==WaveInfoVector.size())
-                        {
-                            _display_status("YOU WIN!!!!!!"); //TODO: I think break into separate class
-                            state = 12;
-                        }
-                        //Otherwise get a reward of healing 1 health, then SHOPPING!
-                        else{
-                            state = 13;
-                        }
-
+                        state=13;
                     }
+
+                    /*if(current_power >= WaveInfoVector.at(current_wave).attack)
+                    {
+                        
+                        state = 13;
+
+                    }*/
                 }
                 bn::core::update();
                 break;
@@ -418,22 +426,45 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    
-                    bn::string<50> second_line_status("GATHERED +");  
-                    second_line_status.append(bn::to_string<8>(runes_which_might_disappear));
-                    second_line_status.append(" cSPIRIT-DUST");
-                    
-                    current_runes += runes_which_might_disappear;
-                    runes_which_might_disappear = 0;
-                    _display_status("REWARDS: HEAL 1 mHP", second_line_status, "PRESS A TO CONTINUE");//REWARD: SHIP REPAIRED 1 DAMAGE, GATHER RUNES
-                    current_hull=current_hull+1;
-                    if(current_hull>MAX_HULL)
+                    if(current_wave==WaveInfoVector.size()-1)
                     {
-                        current_hull=MAX_HULL;
+                        state = 12; // YOU WIN!!!!!!!!!!!!!!!!!!!!
                     }
-                    player_stat_box_active=false;
-                    _update_hud_text();
-                    state = 8;
+                    else
+                    {
+                        enemy_stat_box_active=false;
+                        _update_enemy_stat_box();
+
+                        
+                        player_stat_box_active=false;
+
+                        bn::string<50> first_line_status("REWARD: HEAL +");  
+                        first_line_status.append(bn::to_string<4>(WaveInfoVector.at(current_wave).reward));
+                        first_line_status.append(" mHP.");
+
+                        bn::string<50> second_line_status("YOUR OWLS GATHERED +");  
+                        second_line_status.append(bn::to_string<8>(runes_which_might_disappear));
+                        second_line_status.append(" cDUST.");
+                        
+                        current_runes += runes_which_might_disappear;
+                        runes_which_might_disappear = 0;
+                        if(won_wave==true)
+                        {
+                            current_hull = current_hull + WaveInfoVector.at(current_wave).reward;
+                            if(current_hull>MAX_HULL)
+                            {
+                                current_hull=MAX_HULL;
+                            }
+                            _display_status(first_line_status, second_line_status, "a:CONTINUE");//GATHER REWARD, GATHER
+                        }
+                        else
+                        {
+                            _display_status("COMBAT FINISHED.", second_line_status, "a:CONTINUE");
+                        }
+                        
+                        _update_hud_text();
+                        state = 8;
+                    }
                 }
                 bn::core::update();
                 break;
@@ -443,16 +474,20 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    current_hull=current_hull-1;
+                    
+                    enemy_stat_box_active=false;
+                    bn::string<50> second_line_status("YOU LOSE ");
+                    second_line_status.append(bn::to_string<4>(WaveInfoVector.at(current_wave).penalty));  
+                    second_line_status.append(" mHP.");  
+                    current_hull=current_hull-WaveInfoVector.at(current_wave).penalty;
                     _update_hud_text();
-                    if(current_hull<0)
+                    _display_status("THE ENEMY STRIKES, THEN RUNS AWAY!",second_line_status,"a:CONTINUE");
+                    if(current_hull<=0)
                     {
-                        _display_status("YOU DIED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
                         state = 7;
                     }
                     else{
-                        state = 8;
-                        _display_status("THE ENEMY STRIKES!","YOU LOSE ONE mHP.","a:CONTINUE");
+                        state = 13;
                     }
                 }
                 bn::core::update();
@@ -460,6 +495,13 @@ void game_scene::update()
             }
             case 7: // Game over
             {
+                if(bn::keypad::a_pressed())
+                {
+                    enemy_stat_box_active=false;
+                    _update_enemy_stat_box();
+                    
+                    _display_status("YOU DIED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
+                }
                 bn::core::update();
                 break;
             }
@@ -468,34 +510,40 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {
                     // test this. it may not be correct
-
+                    enemy_stat_box_active=false;
+                    _update_enemy_stat_box();
+                    
                     if(Player1Tableau.size()==0){
-                        if(won_wave==true)
+                        
+                        state = 20;
+                        /*if(won_wave==true)
                         {
                             state = 20;
                         }
                         else
                         {
                             state=10001;
-                        }
+                        }*/
                     }
                     else{
                         _return_owls_to_tree();
-                        if(won_wave==true)
+                        _display_status("ALL SUMMONED OWLS DISPERSE.","a:CONTINUE");
+                        state = 9;
+                        /*if(won_wave==true)
                         { 
                             _display_status("ALL SUMMONED OWLS DISPERSE.","a:CONTINUE");
                             state = 9;
                         }
                         else
                         {
-                            state=10001;
-                        }
+                            state=10001;// ALWAYS go to 20 or 9
+                        }*/
                     }
                 }
                 bn::core::update();
                 break;
             }
-            case 9: //Just returned owls, waiting on button press to enyer buy phase
+            case 9: //Just returned owls, waiting on button press to enter buy phase
             {
                 if(bn::keypad::a_pressed())
                 {
@@ -582,7 +630,7 @@ void game_scene::update()
                 _navigate_through_virt_menu();
                 if(bn::keypad::a_pressed())
                 {
-                    if(menu_position==0)
+                    if(menu_position==0) // BUY
                     {
                         
                         if(_is_merc_deck_empty())
@@ -594,12 +642,13 @@ void game_scene::update()
                             state=19;
                         }
                     }
-                    else if(menu_position==1)
+                    else if(menu_position==1) // SPELLBOOK
                     {
                         _display_status("FUNCTION NOT YET IMPLEMENTED");
                     }
-                    else if(menu_position==2)
+                    else if(menu_position==2) // PASS
                     {
+                        current_wave+=1;
                         _clear_virt_menu();
                         state=900;
 
@@ -681,7 +730,7 @@ void game_scene::update()
                     }
                     else
                     {
-                        _display_status("NOT ENOUGH cSPIRIT-DUST","a: CONTINUE");
+                        _display_status("NOT ENOUGH cDUST","a: CONTINUE");
                         state = 18;
                     }
                 }
@@ -729,6 +778,47 @@ void game_scene::update()
 }
 
 
+void game_scene::_update_enemy_stat_box()
+{
+    my_text_generator.set_center_alignment();
+    first_enemy_stat_text_sprites.clear();
+    second_enemy_stat_text_sprites.clear();
+    third_enemy_stat_text_sprites.clear();
+    if(enemy_stat_box_active)
+    {
+        bn::string<16> first_enemy_stat_text("k");
+        bn::string<16> second_enemy_stat_text("WIN:+");
+        bn::string<16> third_enemy_stat_text("LOSE:-");
+
+        first_enemy_stat_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
+
+        if(WaveInfoVector.at(current_wave).reward==-1)
+        {   
+            second_enemy_stat_text.append("VICTORY!");
+        }
+        else
+        {
+            second_enemy_stat_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).reward));
+            second_enemy_stat_text.append("m");
+        }
+
+        if(WaveInfoVector.at(current_wave).penalty==9999)
+        {   
+            third_enemy_stat_text.append("oDEATHo");
+        }
+        else
+        {
+            third_enemy_stat_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).penalty));
+            third_enemy_stat_text.append("m");
+        }
+        
+        my_text_generator.generate(70, -38, first_enemy_stat_text, first_enemy_stat_text_sprites);
+        my_text_generator.generate(70, -27, second_enemy_stat_text, second_enemy_stat_text_sprites);
+        my_text_generator.generate(70, -16, third_enemy_stat_text, third_enemy_stat_text_sprites);
+    }  
+}
+
+
 void game_scene::_update_hud_text()
 {
     //TODO: make this just make & use 1 string rather than making a million. lol
@@ -740,10 +830,10 @@ void game_scene::_update_hud_text()
     {
         if(hull_to_check<current_hull)
         {
-            hull_hud_text.append("m");
+            hull_hud_text.append("me");
         }
         else{
-            hull_hud_text.append("n");
+            hull_hud_text.append("ne");
         }
     }
     // The butano creator told me I should leave an 8 px border around the screen, but actual gba games would leave, like a 1 px border from the edge
@@ -757,8 +847,7 @@ void game_scene::_update_hud_text()
 
 
 
-
-
+    
 
     my_text_generator.set_right_alignment();
     //needed: enemy wave sprites, runes which might disappear sprite
@@ -775,7 +864,7 @@ void game_scene::_update_hud_text()
         }
         else if(wave_to_check < current_wave)
         {
-            wave_hud_text.append("z");//open
+            wave_hud_text.append("y");//z is open but i like y better
         }
         else if(wave_to_check == current_wave)
         {

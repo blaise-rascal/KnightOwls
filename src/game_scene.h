@@ -60,9 +60,12 @@ class game_scene
         //TODO: Maybe make const?  
         struct WaveInfo { 
             int attack;
+            int reward;
+            int penalty;
             //how many sprites
             //art for the enemies
             //eventually, probability of different attacks, add items to tree, etc.
+            //ACTUALLY: attack, penalty, reward
         };
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
@@ -80,13 +83,9 @@ class game_scene
         //bn::sprite_text_generator& _text_generator;
 */
         //ART LIST
-        //symbol for ship + life bar
-        //symbol for attack (swords crossed)
-        //symbol for weight (scale)
-        //symbol for runes with x
+        
         //boat
         //enemies
-        //6 ish more owls (super versions?)
         int current_weight;
         int current_power;
         int current_runes;
@@ -106,6 +105,8 @@ class game_scene
         int total_merc_probs;
         int random_num;
         bool player_stat_box_active;
+        bool enemy_stat_box_active;
+        bool exploded_once;
         //int runes_at_start_of_round;
         //int enemyindex;
 
@@ -124,7 +125,9 @@ class game_scene
         bn::vector<bn::sprite_ptr, 4> second_menu_option_text_sprites; //huh? why isn't this getting overflowed? the second menu option is "examine" which is more than 4 sprites...
         bn::vector<bn::sprite_ptr, 8> third_menu_option_text_sprites;
 
-        bn::vector<bn::sprite_ptr, 7> enemy_attack_text_sprites; // probably needs to be like 4
+        bn::vector<bn::sprite_ptr, 13> first_enemy_stat_text_sprites; // probably needs to be like 4
+        bn::vector<bn::sprite_ptr, 13> second_enemy_stat_text_sprites; // probably needs to be like 4
+        bn::vector<bn::sprite_ptr, 13> third_enemy_stat_text_sprites; // probably needs to be like 4
 
         //vectors containing card & state information
         bn::vector<int, 100> player1deck;
@@ -139,6 +142,7 @@ class game_scene
 
         //functions
         void _update_hud_text();
+        void _update_enemy_stat_box();
         void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "", const bn::string<50>& statustextthree = "");
         void _update_selection_cursor_from_virt_menu_position();
         void _update_selection_cursor_from_hor_menu_position();
