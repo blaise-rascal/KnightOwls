@@ -70,6 +70,7 @@ class game_scene
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
         bn::regular_bg_ptr _ocean_bg;
+        bn::regular_bg_ptr _spellbook_bg;
         //bn::sprite_ptr _chiyu_sprite;
 
         //bn::sprite_ptr bomb_sprite;
@@ -107,6 +108,7 @@ class game_scene
         bool player_stat_box_active;
         bool enemy_stat_box_active;
         bool exploded_once;
+        int previous_state;
         //int runes_at_start_of_round;
         //int enemyindex;
 

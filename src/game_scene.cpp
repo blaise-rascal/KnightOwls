@@ -22,14 +22,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//NEW IDEA: You lose an HP whenever the spell explodes
-//But then you remain at the same enemy
-
-//If you pass against an enemy, then you move onto the next one no matter what?
-//But if their attack is higher you take a damage? (and otherwise you heal 1?)
-//-gives you the option to pass even if you would lose combat
-
-
 
 #include "bn_core.h"
 #include "bn_display.h"
@@ -51,6 +43,7 @@
 #include "bn_sprite_items_knight_owls.h"
 #include "bn_sprite_items_selection_cursor.h"
 #include "bn_regular_bg_items_oceanbackground.h"
+#include "bn_regular_bg_items_spellbook.h"
 
 #include "game_scene.h"
 
@@ -66,6 +59,7 @@ namespace{
         const int MAX_BOAT_WEIGHT = 4;
         const int MAX_HULL = 4;
         const int STARTING_MERC_INDEX = 0;
+        //const int 
         //const bn::array<3> MERC_POSITIONS
         //const bn::string<6> deploy_label_text("  DRAW");
 }
@@ -75,6 +69,7 @@ namespace{
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
     _ocean_bg(bn::regular_bg_items::oceanbackground.create_bg(0, 0)),
+    _spellbook_bg(bn::regular_bg_items::spellbook.create_bg(0, 0)),
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     //weight_hud_text("WEIGHT: "),
@@ -95,21 +90,21 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     random_num(0),
     player_stat_box_active(false),
     enemy_stat_box_active(false),
-    exploded_once(false)
+    exploded_once(false),
+    previous_state(0)
 {
     current_hull=MAX_HULL;
 
     // y = 12 * 1.2^2
     //attack, reward, penalty
-    WaveInfoVector.push_back({12,1,1});
     WaveInfoVector.push_back({14,1,1});
     WaveInfoVector.push_back({16,1,1});
     WaveInfoVector.push_back({19,1,1});
     WaveInfoVector.push_back({22,1,1});
-    WaveInfoVector.push_back({25,1,1});
-    WaveInfoVector.push_back({29,1,1});
-    WaveInfoVector.push_back({34,1,1});
-    WaveInfoVector.push_back({39,1,1});
+    WaveInfoVector.push_back({25,1,2});
+    WaveInfoVector.push_back({29,1,2});
+    WaveInfoVector.push_back({34,1,2});
+    WaveInfoVector.push_back({39,1,2});
     WaveInfoVector.push_back({46,-1, 9999});//-1 is victory, 9999 is death
     //WaveInfoVector.push_back({26});
     //WaveInfoVector.push_back({31});
@@ -126,10 +121,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"BRUISER",            12,0,16,    0,3,true});
     CardInfoVector.push_back({"SCIENTIST",          9,0,0,      4,8,true});
     CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true});
-    //                                              8 for high money generation
-    //                                              8 for high damage
 
-    //Generate the deck of mercs to draw from. All mercs are added except those for whom "available for sale" is false
+    //Generate the deck of mercs to draw from.
     for(int i =0; i< CardInfoVector.size(); i++)
     {
         if(CardInfoVector.at(i).availableforsale==true)
@@ -150,8 +143,13 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(3);
 
     _selection_cursor_sprite.set_visible(false);
-    _selection_cursor_sprite.set_z_order(-100); //lower z order means it shows up higher. wacky huh?
+    _selection_cursor_sprite.set_z_order(-100);
+    _selection_cursor_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
 
+    _spellbook_bg.set_z_order(-90);
+    _spellbook_bg.set_priority(0);
+
+    _spellbook_bg.set_visible(false);
 }
 
 void game_scene::update()
@@ -258,7 +256,6 @@ void game_scene::update()
                 _generate_virt_menu(3, "SUMMON", "SPELLBOOK", "FIGHT!");
                 if(exploded_once==false)
                 {
-                    exploded_once=true;
                     _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
                 }
                 else
@@ -308,6 +305,7 @@ void game_scene::update()
                             if(current_weight>MAX_BOAT_WEIGHT){
                                 _selection_cursor_sprite.set_visible(false);
                                 
+                                exploded_once=true;
                                 third_line_status.append("iSTATIC TOO HIGH! a:CONTINUE");
                                 state = 22;
                             }
@@ -334,8 +332,9 @@ void game_scene::update()
                         }
                     }
                     else if(menu_position==1)
-                    {
-                        _display_status("FUNCTION NOT YET IMPLEMENTED");
+                    {//show spellbook!
+                        previous_state=state;
+                        state=23;
                     }
                     else if(menu_position==2)
                     {
@@ -476,12 +475,21 @@ void game_scene::update()
                 {
                     
                     enemy_stat_box_active=false;
+                    bn::string<50> first_line_status("THE ENEMY STRIKES");
+                    if(WaveInfoVector.at(current_wave).penalty>=1000)
+                    {
+                        first_line_status.append("!!!!!!!!!!");
+                    }
+                    else
+                    {
+                        first_line_status.append(", THEN RUNS AWAY!");
+                    }
                     bn::string<50> second_line_status("YOU LOSE ");
                     second_line_status.append(bn::to_string<4>(WaveInfoVector.at(current_wave).penalty));  
                     second_line_status.append(" mHP.");  
                     current_hull=current_hull-WaveInfoVector.at(current_wave).penalty;
                     _update_hud_text();
-                    _display_status("THE ENEMY STRIKES, THEN RUNS AWAY!",second_line_status,"a:CONTINUE");
+                    _display_status(first_line_status, second_line_status, "a:CONTINUE");
                     if(current_hull<=0)
                     {
                         state = 7;
@@ -643,8 +651,9 @@ void game_scene::update()
                         }
                     }
                     else if(menu_position==1) // SPELLBOOK
-                    {
-                        _display_status("FUNCTION NOT YET IMPLEMENTED");
+                    {//show spellbook!
+                        previous_state=state;
+                        state=23;
                     }
                     else if(menu_position==2) // PASS
                     {
@@ -730,14 +739,14 @@ void game_scene::update()
                     }
                     else
                     {
-                        _display_status("NOT ENOUGH cDUST","a: CONTINUE");
+                        _display_status("NOT ENOUGH cDUST!","a:CONTINUE");
                         state = 18;
                     }
                 }
                 bn::core::update();
                 break;
             }
-            case 18:{
+            case 18:{//waiting to return to purchase
                 if(bn::keypad::a_pressed())
                 {
                     state = 19;
@@ -745,6 +754,32 @@ void game_scene::update()
                 }
                 bn::core::update();
                 break;
+            }
+            case 23:{//spellbook!
+                
+                _display_status("DISPLAYING SPELLBOOK","a:CONTINUE");
+                //show the 
+                state = 24;
+                
+                _spellbook_bg.set_visible(true);
+                //_selection_cursor_sprite.set_visible(true);
+                
+                bn::core::update();
+                break;//Overloaded
+            }
+            case 24:{//spellbook!
+                if(bn::keypad::a_pressed())
+                {
+                    
+                    _spellbook_bg.set_visible(false);
+                    if(previous_state==3)
+                        state=3;
+                    else
+                        state=10;
+                    //_selection_cursor_sprite.set_visible(true);
+                }
+                bn::core::update();
+                break;//Overloaded
             }
             /*case 19:{
                 if(bn::keypad::a_pressed())
@@ -787,8 +822,8 @@ void game_scene::_update_enemy_stat_box()
     if(enemy_stat_box_active)
     {
         bn::string<16> first_enemy_stat_text("k");
-        bn::string<16> second_enemy_stat_text("WIN:+");
-        bn::string<16> third_enemy_stat_text("LOSE:-");
+        bn::string<16> second_enemy_stat_text("WIN:");
+        bn::string<16> third_enemy_stat_text("LOSE:");
 
         first_enemy_stat_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
 
@@ -798,6 +833,7 @@ void game_scene::_update_enemy_stat_box()
         }
         else
         {
+            second_enemy_stat_text.append("+");
             second_enemy_stat_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).reward));
             second_enemy_stat_text.append("m");
         }
@@ -808,6 +844,7 @@ void game_scene::_update_enemy_stat_box()
         }
         else
         {
+            third_enemy_stat_text.append("-");
             third_enemy_stat_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).penalty));
             third_enemy_stat_text.append("m");
         }
