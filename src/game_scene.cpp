@@ -22,6 +22,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//STORY MODE - A set of short story-driven challenges.
+//Chapter 1 (Tutorial)
+//ROGUELIKE MODE - A long, randomly generated, difficult journey. For the hardcore players!
 
 #include "bn_core.h"
 #include "bn_display.h"
@@ -90,8 +93,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     random_num(0),
     player_stat_box_active(false),
     enemy_stat_box_active(false),
-    exploded_once(false),
-    previous_state(0)
+    state_before_spellbook(0),
+    state_before_summon_start(0)
 {
     current_hull=MAX_HULL;
 
@@ -231,10 +234,9 @@ void game_scene::update()
                 display_text_line_one.append(bn::to_string<5>(WaveInfoVector.at(current_wave).attack));
                 _display_status(display_text_line_one, "a:CONTINUE");
 
-                
+                state_before_summon_start=900;
                 enemy_stat_box_active=true;
                 _update_enemy_stat_box();
-                exploded_once=false;
                 state = 1;
                 break;
             }
@@ -247,20 +249,29 @@ void game_scene::update()
                 bn::core::update();
                 break;
             }
+
             case 10001:
             {
                 //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
                 player1deck_at_start_of_round = player1deck;
                 player_stat_box_active=true;
-
+                state = 10002;
+                break;
+            }
+            case 10002:
+            {
                 _generate_virt_menu(3, "SUMMON", "SPELLBOOK", "FIGHT!");
-                if(exploded_once==false)
+                if(state_before_summon_start==900) // came from game start or after shopping
                 {
                     _display_status("NEW ROUND START! SUMMONING PHASE","ud:MOVE, a:SELECT");
                 }
-                else
+                else if(state_before_summon_start==22) // came from explosion
                 {
                     _display_status("TRY, TRY AGAIN...","ud:MOVE, a:SELECT");
+                }
+                else if(state_before_summon_start==23) // came from spellbook
+                {
+                    _display_status("ud:MOVE, a:SELECT");
                 }
                 _update_hud_text();
                 state = 3;
@@ -305,7 +316,6 @@ void game_scene::update()
                             if(current_weight>MAX_BOAT_WEIGHT){
                                 _selection_cursor_sprite.set_visible(false);
                                 
-                                exploded_once=true;
                                 third_line_status.append("iSTATIC TOO HIGH! a:CONTINUE");
                                 state = 22;
                             }
@@ -333,7 +343,7 @@ void game_scene::update()
                     }
                     else if(menu_position==1)
                     {//show spellbook!
-                        previous_state=state;
+                        state_before_spellbook=3;
                         state=23;
                     }
                     else if(menu_position==2)
@@ -350,6 +360,7 @@ void game_scene::update()
             {
                 if(bn::keypad::a_pressed())
                 {
+                    state_before_summon_start=22;
                     _display_status("YOU LOSE CONTROL.","THE SUMMONING SPELL EXPLODES!","a:CONTINUE");
                     state=4;
                 }
@@ -652,7 +663,8 @@ void game_scene::update()
                     }
                     else if(menu_position==1) // SPELLBOOK
                     {//show spellbook!
-                        previous_state=state;
+                        
+                        state_before_spellbook=11;
                         state=23;
                     }
                     else if(menu_position==2) // PASS
@@ -660,7 +672,7 @@ void game_scene::update()
                         current_wave+=1;
                         _clear_virt_menu();
                         state=900;
-
+                        //state_before_summon_start=
                     }
                 }
                 bn::core::update();
@@ -760,9 +772,14 @@ void game_scene::update()
                 _display_status("DISPLAYING SPELLBOOK","a:CONTINUE");
                 //show the 
                 state = 24;
-                
+                state_before_summon_start = 23;
                 _spellbook_bg.set_visible(true);
                 //_selection_cursor_sprite.set_visible(true);
+                bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
+                NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
+                NewTableauImg.set_z_order(-95);
+                NewTableauImg.set_bg_priority(0);
+                SpellbookTableau.push_back(NewTableauImg);
                 
                 bn::core::update();
                 break;//Overloaded
@@ -772,9 +789,9 @@ void game_scene::update()
                 {
                     
                     _spellbook_bg.set_visible(false);
-                    if(previous_state==3)
-                        state=3;
-                    else
+                    if(state_before_spellbook==3)
+                        state=10002;
+                    else if(state_before_spellbook==11)
                         state=10;
                     //_selection_cursor_sprite.set_visible(true);
                 }

@@ -107,8 +107,8 @@ class game_scene
         int random_num;
         bool player_stat_box_active;
         bool enemy_stat_box_active;
-        bool exploded_once;
-        int previous_state;
+        int state_before_spellbook;
+        int state_before_summon_start;
         //int runes_at_start_of_round;
         //int enemyindex;
 
@@ -138,6 +138,7 @@ class game_scene
         bn::vector<WaveInfo,10> WaveInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
         bn::vector<bn::sprite_ptr, 6> MercenaryTableau;
+        bn::vector<bn::sprite_ptr, 100> SpellbookTableau;
         bn::vector<int, 6> MercenaryDeck;
         bn::vector<int, 6> AllDrawableMercs;
         bn::vector<int, 6> TempMercDeckToDrawFrom;
