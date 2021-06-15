@@ -118,12 +118,16 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,false});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
-    CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,      0,4,true});
-    CardInfoVector.push_back({"MYSTIC",             5,0,0,      2,5,true});
-    CardInfoVector.push_back({"THUG",               8,0,10,     0,0,true});
-    CardInfoVector.push_back({"BRUISER",            12,0,16,    0,3,true});
-    CardInfoVector.push_back({"SCIENTIST",          9,0,0,      4,8,true});
-    CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true});
+    CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,      0,4,true}); // WHEN SUMMONED: 50% chance double ATK
+    CardInfoVector.push_back({"MYSTIC",             5,0,0,      2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    CardInfoVector.push_back({"THUG",               8,0,10,     0,0,true}); // -1money
+    CardInfoVector.push_back({"BRUISER",            12,0,16,    0,3,true}); // +1 energy
+    CardInfoVector.push_back({"OWLCHEMIST",         9,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
+
+//builder owl
+    // mage-powered golem If you have at least 4 mages in play, +20ATK
+    // On purchase: -1HP
 
     //Generate the deck of mercs to draw from.
     for(int i =0; i< CardInfoVector.size(); i++)
@@ -189,6 +193,25 @@ void game_scene::update()
                     MercenaryTableau.push_back(NewTableauImg);
                     last_merc_tableau_x_pos+=20;
                     MercenaryTableau.at(mercstoadd).set_visible(false);
+                }
+                int topleftx = -79;
+                int toplefty = -50;
+                //int currentx = topleftx;
+                //int currenty = 
+                //should probably be an array of vectors, or something. oh well
+                for(int spellbookcolumn=0; spellbookcolumn<6; spellbookcolumn++)
+                {
+                    //int card_to_add=0;
+                    //MercenaryDeck.push_back(0);
+                    for(int spellbookrow=0; spellbookrow<3; spellbookrow++)
+                    {
+                        bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(topleftx + spellbookcolumn*32, toplefty + spellbookrow*34);
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
+                        NewTableauImg.set_z_order(-95);
+                        NewTableauImg.set_bg_priority(0);
+                        SpellbookTableau.push_back(NewTableauImg);
+                        //last_merc_tableau_x_pos+=20;
+                    }
                 }
                 _update_hud_text();
                 state = 101;
@@ -775,11 +798,7 @@ void game_scene::update()
                 state_before_summon_start = 23;
                 _spellbook_bg.set_visible(true);
                 //_selection_cursor_sprite.set_visible(true);
-                bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
-                NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
-                NewTableauImg.set_z_order(-95);
-                NewTableauImg.set_bg_priority(0);
-                SpellbookTableau.push_back(NewTableauImg);
+                SpellbookTableau.at(0).set_visible(true);
                 
                 bn::core::update();
                 break;//Overloaded
