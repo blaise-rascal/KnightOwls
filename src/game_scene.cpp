@@ -26,6 +26,15 @@
 //Chapter 1 (Tutorial)
 //ROGUELIKE MODE - A long, randomly generated, difficult journey. For the hardcore players!
 
+//HOW TO PLAY
+//You are a SUMMONER. You will face many enemies one at a time, and you must SUMMON a force to defeat them.
+//Whenever you select SUMMON, you conjure forth something random from your spellbook, granting you bonuses such as ATTACK power or DUST (which is like money).
+//You can SUMMON both owls and energy surges, but beware - surges will increase your STATIC. If your STATIC is too high, you'll take 1 damage and have to start over.
+//After you've summoned a powerful fighting force, select "FIGHT!". At this point, if your total ATTACK is greater than or equal to your enemy's ATTACK, you win!
+//In either case, all SUMMONED owls are returned to your spellbook, and you can now spend your DUST to buy new owls.
+//Your objective is simple: Make it to the boss and win, while keeping your HP above zero.
+//If you ever want to know what you have already summoned, and what 
+
 #include "bn_core.h"
 #include "bn_display.h"
 #include "bn_sprite_item.h"
@@ -45,6 +54,8 @@
 #include "bn_sprite_tiles_ptr.h"
 #include "bn_sprite_items_knight_owls.h"
 #include "bn_sprite_items_selection_cursor.h"
+#include "bn_sprite_items_right_book_arrow.h"
+#include "bn_sprite_items_left_book_arrow.h"
 #include "bn_regular_bg_items_oceanbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
 
@@ -62,6 +73,8 @@ namespace{
         const int MAX_BOAT_WEIGHT = 4;
         const int MAX_HULL = 4;
         const int STARTING_MERC_INDEX = 0;
+        const int NUMBER_SPELLBOOK_COLUMNS = 6;
+        const int NUMBER_SPELLBOOK_ROWS = 3;
         //const int 
         //const bn::array<3> MERC_POSITIONS
         //const bn::string<6> deploy_label_text("  DRAW");
@@ -75,6 +88,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _spellbook_bg(bn::regular_bg_items::spellbook.create_bg(0, 0)),
     //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
+    _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(106, -15)),
+    _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-106, -15)),
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
     current_power(0),
@@ -153,6 +168,15 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _selection_cursor_sprite.set_z_order(-100);
     _selection_cursor_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
 
+    
+    _right_book_arrow_sprite.set_visible(false);
+    _right_book_arrow_sprite.set_z_order(-98);
+    _right_book_arrow_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
+
+    _left_book_arrow_sprite.set_visible(false);
+    _left_book_arrow_sprite.set_z_order(-98);
+    _left_book_arrow_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
+
     _spellbook_bg.set_z_order(-90);
     _spellbook_bg.set_priority(0);
 
@@ -199,16 +223,18 @@ void game_scene::update()
                 //int currentx = topleftx;
                 //int currenty = 
                 //should probably be an array of vectors, or something. oh well
-                for(int spellbookcolumn=0; spellbookcolumn<6; spellbookcolumn++)
+                for(int spellbookrow=0; spellbookrow<NUMBER_SPELLBOOK_ROWS; spellbookrow++)
                 {
                     //int card_to_add=0;
                     //MercenaryDeck.push_back(0);
-                    for(int spellbookrow=0; spellbookrow<3; spellbookrow++)
+                    
+                    for(int spellbookcolumn=0; spellbookcolumn<NUMBER_SPELLBOOK_COLUMNS; spellbookcolumn++)
                     {
                         bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(topleftx + spellbookcolumn*32, toplefty + spellbookrow*34);
                         NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
                         NewTableauImg.set_z_order(-95);
                         NewTableauImg.set_bg_priority(0);
+                        NewTableauImg.set_visible(false);
                         SpellbookTableau.push_back(NewTableauImg);
                         //last_merc_tableau_x_pos+=20;
                     }
@@ -791,14 +817,22 @@ void game_scene::update()
                 break;
             }
             case 23:{//spellbook!
-                
-                _display_status("DISPLAYING SPELLBOOK","a:CONTINUE");
+                _display_status("DISPLAYING SPELLBOOK","ludr:MOVE b:RETURN");
                 //show the 
                 state = 24;
                 state_before_summon_start = 23;
                 _spellbook_bg.set_visible(true);
+                _right_book_arrow_sprite.set_visible(true);
+                _left_book_arrow_sprite.set_visible(true);
                 //_selection_cursor_sprite.set_visible(true);
-                SpellbookTableau.at(0).set_visible(true);
+                for(int owltodisplay=0; owltodisplay < NUMBER_SPELLBOOK_COLUMNS * NUMBER_SPELLBOOK_ROWS; owltodisplay++)
+                {
+                    if(owltodisplay < player1deck.size())
+                    {
+                        SpellbookTableau.at(owltodisplay).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(owltodisplay)).tileindex));
+                        SpellbookTableau.at(owltodisplay).set_visible(true);
+                    }
+                }
                 
                 bn::core::update();
                 break;//Overloaded
@@ -806,8 +840,13 @@ void game_scene::update()
             case 24:{//spellbook!
                 if(bn::keypad::a_pressed())
                 {
-                    
+                    for(int owltodisplay=0; owltodisplay < NUMBER_SPELLBOOK_COLUMNS * NUMBER_SPELLBOOK_ROWS; owltodisplay++)
+                    {
+                        SpellbookTableau.at(owltodisplay).set_visible(false);
+                    }
                     _spellbook_bg.set_visible(false);
+                    _right_book_arrow_sprite.set_visible(false);
+                    _left_book_arrow_sprite.set_visible(false);
                     if(state_before_spellbook==3)
                         state=10002;
                     else if(state_before_spellbook==11)
@@ -1119,6 +1158,43 @@ void game_scene::_navigate_through_virt_menu()
         _update_selection_cursor_from_virt_menu_position();
     }
 }
+
+/*void game_scene::_navigate_through_spellbook_menu()
+{
+    if(bn::keypad::left_pressed())
+    {
+        /////
+        bool found_first_available=false;
+        for (int one_to_check=menu_position-1; one_to_check>=0; one_to_check--)
+        {
+            if(MercenaryDeck.at(one_to_check) != -1 && found_first_available==false)
+            {
+                found_first_available=true;
+                menu_position=one_to_check;
+            }
+        }
+        //if found_first_available is still false, then you stay in the same place
+        //menu_position--;
+        //if(menu_position<0)
+        //{
+        //    menu_position = 0;
+        //}
+        _update_selection_cursor_from_hor_menu_position();
+    }
+    if(bn::keypad::right_pressed())
+    {
+        bool found_first_available=false;
+        for (int one_to_check=menu_position+1; one_to_check<MercenaryDeck.size(); one_to_check++)
+        {
+            if(MercenaryDeck.at(one_to_check) != -1 && found_first_available==false)
+            {
+                found_first_available=true;
+                menu_position=one_to_check;
+            }
+        }
+        _update_selection_cursor_from_hor_menu_position();
+    }
+}*/
 
 void game_scene::_navigate_through_hor_menu()
 {
