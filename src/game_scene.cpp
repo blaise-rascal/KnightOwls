@@ -109,7 +109,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player_stat_box_active(false),
     enemy_stat_box_active(false),
     state_before_spellbook(0),
-    state_before_summon_start(0)
+    state_before_summon_start(0),
+    number_sb_pages(0),
+    current_sb_page(0),
+    current_sb_owl(0)
 {
     current_hull=MAX_HULL;
 
@@ -129,7 +132,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //WaveInfoVector.push_back({37});
     
     //                         name, cost, weight, power, gather, tileindex, availableforsale
-    CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false});
+    /*CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false});
     CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,false});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
@@ -138,7 +141,18 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"THUG",               8,0,10,     0,0,true}); // -1money
     CardInfoVector.push_back({"BRUISER",            12,0,16,    0,3,true}); // +1 energy
     CardInfoVector.push_back({"OWLCHEMIST",         9,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
+    CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less*/
+
+    CardInfoVector.push_back({"MAGE",               1,0,0,      1,1,false});
+    CardInfoVector.push_back({"ARCHER",             1,0,3,      0,2,false});
+    CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
+    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
+    CardInfoVector.push_back({"SPEAR-OWL",          1,0,6,      0,4,true}); // WHEN SUMMONED: 50% chance double ATK
+    CardInfoVector.push_back({"MYSTIC",             1,0,0,      2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    CardInfoVector.push_back({"THUG",               1,0,10,     0,0,true}); // -1money
+    CardInfoVector.push_back({"BRUISER",            1,0,16,    0,3,true}); // +1 energy
+    CardInfoVector.push_back({"OWLCHEMIST",         1,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"MERCHANT",           1,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
 
 //builder owl
     // mage-powered golem If you have at least 4 mages in play, +20ATK
@@ -155,14 +169,14 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //CardInfoTempDeckWithoutReplacement
 
     //make starting deck
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
     player1deck.push_back(2);
     player1deck.push_back(2);
     player1deck.push_back(3);
     player1deck.push_back(3);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
 
     _selection_cursor_sprite.set_visible(false);
     _selection_cursor_sprite.set_z_order(-100);
@@ -817,28 +831,23 @@ void game_scene::update()
                 break;
             }
             case 23:{//spellbook!
-                _display_status("DISPLAYING SPELLBOOK","ludr:MOVE b:RETURN");
                 //show the 
                 state = 24;
                 state_before_summon_start = 23;
                 _spellbook_bg.set_visible(true);
-                _right_book_arrow_sprite.set_visible(true);
-                _left_book_arrow_sprite.set_visible(true);
+                number_sb_pages=1+((player1deck.size()-1) / (NUMBER_SPELLBOOK_COLUMNS * NUMBER_SPELLBOOK_ROWS)); /// /18
+                current_sb_page=0;
+                current_sb_owl=0;
                 //_selection_cursor_sprite.set_visible(true);
-                for(int owltodisplay=0; owltodisplay < NUMBER_SPELLBOOK_COLUMNS * NUMBER_SPELLBOOK_ROWS; owltodisplay++)
-                {
-                    if(owltodisplay < player1deck.size())
-                    {
-                        SpellbookTableau.at(owltodisplay).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(owltodisplay)).tileindex));
-                        SpellbookTableau.at(owltodisplay).set_visible(true);
-                    }
-                }
-                
-                bn::core::update();
+               
+                _update_spellbook_from_menu_position();
+                //bn::core::update();
                 break;//Overloaded
             }
             case 24:{//spellbook!
-                if(bn::keypad::a_pressed())
+
+                _navigate_through_spellbook();
+                if(bn::keypad::b_pressed())
                 {
                     for(int owltodisplay=0; owltodisplay < NUMBER_SPELLBOOK_COLUMNS * NUMBER_SPELLBOOK_ROWS; owltodisplay++)
                     {
@@ -1137,6 +1146,50 @@ void game_scene::_generate_virt_menu(int num_options, const bn::string<12>& menu
 
 }
 
+
+void game_scene::_update_spellbook_from_menu_position()
+{
+    //RECALCULATE sb_page & redraw owls
+    current_sb_page = current_sb_owl / (NUMBER_SPELLBOOK_COLUMNS * NUMBER_SPELLBOOK_ROWS);
+    for(int owltodisplay=current_sb_page*NUMBER_SPELLBOOK_COLUMNS*NUMBER_SPELLBOOK_ROWS ; owltodisplay < (current_sb_page+1)*NUMBER_SPELLBOOK_COLUMNS*NUMBER_SPELLBOOK_ROWS; owltodisplay++)
+    {
+        if(owltodisplay < player1deck.size())
+        {
+            SpellbookTableau.at(_position_on_page(owltodisplay)).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(owltodisplay)).tileindex));
+            SpellbookTableau.at(_position_on_page(owltodisplay)).set_visible(true);
+        }
+        else{
+            SpellbookTableau.at(_position_on_page(owltodisplay)).set_visible(false);
+        }
+    }
+    if(current_sb_page !=0)
+    {
+        _left_book_arrow_sprite.set_visible(true);
+    }
+    else{
+        _left_book_arrow_sprite.set_visible(false);
+    }
+    if(current_sb_page != number_sb_pages-1)
+    {
+        _right_book_arrow_sprite.set_visible(true);
+    }
+    else
+    {
+        _right_book_arrow_sprite.set_visible(false);
+    }
+    _point_cursor_at_owl(SpellbookTableau.at(_position_on_page(current_sb_owl)));
+
+    bn::string<50> first_line_status("");
+    bn::string<50> second_line_status("");
+    bn::string<50> third_line_status("ludr:MOVE, b:RETURN");
+    first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(current_sb_owl)).name));
+    //first_line_status.append(" (COST: ");
+    //first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
+    //first_line_status.append("c)");
+    second_line_status.append(_generate_description_from_owl_index(player1deck.at(current_sb_owl)));
+    _display_status(first_line_status, second_line_status, third_line_status);
+}
+
 void game_scene::_navigate_through_virt_menu()
 {
     if(bn::keypad::up_pressed())
@@ -1159,42 +1212,71 @@ void game_scene::_navigate_through_virt_menu()
     }
 }
 
-/*void game_scene::_navigate_through_spellbook_menu()
+int game_scene::_position_on_page(int absolute_owl)
 {
+    return absolute_owl-current_sb_page*NUMBER_SPELLBOOK_COLUMNS*NUMBER_SPELLBOOK_ROWS;
+}
+
+void game_scene::_navigate_through_spellbook()
+{
+    if(bn::keypad::up_pressed())
+    {
+        if(_position_on_page(current_sb_owl) - NUMBER_SPELLBOOK_COLUMNS >= 0)
+        {
+            current_sb_owl = current_sb_owl - NUMBER_SPELLBOOK_COLUMNS;
+        }
+        _update_spellbook_from_menu_position();
+    }
+    if(bn::keypad::down_pressed())
+    {
+        if((_position_on_page(current_sb_owl)+NUMBER_SPELLBOOK_COLUMNS < NUMBER_SPELLBOOK_COLUMNS*NUMBER_SPELLBOOK_ROWS) && (current_sb_owl+NUMBER_SPELLBOOK_COLUMNS < player1deck.size()))
+        {
+            current_sb_owl = current_sb_owl + NUMBER_SPELLBOOK_COLUMNS;
+        }
+        _update_spellbook_from_menu_position();
+    }
     if(bn::keypad::left_pressed())
     {
-        /////
-        bool found_first_available=false;
-        for (int one_to_check=menu_position-1; one_to_check>=0; one_to_check--)
+        if(_position_on_page(current_sb_owl)%NUMBER_SPELLBOOK_COLUMNS==0) //if at far right
         {
-            if(MercenaryDeck.at(one_to_check) != -1 && found_first_available==false)
+            if(current_sb_page!=0)
             {
-                found_first_available=true;
-                menu_position=one_to_check;
+                current_sb_owl=current_sb_owl-13;//todo: make this a formula
             }
         }
-        //if found_first_available is still false, then you stay in the same place
-        //menu_position--;
-        //if(menu_position<0)
-        //{
-        //    menu_position = 0;
-        //}
-        _update_selection_cursor_from_hor_menu_position();
+        else
+        {
+            current_sb_owl=current_sb_owl-1;
+        }
+        _update_spellbook_from_menu_position();
     }
     if(bn::keypad::right_pressed())
     {
-        bool found_first_available=false;
-        for (int one_to_check=menu_position+1; one_to_check<MercenaryDeck.size(); one_to_check++)
+        if(_position_on_page(current_sb_owl)%NUMBER_SPELLBOOK_COLUMNS==NUMBER_SPELLBOOK_COLUMNS-1) //if at far right
         {
-            if(MercenaryDeck.at(one_to_check) != -1 && found_first_available==false)
+            if(current_sb_page!=number_sb_pages-1)
             {
-                found_first_available=true;
-                menu_position=one_to_check;
+                //Go to next page on the right - but to figure out what row, we gotta do something stupid and complicated
+                if(current_sb_owl+13 < player1deck.size())
+                {
+                    current_sb_owl=current_sb_owl+13;
+                }
+                else if(current_sb_owl+7 < player1deck.size())
+                {
+                    current_sb_owl=current_sb_owl+7;
+                }
+                else{
+                    current_sb_owl=current_sb_owl+1;
+                }
             }
         }
-        _update_selection_cursor_from_hor_menu_position();
+        else if(current_sb_owl+1 < player1deck.size())
+        {
+            current_sb_owl=current_sb_owl+1;
+        }
+        _update_spellbook_from_menu_position();
     }
-}*/
+}
 
 void game_scene::_navigate_through_hor_menu()
 {
