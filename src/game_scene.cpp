@@ -61,6 +61,8 @@
 
 #include "game_scene.h"
 
+#include "bn_music_items.h"
+#include "bn_music_actions.h"
 #include "variable_8x8_sprite_font.h"
 
 
@@ -99,6 +101,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     menu_position(0),
     state(0),
     last_tableau_x_pos(-110),
+    last_tableau_y_pos(7),
     
     last_merc_tableau_x_pos(-50),
     menu_position_max(1),
@@ -116,6 +119,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 {
     current_hull=MAX_HULL;
 
+    bn::music_items::voyagemusic.play(0.5);
     // y = 12 * 1.2^2
     //attack, reward, penalty
     WaveInfoVector.push_back({14,1,1});
@@ -173,6 +177,34 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(2);
     player1deck.push_back(3);
     player1deck.push_back(3);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
     player1deck.push_back(0);
     player1deck.push_back(0);
     player1deck.push_back(1);
@@ -391,11 +423,16 @@ void game_scene::update()
 
                             //Display sprite
                             //newspriteposition= vector.at(size-1).position + 5
-                            bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 20);
+                            bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, last_tableau_y_pos);
                             NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(player1deck.at(index_to_remove)).tileindex));//player1deck.at(index_to_remove).tileindex));
                             Player1Tableau.push_back(NewTableauImg);//bn::sprite_items::knight_owls.create_sprite(last_tableau_x_pos, 0));
                             //Player1Tableau.at().set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(20));
                             last_tableau_x_pos+=5;
+                            if(Player1Tableau.size()%15==0)
+                            {
+                                last_tableau_x_pos=-110;
+                                last_tableau_y_pos+=5;
+                            }
 
                             //Delete the drawn card from the deck
                             player1deck.erase(player1deck.begin()+index_to_remove);
@@ -1093,6 +1130,7 @@ void game_scene::_return_owls_to_tree()
     current_weight = 0;
     runes_which_might_disappear=0;
     last_tableau_x_pos = -110;
+    last_tableau_y_pos = 7;
     _update_hud_text();
     player1deck = player1deck_at_start_of_round;
 }

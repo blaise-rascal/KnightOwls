@@ -101,6 +101,7 @@ class game_scene
         int menu_position;
         int state;
         int last_tableau_x_pos;
+        int last_tableau_y_pos;
         int last_merc_tableau_x_pos;
         int menu_position_max;
         int current_wave;
