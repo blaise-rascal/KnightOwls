@@ -16,14 +16,13 @@
 #include "bn_string.h"
 #include "bn_fixed_point.h"*/
 #include "bn_sprite_text_generator.h"
-
+#include "bn_audio_mixing_rate.h"
 
 
 #include "game_scene.h"
 
 
 #include "variable_8x8_sprite_font.h"
-
 
 int main()
 {
