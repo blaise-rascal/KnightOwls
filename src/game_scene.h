@@ -78,6 +78,7 @@ class game_scene
         bn::sprite_ptr _selection_cursor_sprite;
         bn::sprite_ptr _right_book_arrow_sprite;
         bn::sprite_ptr _left_book_arrow_sprite;
+        bn::sprite_ptr _enemy_sprite;
 
         //bf::status status;
 

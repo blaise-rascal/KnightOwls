@@ -56,6 +56,7 @@
 #include "bn_sprite_items_selection_cursor.h"
 #include "bn_sprite_items_right_book_arrow.h"
 #include "bn_sprite_items_left_book_arrow.h"
+#include "bn_sprite_items_enemies.h"
 #include "bn_regular_bg_items_oceanbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
 
@@ -92,6 +93,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(106, -15)),
     _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-106, -15)),
+    _enemy_sprite(bn::sprite_items::enemies.create_sprite(70, 20)),
+
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
     current_power(0),
@@ -101,7 +104,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     menu_position(0),
     state(0),
     last_tableau_x_pos(-110),
-    last_tableau_y_pos(7),
+    last_tableau_y_pos(10),
     
     last_merc_tableau_x_pos(-50),
     menu_position_max(1),
@@ -209,6 +212,30 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(0);
     player1deck.push_back(1);
     player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
+    player1deck.push_back(0);
+    player1deck.push_back(0);
+    player1deck.push_back(1);
+    player1deck.push_back(1);
 
     _selection_cursor_sprite.set_visible(false);
     _selection_cursor_sprite.set_z_order(-100);
@@ -223,9 +250,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _left_book_arrow_sprite.set_z_order(-98);
     _left_book_arrow_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
 
+    _enemy_sprite.set_visible(false);
+    
     _spellbook_bg.set_z_order(-90);
     _spellbook_bg.set_priority(0);
-
     _spellbook_bg.set_visible(false);
 }
 
@@ -329,6 +357,8 @@ void game_scene::update()
                 display_text_line_one.append(bn::to_string<5>(WaveInfoVector.at(current_wave).attack));
                 _display_status(display_text_line_one, "a:CONTINUE");
 
+                _enemy_sprite.set_tiles(bn::sprite_items::enemies.tiles_item().create_tiles(0));
+                //_enemy_sprite.set_visible(true);
                 state_before_summon_start=900;
                 enemy_stat_box_active=true;
                 _update_enemy_stat_box();
@@ -431,7 +461,7 @@ void game_scene::update()
                             if(Player1Tableau.size()%15==0)
                             {
                                 last_tableau_x_pos=-110;
-                                last_tableau_y_pos+=5;
+                                last_tableau_y_pos+=4;
                             }
 
                             //Delete the drawn card from the deck
@@ -942,6 +972,7 @@ void game_scene::_update_enemy_stat_box()
     third_enemy_stat_text_sprites.clear();
     if(enemy_stat_box_active)
     {
+        _enemy_sprite.set_visible(true);
         bn::string<16> first_enemy_stat_text("k");
         bn::string<16> second_enemy_stat_text("WIN:");
         bn::string<16> third_enemy_stat_text("LOSE:");
@@ -973,7 +1004,11 @@ void game_scene::_update_enemy_stat_box()
         my_text_generator.generate(70, -38, first_enemy_stat_text, first_enemy_stat_text_sprites);
         my_text_generator.generate(70, -27, second_enemy_stat_text, second_enemy_stat_text_sprites);
         my_text_generator.generate(70, -16, third_enemy_stat_text, third_enemy_stat_text_sprites);
-    }  
+    }
+    else{
+        _enemy_sprite.set_visible(false);
+    }
+                
 }
 
 
@@ -1130,7 +1165,7 @@ void game_scene::_return_owls_to_tree()
     current_weight = 0;
     runes_which_might_disappear=0;
     last_tableau_x_pos = -110;
-    last_tableau_y_pos = 7;
+    last_tableau_y_pos = 10;
     _update_hud_text();
     player1deck = player1deck_at_start_of_round;
 }
