@@ -1,25 +1,29 @@
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//                  Knight Owls game by Tom Horwath (Blaise Rascal)                             //
-//                                                                                              //
-//                This source code is terrible! View at your own risk!                          //
-//                   Code is shared for education purposes ONLY.                                //
-//                 You can use code snippets, but don't use the art,                            //
-//                    music, or game design without my permission.                              //
-//                Game engine used: https://github.com/GValiente/butano                         //
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//                                                                                              //
-//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//                      Knight Owls game by Tom Horwath (Blaise Rascal)                                 //
+//                                                                                                      //
+//                    This source code is terrible! View at your own risk!                              //
+//                                                                                                      //
+//                                          LICENSE:                                                    //
+//                            Play the game all you want, for free.                                     //
+//  Put it on your retro console, or your computer, or whatever! Recompile it from source! Go hog wild! //
+//                    Source code is shared for education purposes ONLY.                                //
+//           You can use code snippets in your own projects, but don't use the art,                     //
+//                        music, or game design without my permission.                                  //
+//                    Game engine used: https://github.com/GValiente/butano                             //
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 //STORY MODE - A set of short story-driven challenges.
@@ -93,7 +97,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(106, -15)),
     _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-106, -15)),
-    _enemy_sprite(bn::sprite_items::enemies.create_sprite(70, 20)),
+    _enemy_sprite(bn::sprite_items::enemies.create_sprite(70, 19)), //TODO: Push up your stat box & enemy stat box, and enemy sprite
 
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
@@ -124,19 +128,26 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
     bn::music_items::voyagemusic.play(0.5);
     // y = 12 * 1.2^2
-    //attack, reward, penalty
-    WaveInfoVector.push_back({14,1,1});
-    WaveInfoVector.push_back({16,1,1});
-    WaveInfoVector.push_back({19,1,1});
-    WaveInfoVector.push_back({22,1,1});
-    WaveInfoVector.push_back({25,1,2});
-    WaveInfoVector.push_back({29,1,2});
-    WaveInfoVector.push_back({34,1,2});
-    WaveInfoVector.push_back({39,1,2});
-    WaveInfoVector.push_back({46,-1, 9999});//-1 is victory, 9999 is death
-    //WaveInfoVector.push_back({26});
-    //WaveInfoVector.push_back({31});
-    //WaveInfoVector.push_back({37});
+    //attack, reward, penalty, enemyinfoindex
+    WaveInfoVector.push_back({14,1,1,0});
+    WaveInfoVector.push_back({16,1,1,1});
+    WaveInfoVector.push_back({19,1,1,2});
+    WaveInfoVector.push_back({22,1,1,3});
+    WaveInfoVector.push_back({25,1,2,4});
+    WaveInfoVector.push_back({29,1,2,5});
+    WaveInfoVector.push_back({34,1,2,2});
+    WaveInfoVector.push_back({39,1,2,2});
+    WaveInfoVector.push_back({46,-1, 9999,3});//-1 is victory, 9999 is death
+
+    //
+    EnemyInfoVector.push_back({0,"LILYBAD"});
+    EnemyInfoVector.push_back({1,"FLOATING VILESTAR"});
+    EnemyInfoVector.push_back({2,"DIRE LILYBAD"});
+    EnemyInfoVector.push_back({3,"GOBLIN SURF-SHIP"});
+    EnemyInfoVector.push_back({4,"PRETZELCOATL"});
+    EnemyInfoVector.push_back({5,"HERMAN THE GERMAN MERMAN"});
+
+
     
     //                         name, cost, weight, power, gather, tileindex, availableforsale
     /*CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false});
@@ -151,14 +162,14 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less*/
 
     CardInfoVector.push_back({"MAGE",               1,0,0,      1,1,false});
-    CardInfoVector.push_back({"ARCHER",             1,0,3,      0,2,false});
+    CardInfoVector.push_back({"ARCHER",             1,0,30,      0,2,false});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
     CardInfoVector.push_back({"SPEAR-OWL",          1,0,6,      0,4,true}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             1,0,0,      2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               1,0,10,     0,0,true}); // -1money
     CardInfoVector.push_back({"BRUISER",            1,0,16,    0,3,true}); // +1 energy
-    CardInfoVector.push_back({"OWLCHEMIST",         1,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"ALCHEMIST",         1,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           1,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
 
 //builder owl
@@ -251,7 +262,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _left_book_arrow_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
 
     _enemy_sprite.set_visible(false);
-    
+
     _spellbook_bg.set_z_order(-90);
     _spellbook_bg.set_priority(0);
     _spellbook_bg.set_visible(false);
@@ -353,11 +364,14 @@ void game_scene::update()
             }
             case 900:
             {
-                bn::string<50> display_text_line_one("ENEMY APPEARS! kATTACK = ");
-                display_text_line_one.append(bn::to_string<5>(WaveInfoVector.at(current_wave).attack));
-                _display_status(display_text_line_one, "a:CONTINUE");
+                bn::string<50> display_text_line_one("");
+                bn::string<50> display_text_line_two("kATTACK = ");
+                display_text_line_one.append(bn::to_string<27>(EnemyInfoVector.at(WaveInfoVector.at(current_wave).enemy_index).name));
+                display_text_line_one.append(bn::to_string<27>(" APPEARS!"));
+                display_text_line_two.append(bn::to_string<5>(WaveInfoVector.at(current_wave).attack));
+                _display_status(display_text_line_one, display_text_line_two, "a:CONTINUE");
 
-                _enemy_sprite.set_tiles(bn::sprite_items::enemies.tiles_item().create_tiles(0));
+                _enemy_sprite.set_tiles(bn::sprite_items::enemies.tiles_item().create_tiles(EnemyInfoVector.at(WaveInfoVector.at(current_wave).enemy_index).tileindex));
                 //_enemy_sprite.set_visible(true);
                 state_before_summon_start=900;
                 enemy_stat_box_active=true;

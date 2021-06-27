@@ -10,23 +10,31 @@ https://www.beepbox.co/#8n41sbkal00e0ut1Um1a7g0uj0qi0r3o40220T0v1L4ua7q3d6f8y4z1
 BEST VERSION:
 https://www.beepbox.co/#8n41sbkal00e0ut1Um1a7g0uj0qi0r3o40220T0v1L4ua7q3d6f8y4z1C0w0c1h0T1v0L4u93q1d4f6y2z1C0c2A8F4B0V1Qd007P5aa3E0019T1v0L4ub4q1d2f7y1z1C0c0A5F4B3V9Q0001Pfca8E0094T1v0L4u92q1d4f7y2z1C0c2AbF6B6V9Q0490Pb976E0001T4v0L4uf0q1z6666ji8k8k3jSBKSJJAArriiiiii07JCABrzrrrrrrr00YrkqHrsrrrrjr005zrAqzrjzrrqr1jRjrqGGrrzsrsA099ijrABJJJIAzrrtirqrqjqixzsrAjrqjiqaqqysttAJqjikikrizrHtBJJAzArzrIsRCITKSS099ijrAJS____Qg99habbCAYrDzh00b28oNBd000000W3FkJw00qVU0iy4hyA6t2lamNHDes-4p0FmRYpRI01AaoW0yiFr6w00000000000-000008xA00000001j70005boRPMy60xz700000000000B47wkJzn0p2pMEERajFGihQRkR9E-qGqGqGqJdldleljljJkRkVmPlFGFGFGFGFGFGFGFGXdldmPljlIRkRkRkRqqGqFaKC1ApeCGhHFLQi5c3j8kRmmQRTmQQjwQ7xvtdQ-0CWsPAVuFdPpypibarkg4NeFJ5P9GjpNqox2SgjqUx8-MF2h5J5ELFFw1qbbaqqqqGWqxpolduje3hhGk30QF8WE2hFHjhUAz8SqfR6OHWEGyXLEjGG1SX8eCrn49I6LPbd6l9UnjhWhVTmtE-3qfnt88vQY5hYjES0ayYRJefljunK_yqrnS5djEgaqfBdBW2puWukaKVbV6VL21FKDVjs7ODO_R_cTg41wHbXWKUZqaVnGHKfn6bqeGjQh4niuzLkDEYzOWjQsL8kCm84th6AWs3Fef4kBVajna8QAp430kQpp6PhA1D1Vx704rjbBb3cJjhAAuhx7A4tx7ohVoFMsRQRW0PnLjje9V8l4YzbCysL1HEBCRSm2Nq_4ITyY8Njnjt_inQSLgCVK3jhM5A0FByM41sSL8yxcSL83i0Ywgp0wJRdNY0PTX18tdUK96LkCLef1QSKFFBEkNoE6CgCEP5w9cTv-sPh-FlTpKDMcpKfMsSXGhXizdPvvFBYAarnQkRexkCzVjpvDdQYErWVa1FKDaeDFd55j50g2AQpo0982qqqQSF0SjzR99Ot-QBtARRh5QDrb8bLX9WevJ9WemISLx4jdjWhgp2PhZSPpvcIO-Xnva91sSnPeXClqVH-XmjnUHCWvVl6unIQrB9ypFFFFyUjgcAsM7AM0FJvFdjEgqqfBdBY9BWFVhArd7MBlRtIR_ytvAuizvZtVeO4QNt428C22wwO2388a218l11A4511ggk46ggk46Mgk4511jubA6LguzQkApABjtnpj19ds0IFcI0iajoAzeLH8-bAvw0Cwq8VsYCDBXd6PioCqqqqplsm45E5w1p4mElClGxqQNmpiX5wt5O-5xq5pJsgOMq_cIQpS9EOcCsCDdC0C-onapFCgDjdcO4QPpd4QvAkV5k_jZojCz0GFCz9D9GK18QPjdcOLg0c01y-wg70fqc860wlBkhQF00tj150o1920hgw4AapsiKiGGGGGwWrqGGGGEajIGGGGGwGpaGGGGHbgdA31QRkRRgdQ5jljnl0gc7jljUlg04Y-j4NhhuRd5EuFE90mZGqbKNkRdpiZJiyXIPAQttXpR5TpV1f2QQpt17hhsQttSVBGGAN5x9B85Oa1ubK-aGJIawwEE5SXLqGJIby1sywnyXLyGHrEUwn82EEIQtdcOQOCkGwmwnqHpDqE5E5SqSpSAQp575lNcYlhhgC8yyZIa0GYfb96ALcjhA2F8O0G4A12hi4x48y8EEEhpp1GjOZ56ghPnkQ68x96hhA4t16FE4h6ghFB8EO96-q34vlUCzcEkQu8wwkOFieo8Rck8yxjbB8bYwmwmwmhQ5d0J1yLqcPcNd6phgnQkknd6lBKpiGGGGjatBntllllrllARlllJVlTlllllllll2QRmnBntlkPallcQObjeTBljbchcQPpEO9SpFDyICGpUyq9UCtyqpUH9GCqpFCChq9OICGpFCCqp5FDaaoGiAN5iguePNt4h552gyacz8Eiagkw0
 
+enemy ideas
+-dire lilybad
+-lamb on the lam
+-goblin surf-ship
+-catghost steamship
+-great pacific garbage patch
+-
+
 List of features I need done:
 -Draw some (simple) enemies (and give them names?)
 -Draw rift
+-Improve spellbook drawing
 -Main menu that lets you select level
 	-different levels: types of merc array, variable number mercs available, enemy combat values
--owls with different mechanics:
-	-spear, 50%+double
+-balance! (test only getting attack)
+-Make the owls more interesting (each one has its own mechanic)
+-Multi-boss levels
+	-After beat boss, lose all but 1 cards (which you choose) and go to next row! (speaking of which, need to display multiple rows in hud)
+
+-spear, 50%+double
 	-thug, -1 money
 	-bruiser, SUMMON: +1energy
 	-mystic,  SUMMON: +1c +3atk
 	-merchant, +3c, THEN 3 OWLS COST 1 LESS
 	-alchemist,  75%+3c/25%NOTHING
--test only getting attack (balance!)
-
--After beat boss, lose all but 1 cards (which you choose) and go for round 2! (speaking of which, need to display multiple rounds on side - and make )
-
-
 level 1 (easy)
 level 2 (medium)
 level 3 (hard)

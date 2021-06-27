@@ -1,3 +1,8 @@
+//See game_scene.cpp for info & license
+
+
+
+
 
 #ifndef GAME_SCENE_H
 #define GAME_SCENE_H
@@ -62,10 +67,17 @@ class game_scene
             int attack;
             int reward;
             int penalty;
+            int enemy_index;
             //how many sprites
             //art for the enemies
             //eventually, probability of different attacks, add items to tree, etc.
             //ACTUALLY: attack, penalty, reward
+        };
+
+        struct EnemyInfo { 
+                              //herman the german merman
+            int tileindex;
+            bn::string<27> name;//great pacific garbage patch
         };
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
@@ -143,6 +155,7 @@ class game_scene
         bn::vector<int, 100> player1deck_at_start_of_round; //Uh, I guess I need both this AND cards removed? if I want to have a way to examine the tree, that is
         bn::vector<CardInfo,10> CardInfoVector;
         bn::vector<WaveInfo,10> WaveInfoVector;
+        bn::vector<EnemyInfo,10> EnemyInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
         bn::vector<bn::sprite_ptr, 6> MercenaryTableau;
         bn::vector<bn::sprite_ptr, 100> SpellbookTableau;

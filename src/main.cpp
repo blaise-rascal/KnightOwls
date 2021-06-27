@@ -1,3 +1,8 @@
+
+//See game_scene.cpp for info & license
+
+
+
 #include "bn_core.h"
 #include "bn_display.h"
 
