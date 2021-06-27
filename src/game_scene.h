@@ -83,6 +83,7 @@ class game_scene
         bn::sprite_text_generator& my_text_generator;
         bn::regular_bg_ptr _ocean_bg;
         bn::regular_bg_ptr _spellbook_bg;
+        bn::regular_bg_ptr _rift_bg;
         //bn::sprite_ptr _chiyu_sprite;
 
         //bn::sprite_ptr bomb_sprite;

@@ -13,7 +13,8 @@
 //                                          LICENSE:                                                    //
 //                            Play the game all you want, for free.                                     //
 //  Put it on your retro console, or your computer, or whatever! Recompile it from source! Go hog wild! //
-//                    Source code is shared for education purposes ONLY.                                //
+//      Either distribute it OR modify the source, but please don't distribute a modified version.      //
+//                       Source code is shared for education purposes.                                  //
 //           You can use code snippets in your own projects, but don't use the art,                     //
 //                        music, or game design without my permission.                                  //
 //                    Game engine used: https://github.com/GValiente/butano                             //
@@ -33,8 +34,9 @@
 //HOW TO PLAY
 //You are a SUMMONER. You will face many enemies one at a time, and you must SUMMON a force to defeat them.
 //Whenever you select SUMMON, you conjure forth something random from your spellbook, granting you bonuses such as ATTACK power or DUST (which is like money).
-//You can SUMMON both owls and energy surges, but beware - surges will increase your STATIC. If your STATIC is too high, you'll take 1 damage and have to start over.
+//You can SUMMON both owls and energy surges, but beware - surges will increase your STATIC. If your STATIC is too high, you'll take 1 damage and have to start over the summoning phase.
 //After you've summoned a powerful fighting force, select "FIGHT!". At this point, if your total ATTACK is greater than or equal to your enemy's ATTACK, you win!
+//If you win, you get a reward. If you lose, you must pay a penalty.
 //In either case, all SUMMONED owls are returned to your spellbook, and you can now spend your DUST to buy new owls.
 //Your objective is simple: Make it to the boss and win, while keeping your HP above zero.
 //If you ever want to know what you have already summoned, and what 
@@ -63,6 +65,7 @@
 #include "bn_sprite_items_enemies.h"
 #include "bn_regular_bg_items_oceanbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
+#include "bn_regular_bg_items_rift.h"
 
 #include "game_scene.h"
 
@@ -93,7 +96,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
     _ocean_bg(bn::regular_bg_items::oceanbackground.create_bg(0, 0)),
     _spellbook_bg(bn::regular_bg_items::spellbook.create_bg(0, 0)),
-    //_spellbook_bg(bn::regular_bg_items::rift.create_bg(0, 0)),
+    _rift_bg(bn::regular_bg_items::rift.create_bg(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(106, -15)),
     _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-106, -15)),
@@ -266,6 +269,11 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _spellbook_bg.set_z_order(-90);
     _spellbook_bg.set_priority(0);
     _spellbook_bg.set_visible(false);
+
+    
+    _rift_bg.set_z_order(-80);
+    _rift_bg.set_priority(1);
+    _rift_bg.set_visible(false);
 }
 
 void game_scene::update()
@@ -297,11 +305,13 @@ void game_scene::update()
                 {
                     //int card_to_add=0;
                     //MercenaryDeck.push_back(0);
-                    bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
+                    bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -35);
                     NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
                     MercenaryTableau.push_back(NewTableauImg);
                     last_merc_tableau_x_pos+=20;
                     MercenaryTableau.at(mercstoadd).set_visible(false);
+                    MercenaryTableau.at(mercstoadd).set_z_order(-75);
+                    MercenaryTableau.at(mercstoadd).set_bg_priority(1); //TODO: Plan out this better
                 }
                 int topleftx = -79;
                 int toplefty = -50;
@@ -760,6 +770,7 @@ void game_scene::update()
                     MercenaryTableau.at(merctoillustrate).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(MercenaryDeck.at(merctoillustrate)).tileindex));
                     MercenaryTableau.at(merctoillustrate).set_visible(true);
                 }
+                _rift_bg.set_visible(true);
                 _display_status("A RIFT TO OWLHALLA APPEARS!","YOU MAY CONSCRIPT NEW OWLS WITH c.","a:CONTINUE");
                 
                 state = 21;
@@ -1437,7 +1448,7 @@ void game_scene::_update_selection_cursor_from_hor_menu_position()
     _point_cursor_at_owl(MercenaryTableau.at(menu_position));
 }
 
-void game_scene::_clear_virt_menu()
+void game_scene::_clear_virt_menu() //TODO: Uh, maybe this should be called clear hor menu?
 {
     _selection_cursor_sprite.set_visible(false);
     first_menu_option_text_sprites.clear();
@@ -1447,6 +1458,7 @@ void game_scene::_clear_virt_menu()
     {
         MercenaryTableau.at(i).set_visible(false);
     }
+    _rift_bg.set_visible(false);
 }
 
 void game_scene::_start_hor_merc_menu()
