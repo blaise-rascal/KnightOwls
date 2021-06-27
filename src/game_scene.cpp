@@ -93,11 +93,11 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
     _ocean_bg(bn::regular_bg_items::oceanbackground.create_bg(0, 0)),
     _spellbook_bg(bn::regular_bg_items::spellbook.create_bg(0, 0)),
-    //_chiyu_sprite(bn::sprite_items::chiyu.create_sprite(0, 0)),
+    //_spellbook_bg(bn::regular_bg_items::rift.create_bg(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(106, -15)),
     _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-106, -15)),
-    _enemy_sprite(bn::sprite_items::enemies.create_sprite(70, 19)), //TODO: Push up your stat box & enemy stat box, and enemy sprite
+    _enemy_sprite(bn::sprite_items::enemies.create_sprite(70, 10)), //TODO: Push up your stat box & enemy stat box, and enemy sprite
 
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
@@ -1015,9 +1015,9 @@ void game_scene::_update_enemy_stat_box()
             third_enemy_stat_text.append("m");
         }
         
-        my_text_generator.generate(70, -38, first_enemy_stat_text, first_enemy_stat_text_sprites);
-        my_text_generator.generate(70, -27, second_enemy_stat_text, second_enemy_stat_text_sprites);
-        my_text_generator.generate(70, -16, third_enemy_stat_text, third_enemy_stat_text_sprites);
+        my_text_generator.generate(70, -47, first_enemy_stat_text, first_enemy_stat_text_sprites);
+        my_text_generator.generate(70, -36, second_enemy_stat_text, second_enemy_stat_text_sprites);
+        my_text_generator.generate(70, -25, third_enemy_stat_text, third_enemy_stat_text_sprites);
     }
     else{
         _enemy_sprite.set_visible(false);
@@ -1094,20 +1094,20 @@ void game_scene::_update_hud_text()
 
         bn::string<20> power_hud_text("k");
         power_hud_text.append(bn::to_string<8>(current_power));
-        my_text_generator.generate(-70, -38, power_hud_text, power_text_sprites);
+        my_text_generator.generate(-70, -47, power_hud_text, power_text_sprites);
 
     
 
         bn::string<20> runes_that_might_disappear_hud_text("c+");
         runes_that_might_disappear_hud_text.append(bn::to_string<8>(runes_which_might_disappear));
-        my_text_generator.generate(-70, -27, runes_that_might_disappear_hud_text, runes_that_might_disappear_text_sprites);
+        my_text_generator.generate(-70, -36, runes_that_might_disappear_hud_text, runes_that_might_disappear_text_sprites);
 
         //-39
         bn::string<20> weight_hud_text("i");
         weight_hud_text.append(bn::to_string<8>(current_weight));
         weight_hud_text.append("/");
         weight_hud_text.append(bn::to_string<2>(MAX_BOAT_WEIGHT));
-        my_text_generator.generate(-70, -16, weight_hud_text, weight_text_sprites);
+        my_text_generator.generate(-70, -25, weight_hud_text, weight_text_sprites);
     }
     //-115 -39
     //-115 -50
