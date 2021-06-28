@@ -98,8 +98,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _spellbook_bg(bn::regular_bg_items::spellbook.create_bg(0, 0)),
     _rift_bg(bn::regular_bg_items::rift.create_bg(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
-    _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(106, -15)),
-    _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-106, -15)),
+    _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(110, -15)),
+    _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-110, -15)),
     _enemy_sprite(bn::sprite_items::enemies.create_sprite(70, 10)), //TODO: Push up your stat box & enemy stat box, and enemy sprite
 
     //weight_hud_text("WEIGHT: "),
@@ -138,17 +138,18 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({22,1,1,3});
     WaveInfoVector.push_back({25,1,2,4});
     WaveInfoVector.push_back({29,1,2,5});
-    WaveInfoVector.push_back({34,1,2,2});
+    WaveInfoVector.push_back({34,1,2,6});
     WaveInfoVector.push_back({39,1,2,2});
     WaveInfoVector.push_back({46,-1, 9999,3});//-1 is victory, 9999 is death
 
     //
-    EnemyInfoVector.push_back({0,"LILYBAD"});
-    EnemyInfoVector.push_back({1,"FLOATING VILESTAR"});
-    EnemyInfoVector.push_back({2,"DIRE LILYBAD"});
-    EnemyInfoVector.push_back({3,"GOBLIN SURF-SHIP"});
-    EnemyInfoVector.push_back({4,"PRETZELCOATL"});
-    EnemyInfoVector.push_back({5,"HERMAN THE GERMAN MERMAN"});
+    EnemyInfoVector.push_back({0,"GREAT PACIFIC GARBAGE PILE"});
+    EnemyInfoVector.push_back({1,"LAMB ON THE LAM"});
+    EnemyInfoVector.push_back({2,"FLOATING VILESTAR"});
+    EnemyInfoVector.push_back({3,"DIRE LILYBAD"});
+    EnemyInfoVector.push_back({4,"GOBLIN SURF-SHIP"});
+    EnemyInfoVector.push_back({5,"PRETZELCOATL"});
+    EnemyInfoVector.push_back({6,"HERMAN THE GERMAN MERMAN"});
 
 
     
