@@ -28,16 +28,40 @@ List of features I need done:
 	-After beat boss, lose all but 1 cards (which you choose) and go to next row! (speaking of which, need to display multiple rows in hud)
 
 -spear, 50%+double
-	-thug, -1 money
-	-bruiser, SUMMON: +1energy
-	-mystic,  SUMMON: +1c +3atk
-	-merchant, +3c, THEN 3 OWLS COST 1 LESS
-	-alchemist,  75%+3c/25%NOTHING
+7	-thug, +15k, -1 money? -> 22k -2
+9	-merchant, +3c, THEN 3 OWLS COST 1 LESS -> +3c then 3 owls cost 2 less
+6	-alchemist,  75%+3c/25%NOTHING -> 65% +5c/ 25% NOTHING
+5	-spear, 75% +5k, 25% +10k -> 50% +5k, 50% +5k
+4	-mystic... +2c, -1k -> +3c -2k
+11	-bruiser +25k, +1z -> +25k +1z, NO SUMMON IF 4/4 STATIC (?)
+3	-mage +1c ->
+3	-archer +3k -> +4k
+//7	-vampire +2k then permanent +2k
+
+ATTACKING: 4
+MONEY EARNING: 4
 level 1 (easy)
 level 2 (medium)
 level 3 (hard)
+
+BANNERS
+OWL: +all (owl type) +x power... or whatever... depending on the owl
+RIFT: +1 owl available for purchase at -1c
+SURGE: first 3 owls guaranteed to not be energy surges
+COUPON: one owl goes on sale every round (25% off)
+D20: All owls 5% chance for +10ATK
+FIRST AID BANNER: After LOSS, 50% chance for +1HP
+GOBLIN BANNER: Permanent goblin (1d10ATK) added to deck
+UPGRADES MAGES TO:
+50%+1c 50%+2c
 
 
 List of optional features (if I have time):
 -Splash art / main menu art, main menu music
 -Pause menu with sound control
+
+enemy remixes:
+-lamb with a lambic
+-lily and the goblins
+-vicious fishes
+-cat hydra with party hats

@@ -14,7 +14,8 @@
 //                            Play the game all you want, for free.                                     //
 //  Put it on your retro console, or your computer, or whatever! Recompile it from source! Go hog wild! //
 //      Either distribute it OR modify the source, but please don't distribute a modified version.      //
-//                       Source code is shared for education purposes.                                  //
+//                                                                                                      //
+//                  Source code is shared primarily for education purposes.                             //
 //           You can use code snippets in your own projects, but don't use the art,                     //
 //                        music, or game design without my permission.                                  //
 //                    Game engine used: https://github.com/GValiente/butano                             //
@@ -31,15 +32,30 @@
 //Chapter 1 (Tutorial)
 //ROGUELIKE MODE - A long, randomly generated, difficult journey. For the hardcore players!
 
+//LEVEL 1 - A relatively quick and easy journey, with one boss at the end.
+//LEVEL 2 - Introduces the banner mechanic, and features two bosses, with a spellbook reset in the middle. 
+//LEVEL 3 - A long and arduous journey featuring three bosses and two spellbook resets. Are you up for the challenge?
+//TUTORIAL & CREDITS - All info for this game is at ____ since I didn't have time to write it into the game.
+
+//Game by Tom Horwath (Blaise Rascal). Features butano engine, and the help of many people on the gbadev discord.
+
 //HOW TO PLAY
 //You are a SUMMONER. You will face many enemies one at a time, and you must SUMMON a force to defeat them.
-//Whenever you select SUMMON, you conjure forth something random from your spellbook, granting you bonuses such as ATTACK power or DUST (which is like money).
-//You can SUMMON both owls and energy surges, but beware - surges will increase your STATIC. If your STATIC is too high, you'll take 1 damage and have to start over the summoning phase.
+//Whenever you select SUMMON, you remove a random spell from your SPELLBOOK, and conjure it into existence, granting you bonuses such as ATTACK power or DUST (which is like money).
+//If you ever want to see what is left in your SPELLBOOK, select SPELLBOOK at any time.
+//You can SUMMON both owls and energy surges, but beware - surges will increase your STATIC. If your STATIC is too high, your spell will explode, and you will take 1 damage and have to start over the summoning phase.
+//There are no limits to the number of times you can SUMMON, other than the fact that SUMMONing too much will cause your spell to explode. (Think of it like blackjack!)
 //After you've summoned a powerful fighting force, select "FIGHT!". At this point, if your total ATTACK is greater than or equal to your enemy's ATTACK, you win!
-//If you win, you get a reward. If you lose, you must pay a penalty.
-//In either case, all SUMMONED owls are returned to your spellbook, and you can now spend your DUST to buy new owls.
-//Your objective is simple: Make it to the boss and win, while keeping your HP above zero.
-//If you ever want to know what you have already summoned, and what 
+//If you win, you heal some HP. If you lose, you lose some HP.
+//In either case, all SUMMONED owls are returned to your SPELLBOOK, and you can now spend your DUST to buy new owls.
+//Your objective is simple: Make it to the final boss and win, while keeping your HP above zero.
+//Bosses have the unique characteristic that there is no skipping past them. If you lose against them, you must FIGHT them again, until one or the other of you dies.
+//Bosses also have the unique ability that their ATTACK power is randomly decided from several options. This means that you won't know how high their ATTACK will be until after you've selected FIGHT (and it changes every time you FIGHT).
+
+//TIP: Toward the beginning of a run, it's a good idea to get owls that grant you DUST, since they will earn you money every round for the rest of the game. But toward the end of a run, their value drops off, and it's better to prioritize owls with high ATTACK.
+//TIP: Unlike deckbuilding games like dominion or slay the spire, there is no downside to putting "bad" owls in your spellbook, since you can "draw" as many "cards" as you want.
+
+
 
 #include "bn_core.h"
 #include "bn_display.h"
@@ -139,17 +155,18 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({25,1,2,4});
     WaveInfoVector.push_back({29,1,2,5});
     WaveInfoVector.push_back({34,1,2,6});
-    WaveInfoVector.push_back({39,1,2,2});
+    WaveInfoVector.push_back({39,1,2,7});
     WaveInfoVector.push_back({46,-1, 9999,3});//-1 is victory, 9999 is death
 
     //
-    EnemyInfoVector.push_back({0,"GREAT PACIFIC GARBAGE PILE"});
+    EnemyInfoVector.push_back({0,"LILYBAD"});
     EnemyInfoVector.push_back({1,"LAMB ON THE LAM"});
     EnemyInfoVector.push_back({2,"FLOATING VILESTAR"});
     EnemyInfoVector.push_back({3,"DIRE LILYBAD"});
     EnemyInfoVector.push_back({4,"GOBLIN SURF-SHIP"});
-    EnemyInfoVector.push_back({5,"PRETZELCOATL"});
-    EnemyInfoVector.push_back({6,"HERMAN THE GERMAN MERMAN"});
+    EnemyInfoVector.push_back({5,"CAT HYDRA"});
+    EnemyInfoVector.push_back({6,"PRETZELCOATL"});
+    EnemyInfoVector.push_back({7,"HERMAN THE GERMAN MERMAN"});
 
 
     
@@ -172,7 +189,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"SPEAR-OWL",          1,0,6,      0,4,true}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             1,0,0,      2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               1,0,10,     0,0,true}); // -1money
-    CardInfoVector.push_back({"BRUISER",            1,0,16,    0,3,true}); // +1 energy
+    CardInfoVector.push_back({"ENERGY KNIGHT",            1,0,16,    0,3,true}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",         1,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           1,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
 
@@ -327,7 +344,7 @@ void game_scene::update()
                     for(int spellbookcolumn=0; spellbookcolumn<NUMBER_SPELLBOOK_COLUMNS; spellbookcolumn++)
                     {
                         bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(topleftx + spellbookcolumn*32, toplefty + spellbookrow*34);
-                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
+                        NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0)); //TODO: uh delete
                         NewTableauImg.set_z_order(-95);
                         NewTableauImg.set_bg_priority(0);
                         NewTableauImg.set_visible(false);
