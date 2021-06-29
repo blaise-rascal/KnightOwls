@@ -14,6 +14,7 @@
 //                            Play the game all you want, for free.                                     //
 //  Put it on your retro console, or your computer, or whatever! Recompile it from source! Go hog wild! //
 //      Either distribute it OR modify the source, but please don't distribute a modified version.      //
+//    (Exceptions can be made; please email me to discuss releasing your proposed modified version.)    //
 //                                                                                                      //
 //                  Source code is shared primarily for education purposes.                             //
 //           You can use code snippets in your own projects, but don't use the art,                     //
