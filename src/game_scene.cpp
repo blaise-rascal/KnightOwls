@@ -18,7 +18,7 @@
 //                                                                                                      //
 //                  Source code is shared primarily for education purposes.                             //
 //           You can use code snippets in your own projects, but don't use the art,                     //
-//                        music, or game design without my permission.                                  //
+//                   music, game name, or game design without my permission.                            //
 //                    Game engine used: https://github.com/GValiente/butano                             //
 //                                                                                                      //
 //                                                                                                      //
