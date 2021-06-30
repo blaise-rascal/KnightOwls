@@ -42,7 +42,9 @@
 //LEVEL 3 - A long and arduous journey featuring three bosses and two spellbook resets. Are you up for the challenge?
 //TUTORIAL & CREDITS - All info for this game is at ____ since I didn't have time to write it into the game.
 
-//Game by Tom Horwath (Blaise Rascal). Features butano engine, and the help of many people on the gbadev discord.
+//Game by Tom Horwath (Blaise Rascal).
+
+//IMPORTANT: This game has only been tested on mgba. I have no idea how well it works on other emulators or on physical hardware.
 
 //HOW TO PLAY
 //You are a SUMMONER. You will face many enemies one at a time, and you must SUMMON a force to defeat them.
@@ -58,7 +60,7 @@
 //Bosses also have the unique ability that their ATTACK power is randomly decided from several options. This means that you won't know how high their ATTACK will be until after you've selected FIGHT (and it changes every time you FIGHT).
 
 //TIP: Toward the beginning of a run, it's a good idea to get owls that grant you DUST, since they will earn you money every round for the rest of the game. But toward the end of a run, their value drops off, and it's better to prioritize owls with high ATTACK.
-//TIP: Unlike deckbuilding games like dominion or slay the spire, there is no downside to putting "bad" owls in your spellbook, since you can "draw" as many "cards" as you want.
+//TIP: Unlike deckbuilding games like dominion or slay the spire, there is no downside to putting "bad" owls in your spellbook, since you can "draw" as many "cards" as you want. So feel free to purchase as many mages or archers as you want! (Well, unless there are better options...)
 
 
 
@@ -126,7 +128,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
     current_power(0),
-    current_runes(0),
+    current_runes(100), // MODIFY THIS VALUE TO SET STARTING RUNES
     current_hull(0),
     runes_which_might_disappear(0),
     menu_position(0),
@@ -161,42 +163,34 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({29,1,2,5});
     WaveInfoVector.push_back({34,1,2,6});
     WaveInfoVector.push_back({39,1,2,7});
-    WaveInfoVector.push_back({46,-1, 9999,3});//-1 is victory, 9999 is death
+    WaveInfoVector.push_back({46,-1, 9999,8});//-1 is victory, 9999 is death
 
     //
     EnemyInfoVector.push_back({0,"LILYBAD"});
-    EnemyInfoVector.push_back({1,"LAMB ON THE LAM"});
+    EnemyInfoVector.push_back({1,"MARAUDING OWLSHIP"});
     EnemyInfoVector.push_back({2,"FLOATING VILESTAR"});
-    EnemyInfoVector.push_back({3,"DIRE LILYBAD"});
-    EnemyInfoVector.push_back({4,"GOBLIN SURF-SHIP"});
-    EnemyInfoVector.push_back({5,"CAT HYDRA"});
-    EnemyInfoVector.push_back({6,"PRETZELCOATL"});
-    EnemyInfoVector.push_back({7,"HERMAN THE GERMAN MERMAN"});
+    EnemyInfoVector.push_back({3,"LAMB ON THE LAM"});
+    EnemyInfoVector.push_back({4,"DIRE LILYBAD"});
+    EnemyInfoVector.push_back({5,"GOBLIN SURF-SHIP"});
+    EnemyInfoVector.push_back({6,"CAT HYDRA"});
+    EnemyInfoVector.push_back({7,"PRETZELCOATL"});
+    EnemyInfoVector.push_back({8,"HERMAN THE GERMAN MERMAN"});
 
 
     
-    //                         name, cost, weight, power, gather, tileindex, availableforsale
-    /*CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false});
+    //                         name,    cost, weight, power,    gather, tileindex, availableforsale
+   
+    CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,false});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,      0,4,true}); // WHEN SUMMONED: 50% chance double ATK
-    CardInfoVector.push_back({"MYSTIC",             5,0,0,      2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    CardInfoVector.push_back({"THUG",               8,0,10,     0,0,true}); // -1money
-    CardInfoVector.push_back({"BRUISER",            12,0,16,    0,3,true}); // +1 energy
-    CardInfoVector.push_back({"OWLCHEMIST",         9,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    CardInfoVector.push_back({"MERCHANT",           14,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less*/
-
-    CardInfoVector.push_back({"MAGE",               1,0,0,      1,1,false});
-    CardInfoVector.push_back({"ARCHER",             1,0,30,      0,2,false});
-    CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
-    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
-    CardInfoVector.push_back({"SPEAR-OWL",          1,0,6,      0,4,true}); // WHEN SUMMONED: 50% chance double ATK
-    CardInfoVector.push_back({"MYSTIC",             1,0,0,      2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    CardInfoVector.push_back({"THUG",               1,0,10,     0,0,true}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",            1,0,16,    0,3,true}); // +1 energy
-    CardInfoVector.push_back({"ALCHEMIST",         1,0,0,      4,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    CardInfoVector.push_back({"MERCHANT",           1,0,0,     7,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
+    CardInfoVector.push_back({"MYSTIC",             4,0,-1,     2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    CardInfoVector.push_back({"THUG",               7,0,13,     -1,0,true}); // -1money
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,25,     0,3,true}); // +1 energy
+    CardInfoVector.push_back({"ALCHEMIST",          6,0,0,      3,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"MERCHANT",           10,0,0,     6,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
+    //                         name,    cost, static, attack,   gather, tileindex, availableforsale
 
 //builder owl
     // mage-powered golem If you have at least 4 mages in play, +20ATK
@@ -217,58 +211,6 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(2);
     player1deck.push_back(3);
     player1deck.push_back(3);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
-    player1deck.push_back(0);
-    player1deck.push_back(0);
-    player1deck.push_back(1);
-    player1deck.push_back(1);
     player1deck.push_back(0);
     player1deck.push_back(0);
     player1deck.push_back(1);
@@ -622,6 +564,10 @@ void game_scene::update()
                         enemy_stat_box_active=false;
                         _update_enemy_stat_box();
 
+                        if(runes_which_might_disappear<0)
+                        {
+                            runes_which_might_disappear=0;
+                        }
                         
                         player_stat_box_active=false;
 
@@ -1126,13 +1072,16 @@ void game_scene::_update_hud_text()
     {
         my_text_generator.set_center_alignment();
 
-        bn::string<20> power_hud_text("k");
+        bn::string<20> power_hud_text("k"); // If current power is negative, this will have a minus sign
         power_hud_text.append(bn::to_string<8>(current_power));
         my_text_generator.generate(-70, -47, power_hud_text, power_text_sprites);
 
+        bn::string<20> runes_that_might_disappear_hud_text("c");
     
-
-        bn::string<20> runes_that_might_disappear_hud_text("c+");
+        if(runes_which_might_disappear>=0) // If runes which might disappear is negative, this will have a minus sign
+        {
+            runes_that_might_disappear_hud_text.append(bn::to_string<1>("+"));
+        }
         runes_that_might_disappear_hud_text.append(bn::to_string<8>(runes_which_might_disappear));
         my_text_generator.generate(-70, -36, runes_that_might_disappear_hud_text, runes_that_might_disappear_text_sprites);
 
@@ -1240,12 +1189,46 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     int power_to_add = CardInfoVector.at(card_info_index).power;
     int runes_to_add = CardInfoVector.at(card_info_index).gather;
     bn::string<50> _description_string("");
-    _description_string.append("k+");
-    _description_string.append(bn::to_string<5>(power_to_add));
-    _description_string.append(" c+");
-    _description_string.append(bn::to_string<5>(runes_to_add));
-    _description_string.append(" i+");
-    _description_string.append(bn::to_string<5>(weight_to_add));
+
+    //ADD A PLUS SIGN IF VALUE > 0, KEEP THE MINUS SIGN IF VALUE < 0, DO NOT SHOW IF VALUE == 0
+    if(power_to_add>0)
+    {
+        _description_string.append("k+");
+        _description_string.append(bn::to_string<5>(power_to_add));
+    }
+    else if(power_to_add<0)
+    {
+        _description_string.append("k");
+        _description_string.append(bn::to_string<5>(power_to_add));
+    }
+
+    if(power_to_add!=0 && (runes_to_add!=0 || weight_to_add>0))
+    {
+        _description_string.append(" ");
+    }
+
+    if(runes_to_add>0)
+    {
+        _description_string.append("c+");
+        _description_string.append(bn::to_string<5>(runes_to_add));
+    }
+    else if(runes_to_add<0)
+    {
+        _description_string.append("c");
+        _description_string.append(bn::to_string<5>(runes_to_add));
+    }
+
+    if(runes_to_add!=0 && weight_to_add>0)
+    {
+        _description_string.append(" ");
+    }
+
+    //STATIC IS A LITTLE SIMPLER BECAUSE NOTHING DECREASES STATIC
+    if(weight_to_add>0)
+    {
+        _description_string.append("i+");
+        _description_string.append(bn::to_string<5>(weight_to_add));
+    }
     return(_description_string);
 }
 
