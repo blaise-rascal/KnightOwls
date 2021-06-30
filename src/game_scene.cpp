@@ -14,7 +14,7 @@
 //                            Play the game all you want, for free.                                     //
 //  Put it on your retro console, or your computer, or whatever! Recompile it from source! Go hog wild! //
 //      Either distribute it OR modify the source, but please don't distribute a modified version.      //
-//    (Exceptions can be made; please email me to discuss releasing your proposed modified version.)    //
+//   (Exceptions can be made; please contact me to discuss releasing your proposed modified version.)   //
 //                                                                                                      //
 //                  Source code is shared primarily for education purposes.                             //
 //           You can use code snippets in your own projects, but don't use the art,                     //
@@ -60,8 +60,9 @@
 //Bosses have the unique characteristic that there is no skipping past them. If you lose against them, you must FIGHT them again, until one or the other of you dies.
 //Bosses also have the unique ability that their ATTACK power is randomly decided from several options. This means that you won't know how high their ATTACK will be until after you've selected FIGHT (and it changes every time you FIGHT).
 
+//TIP: As long as your static is 0, 1, or 2, there is no downside to summoning, because you are not at risk of your spell exploding. Summon away! But when your static becomes 3 or 4, any additional summon may generate an energy surge that causes an explosion. Choose wisely... 
 //TIP: Toward the beginning of a run, it's a good idea to get owls that grant you DUST, since they will earn you money every round for the rest of the game. But toward the end of a run, their value drops off, and it's better to prioritize owls with high ATTACK.
-//TIP: Unlike deckbuilding games like dominion or slay the spire, there is no downside to putting "bad" owls in your spellbook, since you can "draw" as many "cards" as you want. So feel free to purchase as many mages or archers as you want! (Well, unless there are better options...)
+//TIP: Unlike deckbuilding games like dominion or slay the spire, there is no downside to putting "bad" owls in your spellbook, since you can "draw" as many "cards" as you want. So feel free to load up your spellbook with mages and archers! (Well, unless there are better options...)
 
 
 
@@ -129,7 +130,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //weight_hud_text("WEIGHT: "),
     current_weight(0),
     current_power(0),
-    current_runes(100), // MODIFY THIS VALUE TO SET STARTING RUNES
+    current_runes(0), // MODIFY THIS VALUE TO SET STARTING RUNES
     current_hull(0),
     runes_which_might_disappear(0),
     menu_position(0),
@@ -154,17 +155,17 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_hull=MAX_HULL;
 
     bn::music_items::voyagemusic.play(0.5);
-    // y = 12 * 1.2^2
+    // y = 12 * 1.18^2
     //attack, reward, penalty, enemyinfoindex
     WaveInfoVector.push_back({14,1,1,0});
-    WaveInfoVector.push_back({16,1,1,1});
-    WaveInfoVector.push_back({19,1,1,2});
-    WaveInfoVector.push_back({22,1,1,3});
-    WaveInfoVector.push_back({25,1,2,4});
-    WaveInfoVector.push_back({29,1,2,5});
-    WaveInfoVector.push_back({34,1,2,6});
-    WaveInfoVector.push_back({39,1,2,7});
-    WaveInfoVector.push_back({46,-1, 9999,8});//-1 is victory, 9999 is death
+    WaveInfoVector.push_back({17,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
+    WaveInfoVector.push_back({20,1,1,2});
+    WaveInfoVector.push_back({23,1,1,3});
+    WaveInfoVector.push_back({27,1,2,4});
+    WaveInfoVector.push_back({32,1,2,5});
+    WaveInfoVector.push_back({38,1,2,6});
+    WaveInfoVector.push_back({45,1,2,7});
+    WaveInfoVector.push_back({53,-1, 9999,8});//-1 is victory, 9999 is death
 
     //
     EnemyInfoVector.push_back({0,"LILYBAD"});
@@ -179,19 +180,19 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 
     
-    //                         name,    cost, weight, power,    gather, tileindex, availableforsale
+    //                         name,    cost, weight, power,    gather, tileindex, rarity
    
-    CardInfoVector.push_back({"MAGE",               3,0,0,      1,1,false}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
-    CardInfoVector.push_back({"ARCHER",             3,0,3,      0,2,false});
-    CardInfoVector.push_back({"ENERGY SURGE",       0,1,5,      1,6,false});
-    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,10,     2,7,false});
-    CardInfoVector.push_back({"SPEAR-OWL",          5,0,6,      0,4,true}); // WHEN SUMMONED: 50% chance double ATK
-    CardInfoVector.push_back({"MYSTIC",             4,0,-1,     2,5,true}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    CardInfoVector.push_back({"THUG",               7,0,13,     -1,0,true}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,25,     0,3,true}); // +1 energy
-    CardInfoVector.push_back({"ALCHEMIST",          6,0,0,      3,8,true}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    CardInfoVector.push_back({"MERCHANT",           10,0,0,     6,9,true}); // AFTER FIGHT: 3 random owls cost 1 less
-    //                         name,    cost, static, attack,   gather, tileindex, availableforsale
+    CardInfoVector.push_back({"MAGE",               3,0,    0,      1,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
+    CardInfoVector.push_back({"ARCHER",             4,0,    3,      0,      2,1});
+    CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,      1,      6,0});
+    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,     2,      7,0});
+    CardInfoVector.push_back({"SPEAR-OWL",          5,0,    6,      0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
+    CardInfoVector.push_back({"MYSTIC",             4,0,    -1,     2,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    CardInfoVector.push_back({"THUG",               7,0,    13,     -1,     0,2}); // -1money
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,     0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,      3,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"MERCHANT",           10,0,   0,      6,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
     // mage-powered golem If you have at least 4 mages in play, +20ATK
@@ -200,9 +201,13 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //Generate the deck of mercs to draw from.
     for(int i =0; i< CardInfoVector.size(); i++)
     {
-        if(CardInfoVector.at(i).availableforsale==true)
+        if(CardInfoVector.at(i).rarity == 2)
         {
-            AllDrawableMercs.push_back(i);
+            AllUncommonMercs.push_back(i);
+        }
+        if(CardInfoVector.at(i).rarity==2 || CardInfoVector.at(i).rarity==1)
+        {
+            AllCommonAndUncommonMercs.push_back(i);
         }
     }
     //CardInfoTempDeckWithoutReplacement
@@ -699,7 +704,7 @@ void game_scene::update()
             {
                 
                 //Populate the deck to draw from
-                TempMercDeckToDrawFrom = AllDrawableMercs;
+                TempMercDeckToDrawFrom = AllUncommonMercs;
 
                 //Choose all the mercs
                 //There will always be a mage for sale
@@ -724,9 +729,10 @@ void game_scene::update()
                 }
 
                 //Finally, draw 1 card that can be anything from AllDrawableMercs
-                int card_to_draw = bn::abs(random_num) % AllDrawableMercs.size();
-                MercenaryDeck.push_back(AllDrawableMercs.at(card_to_draw));
-                
+                int card_to_draw = bn::abs(random_num) % AllCommonAndUncommonMercs.size();
+                MercenaryDeck.push_back(AllCommonAndUncommonMercs.at(card_to_draw));
+                random_num = random_generator.get();
+                //TODO: Check that the random num is randomized after every time a number is gotten
 
 
                 for(int merctoillustrate=0; merctoillustrate<MERCS_FOR_SALE; merctoillustrate++)

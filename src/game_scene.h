@@ -60,7 +60,10 @@ class game_scene
             int power;
             int gather;
             int tileindex;
-            bool availableforsale;
+            int rarity;
+            //0 = unobtainable (energy surges)
+            //1 = common
+            //2 = uncommon
         };
         //TODO: Maybe make const?  
         struct WaveInfo { 
@@ -161,7 +164,8 @@ class game_scene
         bn::vector<bn::sprite_ptr, 6> MercenaryTableau;
         bn::vector<bn::sprite_ptr, 100> SpellbookTableau;
         bn::vector<int, 6> MercenaryDeck;
-        bn::vector<int, 6> AllDrawableMercs;
+        bn::vector<int, 6> AllUncommonMercs;
+        bn::vector<int, 8> AllCommonAndUncommonMercs;
         bn::vector<int, 6> TempMercDeckToDrawFrom;
 
         //functions
