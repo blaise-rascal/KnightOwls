@@ -13,12 +13,12 @@
 //                                          LICENSE:                                                    //
 //                            Play the game all you want, for free.                                     //
 //  Put it on your retro console, or your computer, or whatever! Recompile it from source! Go hog wild! //
-//      Either distribute it OR modify the source, but please don't distribute a modified version.      //
+// Either distribute it (for free) OR modify the source, but please don't distribute a modified version.//
 //   (Exceptions can be made; please contact me to discuss releasing your proposed modified version.)   //
 //                                                                                                      //
 //                  Source code is shared primarily for education purposes.                             //
 //           You can use code snippets in your own projects, but don't use the art,                     //
-//                   music, game name, or game design without my permission.                            //
+//            music, or game design in anything you create without my permission.                       //
 //                    Game engine used: https://github.com/GValiente/butano                             //
 //                                                                                                      //
 //                                                                                                      //
@@ -27,6 +27,7 @@
 //                                                                                                      //
 //                                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 
@@ -60,8 +61,8 @@
 //Bosses have the unique characteristic that there is no skipping past them. If you lose against them, you must FIGHT them again, until one or the other of you dies.
 //Bosses also have the unique ability that their ATTACK power is randomly decided from several options. This means that you won't know how high their ATTACK will be until after you've selected FIGHT (and it changes every time you FIGHT).
 
-//TIP: As long as your static is 0, 1, or 2, there is no downside to summoning, because you are not at risk of your spell exploding. Summon away! But when your static becomes 3 or 4, any additional summon may generate an energy surge that causes an explosion. Choose wisely... 
-//TIP: Toward the beginning of a run, it's a good idea to get owls that grant you DUST, since they will earn you money every round for the rest of the game. But toward the end of a run, their value drops off, and it's better to prioritize owls with high ATTACK.
+//TIP: As long as your static is 0, 1, or 2, there is no downside to summoning, because you are not at risk of your spell exploding. Summon away! But when your static becomes 3 or 4, any additional summon may generate an energy surge that causes an explosion. At this point, you must choose wisely... 
+//TIP: Toward the beginning of a run, it's a good idea to get owls that grant you DUST, since they will earn you money every round until the next deck reset. But toward the end of a run, their value drops off, and it's better to prioritize owls with high ATTACK.
 //TIP: Unlike deckbuilding games like dominion or slay the spire, there is no downside to putting "bad" owls in your spellbook, since you can "draw" as many "cards" as you want. So feel free to load up your spellbook with mages and archers! (Well, unless there are better options...)
 
 
@@ -179,19 +180,35 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     EnemyInfoVector.push_back({8,"HERMAN THE GERMAN MERMAN"});
 
 
-    
-    //                         name,    cost, weight, power,    gather, tileindex, rarity
+    //each cardinfovector has an abilities vector, with 2 abilities (for now)
+    //abilityindex & value
+    //{0=atk 5=value} {2=static 1=value}
+    //
+
+    //mage = barn owl
+    //archer = ?
+    //spear-owl = ?
+    //mystic = ?
+    //thug = ?
+    //energy knight = great horned owl
+    //alchemist = ?
+    //merchant = snowy owl
+
+
+    //                         name,    cost, weight,     p1,p2,p2%    g1,g2,g2%   tileindex, rarity
    
-    CardInfoVector.push_back({"MAGE",               3,0,    0,      1,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
-    CardInfoVector.push_back({"ARCHER",             4,0,    3,      0,      2,1});
-    CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,      1,      6,0});
-    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,     2,      7,0});
-    CardInfoVector.push_back({"SPEAR-OWL",          5,0,    6,      0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
-    CardInfoVector.push_back({"MYSTIC",             4,0,    -1,     2,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    CardInfoVector.push_back({"THUG",               7,0,    13,     -1,     0,2}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,     0,      3,2}); // +1 energy
-    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,      3,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    CardInfoVector.push_back({"MERCHANT",           10,0,   0,      6,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    //CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
+    //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
+    CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,3,40,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
+    CardInfoVector.push_back({"ARCHER",             4,0,    3,0,70,      0,0,0,      2,1});
+    CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
+    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
+    CardInfoVector.push_back({"SPEAR-OWL",          5,0,    5,10,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
+    CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    CardInfoVector.push_back({"THUG",               7,0,    13,0,0,    -1,0,0,      0,2}); // -1money
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       7,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
@@ -411,8 +428,8 @@ void game_scene::update()
                             //DRAW A CARD!!!
                             int index_to_remove = bn::abs(random_num) % player1deck.size();
                             int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
-                            int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).power;
-                            int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gather;
+                            int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).powerone; //TOMCOMEBACK
+                            int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
                             current_weight=current_weight+weight_to_add;
                             current_power=current_power+power_to_add;
                             runes_which_might_disappear=runes_which_might_disappear+runes_to_add;
@@ -717,7 +734,7 @@ void game_scene::update()
 
                 
                 //Populate elements 2,3,4. Random owls with replacement from AllDrawableMercs
-                for(int MercDeckIndex = 2; MercDeckIndex < 5; MercDeckIndex++)
+                for(int MercDeckIndex = 2; MercDeckIndex < 6; MercDeckIndex++)
                 {
                     int card_to_draw= bn::abs(random_num) % TempMercDeckToDrawFrom.size();
                     MercenaryDeck.push_back(TempMercDeckToDrawFrom.at(card_to_draw));
@@ -727,13 +744,14 @@ void game_scene::update()
                     //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
                     random_num = random_generator.get();
                 }
-
+                /*
                 //Finally, draw 1 card that can be anything from AllDrawableMercs
                 int card_to_draw = bn::abs(random_num) % AllCommonAndUncommonMercs.size();
                 MercenaryDeck.push_back(AllCommonAndUncommonMercs.at(card_to_draw));
                 random_num = random_generator.get();
                 //TODO: Check that the random num is randomized after every time a number is gotten
-
+                //TODO: possible check to make sure that an attacking owl is generated for this last slot? Or nah; maybe just 4 uncommon...
+                */
 
                 for(int merctoillustrate=0; merctoillustrate<MERCS_FOR_SALE; merctoillustrate++)
                 {
@@ -1193,44 +1211,80 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
 {
     
     int weight_to_add = CardInfoVector.at(card_info_index).weight;
-    int power_to_add = CardInfoVector.at(card_info_index).power;
-    int runes_to_add = CardInfoVector.at(card_info_index).gather;
+    int powerone_to_add = CardInfoVector.at(card_info_index).powerone;
+    int powertwo_to_add = CardInfoVector.at(card_info_index).powertwo;
+    int powertwopercentage = CardInfoVector.at(card_info_index).powertwopercentage;
+    int runesone_to_add = CardInfoVector.at(card_info_index).gatherone;
+    int runestwo_to_add = CardInfoVector.at(card_info_index).gathertwo;
+    int runestwopercentage = CardInfoVector.at(card_info_index).gathertwopercentage;
     bn::string<50> _description_string("");
-
-    //ADD A PLUS SIGN IF VALUE > 0, KEEP THE MINUS SIGN IF VALUE < 0, DO NOT SHOW IF VALUE == 0
-    if(power_to_add>0)
+    
+    //TODO: Uh right now the nonzero value must be powerone. Maybe uh make it more flexible
+    //ATTACK
+    if(powertwopercentage!=0)
     {
-        _description_string.append("k+");
-        _description_string.append(bn::to_string<5>(power_to_add));
+        //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
+        _description_string.append(bn::to_string<5>(100-powertwopercentage));
+        _description_string.append("%k+");
+        _description_string.append(bn::to_string<5>(powerone_to_add));
+        _description_string.append(" ");
+        _description_string.append(bn::to_string<5>(powertwopercentage));
+        _description_string.append("%k+");
+        _description_string.append(bn::to_string<5>(powertwo_to_add));
     }
-    else if(power_to_add<0)
+    else
     {
-        _description_string.append("k");
-        _description_string.append(bn::to_string<5>(power_to_add));
+        //ADD A PLUS SIGN IF VALUE > 0, KEEP THE MINUS SIGN IF VALUE < 0, DO NOT SHOW IF VALUE == 0
+        if(powerone_to_add>0)
+        {
+            _description_string.append("k+");
+            _description_string.append(bn::to_string<5>(powerone_to_add));
+        }
+        else if(powerone_to_add<0)
+        {
+            _description_string.append("k");
+            _description_string.append(bn::to_string<5>(powerone_to_add));
+        }
+
     }
 
-    if(power_to_add!=0 && (runes_to_add!=0 || weight_to_add>0))
+    if(powerone_to_add!=0 && (runesone_to_add!=0 || weight_to_add>0))
     {
         _description_string.append(" ");
     }
 
-    if(runes_to_add>0)
+    //GATHER
+    if(runestwopercentage!=0)
     {
-        _description_string.append("c+");
-        _description_string.append(bn::to_string<5>(runes_to_add));
+        //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
+        _description_string.append(bn::to_string<5>(100-runestwopercentage));
+        _description_string.append("%c+");
+        _description_string.append(bn::to_string<5>(runesone_to_add));
+        _description_string.append(" ");
+        _description_string.append(bn::to_string<5>(runestwopercentage));
+        _description_string.append("%c+");
+        _description_string.append(bn::to_string<5>(runestwo_to_add));
     }
-    else if(runes_to_add<0)
+    else
     {
-        _description_string.append("c");
-        _description_string.append(bn::to_string<5>(runes_to_add));
+        if(runesone_to_add>0)
+        {
+            _description_string.append("c+");
+            _description_string.append(bn::to_string<5>(runesone_to_add));
+        }
+        else if(runesone_to_add<0)
+        {
+            _description_string.append("c");
+            _description_string.append(bn::to_string<5>(runesone_to_add));
+        }
     }
 
-    if(runes_to_add!=0 && weight_to_add>0)
+    if(runesone_to_add!=0 && weight_to_add>0)
     {
         _description_string.append(" ");
     }
 
-    //STATIC IS A LITTLE SIMPLER BECAUSE NOTHING DECREASES STATIC
+    //STATIC IS A LITTLE SIMPLER BECAUSE NOTHING DECREASES STATIC & THERE ARE NO PERCENTAGE OPTIONS
     if(weight_to_add>0)
     {
         _description_string.append("i+");

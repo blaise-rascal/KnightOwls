@@ -57,8 +57,12 @@ class game_scene
             bn::string<17> name;
             int cost;
             int weight;
-            int power;
-            int gather;
+            int powerone;
+            int powertwo;
+            int powertwopercentage;
+            int gatherone;
+            int gathertwo;
+            int gathertwopercentage;
             int tileindex;
             int rarity;
             //0 = unobtainable (energy surges)
