@@ -46,27 +46,8 @@
 
 //Game by Tom Horwath (Blaise Rascal).
 
-//IMPORTANT: This game has only been tested on mgba. I have no idea how well it works on other emulators or on physical hardware.
-
-//HOW TO PLAY
-//You are a SUMMONER. You will face many enemies one at a time, and you must SUMMON a force to defeat them.
-//Whenever you select SUMMON, you remove a random spell from your SPELLBOOK, and conjure it into existence, granting you bonuses such as ATTACK power or DUST (which is like money).
-//If you ever want to see what is left in your SPELLBOOK, select SPELLBOOK at any time.
-//You can SUMMON both owls and energy surges, but beware - surges will increase your STATIC. If your STATIC is too high, your spell will explode, and you will take 1 damage and have to start over the summoning phase.
-//There are no limits to the number of times you can SUMMON, other than the fact that SUMMONing too much will cause your spell to explode. (Think of it like blackjack!)
-//After you've summoned a powerful fighting force, select "FIGHT!". At this point, if your total ATTACK is greater than or equal to your enemy's ATTACK, you win!
-//If you win, you heal some HP. If you lose, you lose some HP.
-//In either case, all SUMMONED owls are returned to your SPELLBOOK, and you can now spend your DUST to buy new owls.
-//Your objective is simple: Make it to the final boss and win, while keeping your HP above zero.
-//Bosses have the unique characteristic that there is no skipping past them. If you lose against them, you must FIGHT them again, until one or the other of you dies.
-//Bosses also have the unique ability that their ATTACK power is randomly decided from several options. This means that you won't know how high their ATTACK will be until after you've selected FIGHT (and it changes every time you FIGHT).
-
-//TIP: As long as your static is 0, 1, or 2, there is no downside to summoning, because you are not at risk of your spell exploding. Summon away! But when your static becomes 3 or 4, any additional summon may generate an energy surge that causes an explosion. At this point, you must choose wisely... 
-//TIP: Toward the beginning of a run, it's a good idea to get owls that grant you DUST, since they will earn you money every round until the next deck reset. But toward the end of a run, their value drops off, and it's better to prioritize owls with high ATTACK.
-//TIP: Unlike deckbuilding games like dominion or slay the spire, there is no downside to putting "bad" owls in your spellbook, since you can "draw" as many "cards" as you want. So feel free to load up your spellbook with mages and archers! (Well, unless there are better options...)
-
-
-
+//+4c (25% CHANCE TO DO NOTHING)
+//+5k (25% CHANCE FOR DOUBLE)
 #include "bn_core.h"
 #include "bn_display.h"
 #include "bn_sprite_item.h"
@@ -199,14 +180,14 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
    
     //CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
-    CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,3,40,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
-    CardInfoVector.push_back({"ARCHER",             4,0,    3,0,70,      0,0,0,      2,1});
+    CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
+    CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,     0,0,0,      2,1});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
-    CardInfoVector.push_back({"SPEAR-OWL",          5,0,    5,10,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
+    CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    CardInfoVector.push_back({"THUG",               7,0,    13,0,0,    -1,0,0,      0,2}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"THUG",               7,0,    13,0,0,    -2,0,0,      0,2}); // -1money
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   24,0,0,     0,0,0,      3,2}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       7,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
@@ -430,17 +411,12 @@ void game_scene::update()
                             int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
                             int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).powerone; //TOMCOMEBACK
                             int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
-                            current_weight=current_weight+weight_to_add;
-                            current_power=current_power+power_to_add;
-                            runes_which_might_disappear=runes_which_might_disappear+runes_to_add;
-                            _update_hud_text();
-                            //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
-                            //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
 
                             bn::string<50> first_line_status("SUMMONED ");
                             bn::string<50> second_line_status("");
                             bn::string<50> third_line_status("");
                             first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(index_to_remove)).name));
+                            current_weight=current_weight+weight_to_add;
                             if(CardInfoVector.at(player1deck.at(index_to_remove)).weight==1)
                             {
                                 first_line_status.append("!!!");
@@ -449,7 +425,54 @@ void game_scene::update()
                             {
                                 first_line_status.append("!!!!!!");
                             }
-                            second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
+                            else
+                            {
+                                first_line_status.append(".");
+                            }
+
+                            if(player1deck.at(index_to_remove)==4)//4 is spear, 8 is alchemist, 9 is merchant
+                            {
+                                int percentageroll = bn::abs(random_num) % 100; //0-99
+                                random_num = random_generator.get();
+                                if(percentageroll < CardInfoVector.at(player1deck.at(index_to_remove)).powertwopercentage)
+                                {
+                                    second_line_status.append("CRITICAL HIT! k+");
+                                    second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).powertwo));
+                                    current_power = current_power + CardInfoVector.at(player1deck.at(index_to_remove)).powertwo;
+                                }
+                                else{
+                                    second_line_status.append("NO CRITICAL HIT THIS TIME. k+");
+                                    second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).powerone));
+                                    current_power = current_power + CardInfoVector.at(player1deck.at(index_to_remove)).powerone;
+                                }
+                            }
+                            else if(player1deck.at(index_to_remove)==8)//4 is spear, 8 is alchemist, 9 is merchant
+                            {
+                                int percentageroll = bn::abs(random_num) % 100; //0-99
+                                random_num = random_generator.get();
+                                if(percentageroll < CardInfoVector.at(player1deck.at(index_to_remove)).gathertwopercentage)
+                                {
+                                    second_line_status.append("HER EXPERIMENT FAILS! c+");
+                                    second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).gathertwo));
+                                    runes_which_might_disappear = runes_which_might_disappear + CardInfoVector.at(player1deck.at(index_to_remove)).gathertwo;
+                                }
+                                else{
+                                    second_line_status.append("HER EXPERIMENT SUCCEEDS. c+");
+                                    second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).gatherone));
+                                    runes_which_might_disappear = runes_which_might_disappear + CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
+                                }
+                            }
+                            else
+                            {
+                                current_power=current_power+power_to_add;
+                                runes_which_might_disappear=runes_which_might_disappear+runes_to_add;
+                                
+                                //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
+                                //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
+
+                                second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
+                            }
+                            _update_hud_text();
                             if(current_weight>MAX_BOAT_WEIGHT){
                                 _selection_cursor_sprite.set_visible(false);
                                 
@@ -737,12 +760,13 @@ void game_scene::update()
                 for(int MercDeckIndex = 2; MercDeckIndex < 6; MercDeckIndex++)
                 {
                     int card_to_draw= bn::abs(random_num) % TempMercDeckToDrawFrom.size();
+                    random_num = random_generator.get();
                     MercenaryDeck.push_back(TempMercDeckToDrawFrom.at(card_to_draw));
 
                     //Delete the drawn card from the deck
                     TempMercDeckToDrawFrom.erase(TempMercDeckToDrawFrom.begin()+card_to_draw);
                     //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
-                    random_num = random_generator.get();
+                    
                 }
                 /*
                 //Finally, draw 1 card that can be anything from AllDrawableMercs
@@ -1224,13 +1248,23 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     if(powertwopercentage!=0)
     {
         //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
-        _description_string.append(bn::to_string<5>(100-powertwopercentage));
-        _description_string.append("%k+");
+        
+        _description_string.append("k+");
         _description_string.append(bn::to_string<5>(powerone_to_add));
-        _description_string.append(" ");
-        _description_string.append(bn::to_string<5>(powertwopercentage));
-        _description_string.append("%k+");
+        _description_string.append(" (");
+        _description_string.append(bn::to_string<5>(100-powertwopercentage));
+        _description_string.append("% CHANCE), k+");
         _description_string.append(bn::to_string<5>(powertwo_to_add));
+        _description_string.append(" (");
+        _description_string.append(bn::to_string<5>(powertwopercentage));
+        _description_string.append("% CHANCE)");
+        /*_description_string.append(bn::to_string<5>(100-powertwopercentage));
+        _description_string.append("% CHANCE: k+");
+        _description_string.append(bn::to_string<5>(powerone_to_add));
+        _description_string.append(", ");
+        _description_string.append(bn::to_string<5>(powertwopercentage));
+        _description_string.append("% CHANCE: k+");
+        _description_string.append(bn::to_string<5>(powertwo_to_add));*/
     }
     else
     {
@@ -1257,13 +1291,15 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     if(runestwopercentage!=0)
     {
         //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
-        _description_string.append(bn::to_string<5>(100-runestwopercentage));
-        _description_string.append("%c+");
+        _description_string.append("c+");
         _description_string.append(bn::to_string<5>(runesone_to_add));
-        _description_string.append(" ");
-        _description_string.append(bn::to_string<5>(runestwopercentage));
-        _description_string.append("%c+");
+        _description_string.append(" (");
+        _description_string.append(bn::to_string<5>(100-runestwopercentage));
+        _description_string.append("% CHANCE), c+");
         _description_string.append(bn::to_string<5>(runestwo_to_add));
+        _description_string.append(" (");
+        _description_string.append(bn::to_string<5>(runestwopercentage));
+        _description_string.append("% CHANCE)");
     }
     else
     {
@@ -1568,3 +1604,23 @@ bool game_scene::_is_merc_deck_empty()
     }
     return allnegativeone;
 }
+
+
+//post-jam todo list
+// figure out how much ewrom, iwrom, etc. i'm using
+// separate "card ability" into its own class, with a function _generate_description()
+// figure out a better way to handle state transitions... have the state entrypoint be in the same case as the state loop
+// replace all my dumb numbers (states, owl index, etc.) with enums
+// whatever quality of life features people complain most that they aren't present
+// rename text to reflect my new terminology (runes -> dust, weight -> static, etc.)
+// figure out if the idea is good enough to keep working on
+// fricking take a break, man
+
+/*
+small tasks
+-beepbox drums
+-button for movement descriptions
+-3 hearts?
+-spellbook
+-merchant
+*/

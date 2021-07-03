@@ -29,6 +29,11 @@ enemy ideas
 -cat hydra with party hats
 -haunted owlship
 -great pacific garbage patch
+-invisible nemesis
+-BORIS THE DARK
+-cyclopean hoverstar
+-corrupted hoverstar
+-braided pretzelcoatl
 
 List of features I need done:
 -Draw some (simple) enemies (and give them names?)
