@@ -13,6 +13,7 @@
 #include "bn_sprite_ptr.h"
 #include "bn_sprites.h"
 #include "bn_vector.h"
+#include "bn_array.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
 #include "bn_regular_bg_ptr.h"
@@ -171,6 +172,8 @@ class game_scene
         bn::vector<int, 6> AllUncommonMercs;
         bn::vector<int, 8> AllCommonAndUncommonMercs;
         bn::vector<int, 6> TempMercDeckToDrawFrom;
+        bn::vector<int, 6> SaleMercDeckToDrawFrom;
+        bn::array<int, 6>AmountMercOnSale;
 
         //functions
         void _update_hud_text();
@@ -189,6 +192,7 @@ class game_scene
         void _navigate_through_hor_menu();
         void _navigate_through_spellbook();
         int  _position_on_page(int absolute_owl);
+        int  _price_on_sale(int merc_deck_index);
         void _clear_virt_menu();
         bool _is_merc_deck_empty();
         //void _replace_merc_with_random_owl(int which_merc_position);

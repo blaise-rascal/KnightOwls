@@ -160,6 +160,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     EnemyInfoVector.push_back({7,"PRETZELCOATL"});
     EnemyInfoVector.push_back({8,"HERMAN THE GERMAN MERMAN"});
 
+    AmountMercOnSale.fill(0);
 
     //each cardinfovector has an abilities vector, with 2 abilities (for now)
     //abilityindex & value
@@ -189,7 +190,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"THUG",               7,0,    13,0,0,    -2,0,0,      0,2}); // -1money
     CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   24,0,0,     0,0,0,      3,2}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       7,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
@@ -372,6 +373,7 @@ void game_scene::update()
             {
                 //As you remove owls from your tree, you'll modify the player1deck. So save it here BEFORE modifications so we'll have access to it later
                 player1deck_at_start_of_round = player1deck;
+                AmountMercOnSale.fill(0);
                 player_stat_box_active=true;
                 state = 10002;
                 break;
@@ -430,7 +432,7 @@ void game_scene::update()
                                 first_line_status.append(".");
                             }
 
-                            if(player1deck.at(index_to_remove)==4)//4 is spear, 8 is alchemist, 9 is merchant
+                            if(player1deck.at(index_to_remove)==4)//4 is spear
                             {
                                 int percentageroll = bn::abs(random_num) % 100; //0-99
                                 random_num = random_generator.get();
@@ -446,7 +448,7 @@ void game_scene::update()
                                     current_power = current_power + CardInfoVector.at(player1deck.at(index_to_remove)).powerone;
                                 }
                             }
-                            else if(player1deck.at(index_to_remove)==8)//4 is spear, 8 is alchemist, 9 is merchant
+                            else if(player1deck.at(index_to_remove)==8)//8 is alchemist
                             {
                                 int percentageroll = bn::abs(random_num) % 100; //0-99
                                 random_num = random_generator.get();
@@ -462,6 +464,40 @@ void game_scene::update()
                                     runes_which_might_disappear = runes_which_might_disappear + CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
                                 }
                             }
+                            else if(player1deck.at(index_to_remove)==9)//9 is merchant
+                            {
+                                //int percentageroll = bn::abs(random_num) % 100; //0-99
+                                //random_num = random_generator.get();
+                                runes_which_might_disappear = runes_which_might_disappear + CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
+                                second_line_status.append("c+");
+                                second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).gatherone));
+                                second_line_status.append(". OWLS ");
+                                //second_line_status.append(bn::to_string<4>(AmountMercOnSale[0]));
+
+
+                                SaleMercDeckToDrawFrom.clear();
+                                for(int i =0; i< MERCS_FOR_SALE; i++)
+                                {
+                                    SaleMercDeckToDrawFrom.push_back(i);
+                                }
+                                for(int i =0; i<3; i++)
+                                {
+                                    int card_to_draw= bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
+                                    random_num = random_generator.get();
+                                    second_line_status.append("#");
+                                    second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
+                                    AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] += 2;
+                                    second_line_status.append(" ");
+
+                                    //Delete the drawn card from the deck
+                                    SaleMercDeckToDrawFrom.erase(SaleMercDeckToDrawFrom.begin()+card_to_draw);
+                                    //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
+                                    
+                                }
+                                second_line_status.append("GO ON SALE.");
+
+
+                            }
                             else
                             {
                                 current_power=current_power+power_to_add;
@@ -472,7 +508,9 @@ void game_scene::update()
 
                                 second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
                             }
+
                             _update_hud_text();
+
                             if(current_weight>MAX_BOAT_WEIGHT){
                                 _selection_cursor_sprite.set_visible(false);
                                 
@@ -537,6 +575,7 @@ void game_scene::update()
                 if(bn::keypad::a_pressed())
                 {//TODO: JUST LOSE A LIFE AND GO BACK. ALSO, SAY WIN AND LOSE STUFF
                     
+                    AmountMercOnSale.fill(0);
                     _return_owls_to_tree();
                     _display_status("ALL SUMMONED OWLS DISPERSE.","YOU LOSE 1me IN THE BLAST.","a:CONTINUE");
                     current_hull=current_hull-1;
@@ -588,7 +627,7 @@ void game_scene::update()
                     }
 
                     /*if(current_power >= WaveInfoVector.at(current_wave).attack)
-                    {
+                    { 
                         
                         state = 13;
 
@@ -880,7 +919,8 @@ void game_scene::update()
                 bn::string<50> first_line_status("PURCHASE ");//TODO: Make this not update every frame
                 first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
                 first_line_status.append(" FOR ");
-                first_line_status.append(bn::to_string<8>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
+                //first_line_status.append(bn::to_string<8>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
+                first_line_status.append(bn::to_string<8>(_price_on_sale(menu_position)));
                 first_line_status.append("c?");
                 bn::string<50> second_line_status("a:YES, b:NO");
                 _display_status(first_line_status,second_line_status);
@@ -899,14 +939,16 @@ void game_scene::update()
                 else if(bn::keypad::a_pressed())
                 {
                     _selection_cursor_sprite.set_visible(false);
-                    if(current_runes >= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost)
+                    //if(current_runes >= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost)
+                    if(current_runes >= _price_on_sale(menu_position))
                     {
                         bn::string<50> first_line_status("");
                         first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
                         first_line_status.append(" ADDED TO SPELLBOOK"); // clear that sprite!
                         MercenaryTableau.at(menu_position).set_visible(false);
                         player1deck.push_back(MercenaryDeck.at(menu_position));
-                        current_runes -= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost;
+                        //current_runes -= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost;
+                        current_runes -= _price_on_sale(menu_position);
                         _update_hud_text();
                         _display_status(first_line_status,"a:CONTINUE");
 
@@ -1206,6 +1248,7 @@ void game_scene::_replace_merc_with_random_owl(int which_merc_position)
 
 void game_scene::_return_owls_to_tree()
 {
+
     Player1Tableau.clear();
     current_power = 0;
     current_weight = 0;
@@ -1242,90 +1285,99 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     int runestwo_to_add = CardInfoVector.at(card_info_index).gathertwo;
     int runestwopercentage = CardInfoVector.at(card_info_index).gathertwopercentage;
     bn::string<50> _description_string("");
-    
-    //TODO: Uh right now the nonzero value must be powerone. Maybe uh make it more flexible
-    //ATTACK
-    if(powertwopercentage!=0)
+    if(card_info_index==9)//merchant
     {
-        //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
         
-        _description_string.append("k+");
-        _description_string.append(bn::to_string<5>(powerone_to_add));
-        _description_string.append(" (");
-        _description_string.append(bn::to_string<5>(100-powertwopercentage));
-        _description_string.append("% CHANCE), k+");
-        _description_string.append(bn::to_string<5>(powertwo_to_add));
-        _description_string.append(" (");
-        _description_string.append(bn::to_string<5>(powertwopercentage));
-        _description_string.append("% CHANCE)");
-        /*_description_string.append(bn::to_string<5>(100-powertwopercentage));
-        _description_string.append("% CHANCE: k+");
-        _description_string.append(bn::to_string<5>(powerone_to_add));
-        _description_string.append(", ");
-        _description_string.append(bn::to_string<5>(powertwopercentage));
-        _description_string.append("% CHANCE: k+");
-        _description_string.append(bn::to_string<5>(powertwo_to_add));*/
-    }
-    else
-    {
-        //ADD A PLUS SIGN IF VALUE > 0, KEEP THE MINUS SIGN IF VALUE < 0, DO NOT SHOW IF VALUE == 0
-        if(powerone_to_add>0)
-        {
-            _description_string.append("k+");
-            _description_string.append(bn::to_string<5>(powerone_to_add));
-        }
-        else if(powerone_to_add<0)
-        {
-            _description_string.append("k");
-            _description_string.append(bn::to_string<5>(powerone_to_add));
-        }
-
-    }
-
-    if(powerone_to_add!=0 && (runesone_to_add!=0 || weight_to_add>0))
-    {
-        _description_string.append(" ");
-    }
-
-    //GATHER
-    if(runestwopercentage!=0)
-    {
-        //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
+        
         _description_string.append("c+");
         _description_string.append(bn::to_string<5>(runesone_to_add));
-        _description_string.append(" (");
-        _description_string.append(bn::to_string<5>(100-runestwopercentage));
-        _description_string.append("% CHANCE), c+");
-        _description_string.append(bn::to_string<5>(runestwo_to_add));
-        _description_string.append(" (");
-        _description_string.append(bn::to_string<5>(runestwopercentage));
-        _description_string.append("% CHANCE)");
+        _description_string.append(", AND PUT 3 OWLS ON SALE (-2c)");
     }
-    else
-    {
-        if(runesone_to_add>0)
+    else{
+        //TODO: Uh right now the nonzero value must be powerone. Maybe uh make it more flexible
+        //ATTACK
+        if(powertwopercentage!=0)
         {
+            //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
+            
+            _description_string.append("k+");
+            _description_string.append(bn::to_string<5>(powerone_to_add));
+            _description_string.append(" (");
+            _description_string.append(bn::to_string<5>(100-powertwopercentage));
+            _description_string.append("% CHANCE), k+");
+            _description_string.append(bn::to_string<5>(powertwo_to_add));
+            _description_string.append(" (");
+            _description_string.append(bn::to_string<5>(powertwopercentage));
+            _description_string.append("% CHANCE)");
+            /*_description_string.append(bn::to_string<5>(100-powertwopercentage));
+            _description_string.append("% CHANCE: k+");
+            _description_string.append(bn::to_string<5>(powerone_to_add));
+            _description_string.append(", ");
+            _description_string.append(bn::to_string<5>(powertwopercentage));
+            _description_string.append("% CHANCE: k+");
+            _description_string.append(bn::to_string<5>(powertwo_to_add));*/
+        }
+        else
+        {
+            //ADD A PLUS SIGN IF VALUE > 0, KEEP THE MINUS SIGN IF VALUE < 0, DO NOT SHOW IF VALUE == 0
+            if(powerone_to_add>0)
+            {
+                _description_string.append("k+");
+                _description_string.append(bn::to_string<5>(powerone_to_add));
+            }
+            else if(powerone_to_add<0)
+            {
+                _description_string.append("k");
+                _description_string.append(bn::to_string<5>(powerone_to_add));
+            }
+
+        }
+
+        if(powerone_to_add!=0 && (runesone_to_add!=0 || weight_to_add>0))
+        {
+            _description_string.append(" ");
+        }
+
+        //GATHER
+        if(runestwopercentage!=0)
+        {
+            //todo: uh, make htis flexible enough that it can handle both negative values and percentages?
             _description_string.append("c+");
             _description_string.append(bn::to_string<5>(runesone_to_add));
+            _description_string.append(" (");
+            _description_string.append(bn::to_string<5>(100-runestwopercentage));
+            _description_string.append("% CHANCE), c+");
+            _description_string.append(bn::to_string<5>(runestwo_to_add));
+            _description_string.append(" (");
+            _description_string.append(bn::to_string<5>(runestwopercentage));
+            _description_string.append("% CHANCE)");
         }
-        else if(runesone_to_add<0)
+        else
         {
-            _description_string.append("c");
-            _description_string.append(bn::to_string<5>(runesone_to_add));
+            if(runesone_to_add>0)
+            {
+                _description_string.append("c+");
+                _description_string.append(bn::to_string<5>(runesone_to_add));
+            }
+            else if(runesone_to_add<0)
+            {
+                _description_string.append("c");
+                _description_string.append(bn::to_string<5>(runesone_to_add));
+            }
         }
-    }
 
-    if(runesone_to_add!=0 && weight_to_add>0)
-    {
-        _description_string.append(" ");
-    }
+        if(runesone_to_add!=0 && weight_to_add>0)
+        {
+            _description_string.append(" ");
+        }
 
-    //STATIC IS A LITTLE SIMPLER BECAUSE NOTHING DECREASES STATIC & THERE ARE NO PERCENTAGE OPTIONS
-    if(weight_to_add>0)
-    {
-        _description_string.append("i+");
-        _description_string.append(bn::to_string<5>(weight_to_add));
-    }
+        //STATIC IS A LITTLE SIMPLER BECAUSE NOTHING DECREASES STATIC & THERE ARE NO PERCENTAGE OPTIONS
+        if(weight_to_add>0)
+        {
+            _description_string.append("i+");
+            _description_string.append(bn::to_string<5>(weight_to_add));
+        }
+}
     return(_description_string);
 }
 
@@ -1416,6 +1468,19 @@ void game_scene::_navigate_through_virt_menu()
 int game_scene::_position_on_page(int absolute_owl)
 {
     return absolute_owl-current_sb_page*NUMBER_SPELLBOOK_COLUMNS*NUMBER_SPELLBOOK_ROWS;
+}
+
+int game_scene::_price_on_sale(int merc_deck_index)
+{
+    int sale_price = CardInfoVector.at(MercenaryDeck.at(menu_position)).cost - AmountMercOnSale[merc_deck_index];
+    if(sale_price<0)
+    {
+        return 0;
+    }
+    else
+    {
+        return sale_price;
+    }
 }
 
 void game_scene::_navigate_through_spellbook()
@@ -1543,7 +1608,8 @@ void game_scene::_update_selection_cursor_from_hor_menu_position()
     bn::string<50> third_line_status("lr:MOVE, a:SELECT, b:CANCEL");
     first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
     first_line_status.append(" (COST: ");
-    first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
+    //first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
+    first_line_status.append(bn::to_string<5>(_price_on_sale(menu_position)));
     first_line_status.append("c)");
     second_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position)));
     
@@ -1612,15 +1678,14 @@ bool game_scene::_is_merc_deck_empty()
 // figure out a better way to handle state transitions... have the state entrypoint be in the same case as the state loop
 // replace all my dumb numbers (states, owl index, etc.) with enums
 // whatever quality of life features people complain most that they aren't present
+// replace many vectors with arrays
 // rename text to reflect my new terminology (runes -> dust, weight -> static, etc.)
 // figure out if the idea is good enough to keep working on
 // fricking take a break, man
 
 /*
-small tasks
--beepbox drums
+small tasks, needed for the game to be complete
+
 -button for movement descriptions
--3 hearts?
--spellbook
--merchant
+-main menu
 */
