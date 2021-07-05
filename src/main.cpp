@@ -53,6 +53,7 @@ int main()
                 bn::unique_ptr<main_menu_scene> MainMenuScenePointer(new main_menu_scene(my_text_generator));
                 next_scene = MainMenuScenePointer->run_scene();
                 MainMenuScenePointer.reset();
+                bn::core::update();
                 break;
             }
             case 1:
@@ -60,6 +61,7 @@ int main()
                 bn::unique_ptr<game_scene> GameScenePointer(new game_scene(my_text_generator));
                 next_scene = GameScenePointer->run_scene();
                 GameScenePointer.reset();
+                bn::core::update();
                 break;
             }
             default:
