@@ -32,7 +32,17 @@ class main_menu_scene
 
     private:
         bn::sprite_text_generator& my_text_generator;
+        
+        int menu_position;
         int state;
+        
+        bn::vector<bn::sprite_ptr, 50> status_text_one_sprites;
+        bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
+        bn::vector<bn::sprite_ptr, 50> status_text_three_sprites;
+
+
+        void _display_text(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "", const bn::string<50>& statustextthree = "");
+
 };
 //}
 

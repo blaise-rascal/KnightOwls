@@ -38,6 +38,7 @@
 
 main_menu_scene::main_menu_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
+    menu_position(0),
     state(0)
 {
     bn::music_items::voyagemusic.play(0.5);
@@ -46,19 +47,19 @@ main_menu_scene::main_menu_scene(bn::sprite_text_generator& text_generator):
 int main_menu_scene::run_scene()
 {
     //bn::random random_generator;
-
+    _display_text("PLACEHOLDER FOR MAIN MENU","PRESS START TO BEGIN GAME");
     while(true)
     {
         //random_num = random_generator.get();
 
-        switch(state)
+        switch(state)//main menu
         {
             
-            case 0:{
-
+            case 0:
+            {
                 if(bn::keypad::start_pressed())
                 {
-                bn::core::update();
+                    bn::core::update();
                     return(1); //next_scene is game scene
                 }
                 bn::core::update();
@@ -72,4 +73,28 @@ int main_menu_scene::run_scene()
         }
         
     }
+}
+
+void main_menu_scene::_display_text(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo, const bn::string<50>& statustextthree)
+{
+    my_text_generator.set_center_alignment();
+    status_text_one_sprites.clear();
+    status_text_two_sprites.clear();
+    status_text_three_sprites.clear();
+    if(statustexttwo.length()>0 && statustextthree.length()>0)//all three lines occupied
+    {
+        my_text_generator.generate(0, 50, statustextone, status_text_one_sprites);
+        my_text_generator.generate(0, 61, statustexttwo, status_text_two_sprites);
+        my_text_generator.generate(0, 72, statustextthree, status_text_three_sprites);
+    }
+    else if(statustexttwo.length()>0)//two lines occupied
+    {
+        my_text_generator.generate(0, 55, statustextone, status_text_one_sprites);
+        my_text_generator.generate(0, 67, statustexttwo, status_text_two_sprites);
+    }
+    else//one line occupied
+    {
+        my_text_generator.generate(0, 61, statustextone, status_text_one_sprites);
+    }
+    //todo: error handling for this
 }

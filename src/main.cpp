@@ -70,8 +70,8 @@ int main()
         }
         
     }
-    //TODO: Add menuscene
+    //TODO:
     //put random number generation into main state
-    //return next scene
+    //
 
 }
