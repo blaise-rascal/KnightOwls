@@ -246,7 +246,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _rift_bg.set_visible(false);
 }
 
-void game_scene::update()
+int game_scene::run_scene()
 {
     bn::random random_generator;
     //int random_num;
@@ -494,7 +494,8 @@ void game_scene::update()
                                     //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
                                     
                                 }
-                                second_line_status.append("GO ON SALE.");
+                                second_line_status.append("ON SALE THIS ROUND");
+                                
 
 
                             }
@@ -662,7 +663,7 @@ void game_scene::update()
 
                         bn::string<50> second_line_status("YOUR OWLS GATHERED +");  
                         second_line_status.append(bn::to_string<8>(runes_which_might_disappear));
-                        second_line_status.append(" cDUST.");
+                        second_line_status.append(" cDOWLLARS.");
                         
                         current_runes += runes_which_might_disappear;
                         runes_which_might_disappear = 0;
@@ -727,7 +728,21 @@ void game_scene::update()
                     enemy_stat_box_active=false;
                     _update_enemy_stat_box();
                     
-                    _display_status("YOU DIED! GAME OVER.","RESETING NOT YET IMPLEMENTED");
+                    _display_status("YOU DIED! GAME OVER.","a:TRY AGAIN, b:RETURN TO MENU");
+                    state = 25;
+                }
+                bn::core::update();
+                break;
+            }
+            case 25: // Game over
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    return(1); //next_scene is another game scene
+                }
+                else if(bn::keypad::b_pressed())
+                {
+                    return(0); //next_scene is menu
                 }
                 bn::core::update();
                 break;
@@ -966,7 +981,7 @@ void game_scene::update()
                     }
                     else
                     {
-                        _display_status("NOT ENOUGH cDUST!","a:CONTINUE");
+                        _display_status("NOT ENOUGH cDOWLLARS!","a:CONTINUE");
                         state = 18;
                     }
                 }

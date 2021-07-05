@@ -50,7 +50,7 @@ class game_scene
 {
     public:
         game_scene(bn::sprite_text_generator& text_generator);//TODO: Add background??
-        void update();
+        int run_scene();
 
     private:
         //TODO: Maybe make const?  
