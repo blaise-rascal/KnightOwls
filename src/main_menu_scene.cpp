@@ -21,9 +21,9 @@
 #include "bn_sprite_items_right_book_arrow.h"
 #include "bn_sprite_items_left_book_arrow.h"
 #include "bn_sprite_items_enemies.h"
-#include "bn_regular_bg_items_oceanbackground.h"
-#include "bn_regular_bg_items_spellbook.h"
-#include "bn_regular_bg_items_rift.h"
+#include "bn_regular_bg_items_main_menu_background.h"
+//#include "bn_regular_bg_items_spellbook.h"
+//#include "bn_regular_bg_items_rift.h"
 
 #include "main_menu_scene.h"
 
@@ -38,6 +38,7 @@
 
 main_menu_scene::main_menu_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
+    _main_menu_bg(bn::regular_bg_items::main_menu_background.create_bg(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
     _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(110, -8)),
     _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-110, -8)),
@@ -74,6 +75,7 @@ int main_menu_scene::run_scene()
             
             case 0:
             {
+                _display_center_text("KNIGHT OWLS");
                 _display_status("ud:MOVE, a:SELECT");
                 _generate_virt_menu("BEGIN GAME", "HOW TO PLAY", "CREDITS");
                 
@@ -98,6 +100,24 @@ int main_menu_scene::run_scene()
                         _clear_virt_menu();
                         _display_status("lr:MOVE, b:RETURN");
                     }
+                    else if(menu_position==2)
+                    {
+                        state = 4;
+                        _clear_virt_menu();
+                        _display_center_text(
+                            "",
+                            "GAME MADE BY BLAISE RASCAL",
+                            "IN 3 MONTHS FOR GBA JAM 2021.",
+                            "THE ENGINE USED IS BUTANO BY",
+                            "GVALIENTE. SEE THE CURRENT",
+                            "STATUS OF THE GAME AT",
+                            "BLAISE-RASCAL.ITCH.IO/KNIGHT-OWLS.",
+                            "THE GAME IS AVAILABLE FOR FREE."
+                            //"SEE SOURCE CODE AND LICENSE AT",
+                            //"GITHUB.COM/BLAISE-RASCAL/KNIGHTOWLS."
+                        );
+                        _display_status("b:RETURN");
+                    }
                 }
                 bn::core::update();
                 break;
@@ -105,15 +125,15 @@ int main_menu_scene::run_scene()
             case 10:
             {
                 _display_center_text(
-                    "(1/4) OBJECTIVE",
+                    "(1/4) OVERVIEW",
                     "",
-                    "YOU ARE A SUMMONER. ARMED WITH",
-                    "YOUR SPELLBOOK (WHICH YOU CAN",
-                    "VIEW AT ANY TIME BY SELECTING",
-                    "\"SPELLBOOK\"), YOU MUST FACE",
-                    "MANY ENEMIES. KEEP YOUR mHP",
-                    "ABOVE ZERO AND DEFEAT THE",
-                    "FINAL BOSS TO WIN!",
+                    "YOU ARE A SUMMONER OF OWLS.",
+                    "ARMED WITH YOUR SPELLBOOK",
+                    "(WHICH YOU CAN VIEW AT ANY TIME",
+                    "BY SELECTING \"SPELLBOOK\"), YOU",
+                    "MUST FACE MANY ENEMIES. KEEP",
+                    "YOUR mHP ABOVE ZERO AND DEFEAT",
+                    "THE FINAL BOSS TO WIN!",
                     ""
                     );
                 _right_book_arrow_sprite.set_visible(true);
@@ -126,13 +146,13 @@ int main_menu_scene::run_scene()
                 _display_center_text(
                     "(2/4) SUMMONING",
                     "",
-                    "WHEN YOU \"SUMMON\", YOU CAST A",
-                    "RANDOM SPELL FROM YOUR",
+                    "WHEN YOU SELECT \"SUMMON\", YOU",
+                    "CAST A RANDOM SPELL FROM YOUR",
                     "SPELLBOOK. SPELLS CAN INCREASE",
                     "YOUR kATTACK, cDOWLLARS, OR",
                     "iSTATIC. IF YOUR iSTATIC",
                     "GOES ABOVE 4, YOU WILL LOSE",
-                    "1mHP AND HAVE TO RESTART THE",
+                    "1 mHP AND HAVE TO RESTART THE",
                     "SUMMONING PHASE."
                     );
                 _right_book_arrow_sprite.set_visible(true);
@@ -149,8 +169,8 @@ int main_menu_scene::run_scene()
                     "INITIATE COMBAT. IF THE ENEMY'S",
                     "kATTACK IS HIGHER, YOU LOSE",
                     "SOME mHP. IF YOUR kATTACK IS",
-                    "HIGHER (OR THE ATTACKS ARE",
-                    "EQUAL), YOU RECOVER mHP. WIN OR",
+                    "HIGHER OR THE ATTACKS ARE",
+                    "EQUAL, YOU RECOVER mHP. WIN OR",
                     "LOSE, ALL YOUR SPELLS WILL BE",
                     "RETURNED TO YOUR SPELLBOOK."
                     );
@@ -202,6 +222,16 @@ int main_menu_scene::run_scene()
                         current_tutorial_page++;
                         state = current_tutorial_page+10;
                     }
+                }
+                bn::core::update();
+                break;
+            }
+            case 4:
+            {
+                if(bn::keypad::b_pressed())
+                {
+                    _display_center_text("");
+                    state = 0;
                 }
                 bn::core::update();
                 break;
@@ -271,9 +301,9 @@ void main_menu_scene::_generate_virt_menu(const bn::string<12>& menu_option_one,
     second_menu_option_text_sprites.clear();
     third_menu_option_text_sprites.clear();
 
-    my_text_generator.generate(0, 0, menu_option_one, first_menu_option_text_sprites);
-    my_text_generator.generate(0, 11, menu_option_two, second_menu_option_text_sprites);
-    my_text_generator.generate(0, 22, menu_option_three, third_menu_option_text_sprites);
+    my_text_generator.generate(0, -11, menu_option_one, first_menu_option_text_sprites);
+    my_text_generator.generate(0, 0, menu_option_two, second_menu_option_text_sprites);
+    my_text_generator.generate(0, 11, menu_option_three, third_menu_option_text_sprites);
     menu_position_max = 2;
     menu_position = 0;
     _selection_cursor_sprite.set_visible(true);

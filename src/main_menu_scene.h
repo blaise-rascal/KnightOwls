@@ -32,6 +32,7 @@ class main_menu_scene
 
     private:
         bn::sprite_text_generator& my_text_generator;
+        bn::regular_bg_ptr _main_menu_bg;
         bn::sprite_ptr _selection_cursor_sprite;
         bn::sprite_ptr _right_book_arrow_sprite;
         bn::sprite_ptr _left_book_arrow_sprite;

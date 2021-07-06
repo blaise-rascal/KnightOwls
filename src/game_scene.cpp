@@ -494,7 +494,7 @@ int game_scene::run_scene()
                                     //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
                                     
                                 }
-                                second_line_status.append("ON SALE THIS ROUND");
+                                second_line_status.append("-2c THIS ROUND");
                                 
 
 
