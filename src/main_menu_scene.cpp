@@ -39,14 +39,26 @@
 main_menu_scene::main_menu_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
+    _right_book_arrow_sprite(bn::sprite_items::right_book_arrow.create_sprite(110, -8)),
+    _left_book_arrow_sprite(bn::sprite_items::left_book_arrow.create_sprite(-110, -8)),
     menu_position(0),
     menu_position_max(1),
-    state(0)
+    state(0),
+    number_tutorial_pages(4),
+    current_tutorial_page(0)
 {
     bn::music_items::voyagemusic.play(0.5);
     _selection_cursor_sprite.set_visible(false);
     _selection_cursor_sprite.set_z_order(-100);
     _selection_cursor_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
+
+    _right_book_arrow_sprite.set_visible(false);
+    _right_book_arrow_sprite.set_z_order(-98);
+    _right_book_arrow_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
+
+    _left_book_arrow_sprite.set_visible(false);
+    _left_book_arrow_sprite.set_z_order(-98);
+    _left_book_arrow_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
 }
 
 int main_menu_scene::run_scene()
@@ -62,7 +74,7 @@ int main_menu_scene::run_scene()
             
             case 0:
             {
-                _display_text("ud:MOVE, a:SELECT");
+                _display_status("ud:MOVE, a:SELECT");
                 _generate_virt_menu("BEGIN GAME", "HOW TO PLAY", "CREDITS");
                 
                 state=1;
@@ -79,6 +91,117 @@ int main_menu_scene::run_scene()
                         bn::core::update();
                         return(1); //next_scene is game scene
                     }
+                    else if(menu_position==1)
+                    {
+                        state = 10;
+                        current_tutorial_page = 0;
+                        _clear_virt_menu();
+                        _display_status("lr:MOVE, b:RETURN");
+                    }
+                }
+                bn::core::update();
+                break;
+            }
+            case 10:
+            {
+                _display_center_text(
+                    "(1/4) OBJECTIVE",
+                    "",
+                    "YOU ARE A SUMMONER. ARMED WITH",
+                    "YOUR SPELLBOOK (WHICH YOU CAN",
+                    "VIEW AT ANY TIME BY SELECTING",
+                    "\"SPELLBOOK\"), YOU MUST FACE",
+                    "MANY ENEMIES. KEEP YOUR mHP",
+                    "ABOVE ZERO AND DEFEAT THE",
+                    "FINAL BOSS TO WIN!",
+                    ""
+                    );
+                _right_book_arrow_sprite.set_visible(true);
+                _left_book_arrow_sprite.set_visible(false);
+                state = 3;
+                break;
+            }
+            case 11:
+            {
+                _display_center_text(
+                    "(2/4) SUMMONING",
+                    "",
+                    "WHEN YOU \"SUMMON\", YOU CAST A",
+                    "RANDOM SPELL FROM YOUR",
+                    "SPELLBOOK. SPELLS CAN INCREASE",
+                    "YOUR kATTACK, cDOWLLARS, OR",
+                    "iSTATIC. IF YOUR iSTATIC",
+                    "GOES ABOVE 4, YOU WILL LOSE",
+                    "1mHP AND HAVE TO RESTART THE",
+                    "SUMMONING PHASE."
+                    );
+                _right_book_arrow_sprite.set_visible(true);
+                _left_book_arrow_sprite.set_visible(true);
+                state = 3;
+                break;
+            }
+            case 12:
+            {
+                _display_center_text(
+                    "(3/4) FIGHTING",
+                    "",
+                    "SELECTING \"FIGHT\" WILL",
+                    "INITIATE COMBAT. IF THE ENEMY'S",
+                    "kATTACK IS HIGHER, YOU LOSE",
+                    "SOME mHP. IF YOUR kATTACK IS",
+                    "HIGHER (OR THE ATTACKS ARE",
+                    "EQUAL), YOU RECOVER mHP. WIN OR",
+                    "LOSE, ALL YOUR SPELLS WILL BE",
+                    "RETURNED TO YOUR SPELLBOOK."
+                    );
+                _right_book_arrow_sprite.set_visible(true);
+                _left_book_arrow_sprite.set_visible(true);
+                state = 3;
+                break;
+            }
+            case 13:
+            {
+                _display_center_text(
+                    "(4/4) SHOPPING",
+                    "",
+                    "AFTER FIGHTING, YOU WILL HAVE",
+                    "THE CHANCE TO BUY NEW OWLS TO",
+                    "IMPROVE YOUR SPELLBOOK.",
+                    "TIP: IF YOU DON'T WANT TO BUY",
+                    "ANYTHING, YOU CAN SAVE YOUR c.",
+                    "TIP: OWLS WITH +c ARE MORE",
+                    "USEFUL EARLIER, AND OWLS WITH",
+                    "+k ARE BETTER WHEN NEAR A BOSS."
+                    );
+                _right_book_arrow_sprite.set_visible(false);
+                _left_book_arrow_sprite.set_visible(true);
+                state = 3;
+                break;
+            }
+            case 3:
+            {
+                if(bn::keypad::b_pressed())
+                {
+                    _display_center_text("");
+                    state = 0;
+                    _right_book_arrow_sprite.set_visible(false);
+                    _left_book_arrow_sprite.set_visible(false);
+                }
+                else if(bn::keypad::left_pressed())
+                {
+                    if(current_tutorial_page>0)
+                    {
+                        current_tutorial_page--;
+                        state = current_tutorial_page+10;
+                    }
+                }
+                else if(bn::keypad::right_pressed())
+                {
+                    if(current_tutorial_page<number_tutorial_pages-1)
+                    {
+                        current_tutorial_page++;
+                        state = current_tutorial_page+10;
+                    }
                 }
                 bn::core::update();
                 break;
@@ -89,12 +212,35 @@ int main_menu_scene::run_scene()
                 break;
             }
         }
-        
     }
+}
+void main_menu_scene::_display_center_text(const bn::string<50>& centertextone, const bn::string<50>& centertexttwo, const bn::string<50>& centertextthree, const bn::string<50>& centertextfour, const bn::string<50>& centertextfive, const bn::string<50>& centertextsix, const bn::string<50>& centertextseven, const bn::string<50>& centertexteight, const bn::string<50>& centertextnine, const bn::string<50>& centertextten)
+{
+    my_text_generator.set_center_alignment();
+    center_text_one_sprites.clear();
+    center_text_two_sprites.clear();
+    center_text_three_sprites.clear();
+    center_text_four_sprites.clear();
+    center_text_five_sprites.clear();
+    center_text_six_sprites.clear();
+    center_text_seven_sprites.clear();
+    center_text_eight_sprites.clear();
+    center_text_nine_sprites.clear();
+    center_text_ten_sprites.clear();
+    my_text_generator.generate(0, -60, centertextone, center_text_one_sprites);
+    my_text_generator.generate(0, -49, centertexttwo, center_text_two_sprites);
+    my_text_generator.generate(0, -38, centertextthree, center_text_three_sprites);
+    my_text_generator.generate(0, -27, centertextfour, center_text_four_sprites);
+    my_text_generator.generate(0, -16, centertextfive, center_text_five_sprites);
+    my_text_generator.generate(0, -5, centertextsix, center_text_six_sprites);
+    my_text_generator.generate(0, 6, centertextseven, center_text_three_sprites);
+    my_text_generator.generate(0, 17, centertexteight, center_text_four_sprites);
+    my_text_generator.generate(0, 28, centertextnine, center_text_five_sprites);
+    my_text_generator.generate(0, 39, centertextten, center_text_ten_sprites);
 }
 
 //TODO: Put this in its own class maybe
-void main_menu_scene::_display_text(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo, const bn::string<50>& statustextthree)
+void main_menu_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo, const bn::string<50>& statustextthree)
 {
     my_text_generator.set_center_alignment();
     status_text_one_sprites.clear();
@@ -179,4 +325,14 @@ void main_menu_scene::_point_cursor_at_letter(const bn::sprite_ptr& target_sprit
     _selection_cursor_sprite.set_y(target_sprite.y());
     _selection_cursor_sprite.set_x(target_sprite.x()-25);
     _selection_cursor_sprite.set_visible(true);
+}
+
+void main_menu_scene::_clear_virt_menu() //TODO: Uh, maybe this should be called clear hor menu?
+{
+    _selection_cursor_sprite.set_visible(false);
+    first_menu_option_text_sprites.clear();
+    second_menu_option_text_sprites.clear();
+    third_menu_option_text_sprites.clear();
+    
+    //_rift_bg.set_visible(false);
 }
