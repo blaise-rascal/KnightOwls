@@ -71,7 +71,7 @@
 #include "bn_sprite_items_right_book_arrow.h"
 #include "bn_sprite_items_left_book_arrow.h"
 #include "bn_sprite_items_enemies.h"
-#include "bn_sprite_items_button.h"
+//#include "bn_sprite_items_button.h"
 #include "bn_regular_bg_items_oceanbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
 #include "bn_regular_bg_items_rift.h"
@@ -201,10 +201,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,75,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -3,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    UpgradedCardInfoVector.push_back({"THUG",               7,0,    19,0,0,    -3,0,0,      0,2}); // -1money
+    UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
     UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   35,0,0,     0,0,0,      3,2}); // +1 energy
     UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    UpgradedCardInfoVector.push_back({"MERCHANT",           19,0,   0,0,0,       8,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
@@ -284,7 +284,13 @@ int game_scene::run_scene()
                 
                 
                 //_display_status(bn::to_string<50>(total_merc_probs));
-                _display_status("A CHILL WIND BLOWS...","PRESS START TO BEGIN VOYAGE");
+                //_display_status("A CHILL WIND BLOWS...","PRESS START TO BEGIN VOYAGE");
+
+                //YOU MUST MAKE A CHOICE
+                //CHOOSE MAGE BANNER
+                //CHOOSE COURAGE BANNER
+                
+                _display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
                 for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
                 {
                     //int card_to_add=0;
@@ -324,6 +330,7 @@ int game_scene::run_scene()
                 _research_upgrade(2);
                 _research_upgrade(3);
                 _research_upgrade(4);
+                _research_upgrade(8);
                 _update_hud_text();
                 state = 101;
                 break;
@@ -451,6 +458,19 @@ int game_scene::run_scene()
                             {
                                 first_line_status.append(".");
                             }
+                            
+                            if(IsUpgradeResearched[8])// && player1deck.at(index_to_remove)!=2 && player1deck.at(index_to_remove)!=3)
+                            {
+                                first_line_status.append(" D20=");
+                                int dtwentyroll = 1 + (bn::abs(random_num) % 20); //1-20
+                                random_num = random_generator.get();
+                                first_line_status.append(bn::to_string<4>(dtwentyroll));
+                                if(dtwentyroll==20)
+                                {
+                                    current_power+=10;
+                                    first_line_status.append("! k+10");
+                                }
+                            }
 
                             if(player1deck.at(index_to_remove)==4)//4 is spear
                             {
@@ -542,7 +562,7 @@ int game_scene::run_scene()
                                 //_display_status(bn::string<40>("You drew a ").append(bn::to_string<2>(weight_to_add)));
                                 //_display_status(bn::string<40>("You drew a ").append(CardInfoVector.at(player1deck.at(index_to_remove)).name);
 
-                                second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove)));
+                                second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove),false));
                             }
 
                             _update_hud_text();
@@ -1253,7 +1273,7 @@ void game_scene::_display_status(const bn::string<50>& statustextone, const bn::
     status_text_one_sprites.clear();
     status_text_two_sprites.clear();
     status_text_three_sprites.clear();
-    button_sprites.clear();
+    //button_sprites.clear();
     if(statustexttwo.length()>0 && statustextthree.length()>0)//all three lines occupied
     {
         my_text_generator.generate(0, 50, statustextone, status_text_one_sprites);
@@ -1343,16 +1363,35 @@ void game_scene::_point_cursor_at_owl(const bn::sprite_ptr& target_sprite)
 }
 
 
-bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_index)
+bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_index, bool upgraded)
 {
-    
-    int weight_to_add = CardInfoVector.at(card_info_index).weight;
-    int powerone_to_add = CardInfoVector.at(card_info_index).powerone;
-    int powertwo_to_add = CardInfoVector.at(card_info_index).powertwo;
-    int powertwopercentage = CardInfoVector.at(card_info_index).powertwopercentage;
-    int runesone_to_add = CardInfoVector.at(card_info_index).gatherone;
-    int runestwo_to_add = CardInfoVector.at(card_info_index).gathertwo;
-    int runestwopercentage = CardInfoVector.at(card_info_index).gathertwopercentage;
+    int weight_to_add = 0;
+    int powerone_to_add = 0;
+    int powertwo_to_add = 0;
+    int powertwopercentage = 0;
+    int runesone_to_add = 0;
+    int runestwo_to_add = 0;
+    int runestwopercentage = 0;
+    if(upgraded == true)
+    {
+        weight_to_add = UpgradedCardInfoVector.at(card_info_index).weight;
+        powerone_to_add = UpgradedCardInfoVector.at(card_info_index).powerone;
+        powertwo_to_add = UpgradedCardInfoVector.at(card_info_index).powertwo;
+        powertwopercentage = UpgradedCardInfoVector.at(card_info_index).powertwopercentage;
+        runesone_to_add = UpgradedCardInfoVector.at(card_info_index).gatherone;
+        runestwo_to_add = UpgradedCardInfoVector.at(card_info_index).gathertwo;
+        runestwopercentage = UpgradedCardInfoVector.at(card_info_index).gathertwopercentage;
+    }
+    else{
+        weight_to_add = CardInfoVector.at(card_info_index).weight;
+        powerone_to_add = CardInfoVector.at(card_info_index).powerone;
+        powertwo_to_add = CardInfoVector.at(card_info_index).powertwo;
+        powertwopercentage = CardInfoVector.at(card_info_index).powertwopercentage;
+        runesone_to_add = CardInfoVector.at(card_info_index).gatherone;
+        runestwo_to_add = CardInfoVector.at(card_info_index).gathertwo;
+        runestwopercentage = CardInfoVector.at(card_info_index).gathertwopercentage;
+
+    }
     bn::string<50> _description_string("");
     if(card_info_index==9)//merchant
     {
@@ -1446,7 +1485,7 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
             _description_string.append("i+");
             _description_string.append(bn::to_string<5>(weight_to_add));
         }
-}
+    }
     return(_description_string);
 }
 
@@ -1508,7 +1547,7 @@ void game_scene::_update_spellbook_from_menu_position()
     //first_line_status.append(" (COST: ");
     //first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
     //first_line_status.append("c)");
-    second_line_status.append(_generate_description_from_owl_index(player1deck.at(current_sb_owl)));
+    second_line_status.append(_generate_description_from_owl_index(player1deck.at(current_sb_owl),false));
     _display_status(first_line_status, second_line_status, third_line_status);
 }
 
@@ -1680,7 +1719,7 @@ void game_scene::_update_selection_cursor_from_hor_menu_position()
     //first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
     first_line_status.append(bn::to_string<5>(_price_on_sale(menu_position)));
     first_line_status.append("c)");
-    second_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position)));
+    second_line_status.append(_generate_description_from_owl_index(MercenaryDeck.at(menu_position),false));
     
     _display_status(first_line_status,second_line_status,third_line_status);
     _point_cursor_at_owl(MercenaryTableau.at(menu_position));
@@ -1758,6 +1797,39 @@ void game_scene::_research_upgrade(int whichupgrade)
         CardInfoVector.at(whichupgrade).gathertwo = UpgradedCardInfoVector.at(whichupgrade).gathertwo;
         CardInfoVector.at(whichupgrade).gathertwopercentage = UpgradedCardInfoVector.at(whichupgrade).gathertwopercentage;*/
     }
+    //if(whichupgrade == 10)
+}
+
+bn::string<50> game_scene::_generate_first_upgrade_description_from_upgrade_index(int isupgraded_index)
+{
+    bn::string<50> _description_string("");
+    if(isupgraded_index <8)
+    {
+        //my god this is hacky lmao
+        if(isupgraded_index>1)//adding two if not mage or archer, because reasons
+        {
+            isupgraded_index += 2;
+        }
+        _description_string.append("ALL ");
+        _description_string.append(CardInfoVector.at(isupgraded_index).name);
+        _description_string.append("S WILL BE:");
+    }
+    return(_description_string);
+}
+
+bn::string<50> game_scene::_generate_second_upgrade_description_from_upgrade_index(int isupgraded_index)
+{
+    bn::string<50> _description_string("");
+    if(isupgraded_index <8)
+    {
+        //my god this is hacky lmao
+        if(isupgraded_index>1)//adding two if not mage or archer, because reasons
+        {
+            isupgraded_index += 2;
+        }
+        _description_string.append(_generate_description_from_owl_index(isupgraded_index,true));
+    }
+    return(_description_string);
 }
 
 //bn::string<50> _generate_description_from_owl_index(int card_info_index);

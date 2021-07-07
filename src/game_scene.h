@@ -81,7 +81,8 @@ class game_scene
             //eventually, probability of different attacks, add items to tree, etc.
             //ACTUALLY: attack, penalty, reward
         };
-
+        //struct nonowlupgradeinfo
+        //upgrade name, upgrade description
         struct EnemyInfo { 
                               //herman the german merman
             int tileindex;
@@ -159,7 +160,7 @@ class game_scene
         bn::vector<bn::sprite_ptr, 13> second_enemy_stat_text_sprites; // probably needs to be like 4
         bn::vector<bn::sprite_ptr, 13> third_enemy_stat_text_sprites; // probably needs to be like 4
 
-        bn::vector<bn::sprite_ptr, 7> button_sprites; // probably needs to be like 4
+        //bn::vector<bn::sprite_ptr, 7> button_sprites; // probably needs to be like 4
 
         //vectors containing card & state information
         bn::vector<int, 100> player1deck;
@@ -184,7 +185,7 @@ class game_scene
         //11 coupon (one owl goes on sale every round)
         //12 first aid (after fight, 50% chance for +1hp)
         //13 surge (first 3 owls summoned will not be surges)
-        //14 risk (after loss +3c)
+        //14 risk (after loss +2c)
         //15 goblin (permanent goblin added to deck)
 /*
         OWL: +all (owl type) +x power... or whatever... depending on the owl
@@ -213,7 +214,7 @@ UPGRADES MAGES TO: */
         void _return_owls_to_tree();
         void _point_cursor_at_letter(const bn::sprite_ptr& target_sprite);
         void _point_cursor_at_owl(const bn::sprite_ptr& target_sprite);
-        bn::string<50> _generate_description_from_owl_index(int card_info_index);
+        bn::string<50> _generate_description_from_owl_index(int card_info_index, bool upgraded);
         void _generate_virt_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three = "");
         void _start_hor_merc_menu();
         void _navigate_through_virt_menu();
@@ -224,6 +225,8 @@ UPGRADES MAGES TO: */
         void _clear_virt_menu();
         bool _is_merc_deck_empty();
         void _research_upgrade(int whichupgrade);
+        bn::string<50> _generate_first_upgrade_description_from_upgrade_index(int isupgraded_index);
+        bn::string<50> _generate_second_upgrade_description_from_upgrade_index(int isupgraded_index);
         //void _replace_merc_with_random_owl(int which_merc_position);
 };
 //}
