@@ -17,8 +17,9 @@
 //   (Exceptions can be made; please contact me to discuss releasing your proposed modified version.)   //
 //                                                                                                      //
 //                  Source code is shared primarily for education purposes.                             //
-//           You can use code snippets in your own projects, but don't use the art,                     //
-//            music, or game design in anything you create without my permission.                       //
+//      You can use code snippets in your own projects, but don't use the art, or the music,            //
+//            or rip off huge portions of the game's design without my permission.                      //
+//          (Feel free to ask permission! There's a good chance I'll give it to you.)                   //
 //                    Game engine used: https://github.com/GValiente/butano                             //
 //                                                                                                      //
 //                                                                                                      //
@@ -70,6 +71,7 @@
 #include "bn_sprite_items_right_book_arrow.h"
 #include "bn_sprite_items_left_book_arrow.h"
 #include "bn_sprite_items_enemies.h"
+#include "bn_sprite_items_button.h"
 #include "bn_regular_bg_items_oceanbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
 #include "bn_regular_bg_items_rift.h"
@@ -84,17 +86,17 @@
 //TODO: clean up includes, remove from game those things built extraneously by $make clean $make
 
 namespace{
-        
-        const int MERCS_FOR_SALE = 6;
-        const int RUNES_PER_TURN = 4;
-        const int MAX_BOAT_WEIGHT = 4;
-        const int MAX_HULL = 4;
-        const int STARTING_MERC_INDEX = 0;
-        const int NUMBER_SPELLBOOK_COLUMNS = 6;
-        const int NUMBER_SPELLBOOK_ROWS = 3;
-        //const int 
-        //const bn::array<3> MERC_POSITIONS
-        //const bn::string<6> deploy_label_text("  DRAW");
+    
+    const int MERCS_FOR_SALE = 6;
+    const int RUNES_PER_TURN = 4;
+    const int MAX_BOAT_WEIGHT = 4;
+    const int MAX_HULL = 4;
+    const int STARTING_MERC_INDEX = 0;
+    const int NUMBER_SPELLBOOK_COLUMNS = 6;
+    const int NUMBER_SPELLBOOK_ROWS = 3;
+    //const int 
+    //const bn::array<3> MERC_POSITIONS
+    //const bn::string<6> deploy_label_text("  DRAW");
 }
 
 //soon to do, better slection cursor, better energy bursts
@@ -187,10 +189,22 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    CardInfoVector.push_back({"THUG",               7,0,    13,0,0,    -2,0,0,      0,2}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   24,0,0,     0,0,0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,2}); // -1money
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+
+    //todo: well obviously i don't need the repeat info
+    UpgradedCardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,2,50,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
+    UpgradedCardInfoVector.push_back({"ARCHER",             4,0,    4,0,0,     0,0,0,      2,1});
+    UpgradedCardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
+    UpgradedCardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
+    UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,75,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
+    UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -3,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    UpgradedCardInfoVector.push_back({"THUG",               7,0,    19,0,0,    -3,0,0,      0,2}); // -1money
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   35,0,0,     0,0,0,      3,2}); // +1 energy
+    UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
@@ -304,6 +318,12 @@ int game_scene::run_scene()
                         //last_merc_tableau_x_pos+=20;
                     }
                 }
+                IsUpgradeResearched.fill(false);
+                _research_upgrade(1);
+                _research_upgrade(0);
+                _research_upgrade(2);
+                _research_upgrade(3);
+                _research_upgrade(4);
                 _update_hud_text();
                 state = 101;
                 break;
@@ -448,7 +468,23 @@ int game_scene::run_scene()
                                     current_power = current_power + CardInfoVector.at(player1deck.at(index_to_remove)).powerone;
                                 }
                             }
-                            else if(player1deck.at(index_to_remove)==8)//8 is alchemist
+                            else if(player1deck.at(index_to_remove)==0 && IsUpgradeResearched[0]== true) // ugh this is awful. it's the mage, fyi
+                            {
+                                int percentageroll = bn::abs(random_num) % 100; //0-99
+                                random_num = random_generator.get();
+                                if(percentageroll < CardInfoVector.at(player1deck.at(index_to_remove)).gathertwopercentage)
+                                {
+                                    second_line_status.append("STROKE OF FORTUNE. c+");
+                                    second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).gathertwo));
+                                    runes_which_might_disappear = runes_which_might_disappear + CardInfoVector.at(player1deck.at(index_to_remove)).gathertwo;
+                                }
+                                else{
+                                    second_line_status.append("STROKE OF MISFORTUNE. c+");
+                                    second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).gatherone));
+                                    runes_which_might_disappear = runes_which_might_disappear + CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
+                                }
+                            }
+                            else if(player1deck.at(index_to_remove)==8) //8 is alchemist
                             {
                                 int percentageroll = bn::abs(random_num) % 100; //0-99
                                 random_num = random_generator.get();
@@ -471,7 +507,7 @@ int game_scene::run_scene()
                                 runes_which_might_disappear = runes_which_might_disappear + CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
                                 second_line_status.append("c+");
                                 second_line_status.append(bn::to_string<4>(CardInfoVector.at(player1deck.at(index_to_remove)).gatherone));
-                                second_line_status.append(". OWLS ");
+                                second_line_status.append(". OWLS");
                                 //second_line_status.append(bn::to_string<4>(AmountMercOnSale[0]));
 
 
@@ -484,17 +520,16 @@ int game_scene::run_scene()
                                 {
                                     int card_to_draw= bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
                                     random_num = random_generator.get();
-                                    second_line_status.append("#");
+                                    second_line_status.append(" #");
                                     second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
                                     AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] += 2;
-                                    second_line_status.append(" ");
 
                                     //Delete the drawn card from the deck
                                     SaleMercDeckToDrawFrom.erase(SaleMercDeckToDrawFrom.begin()+card_to_draw);
                                     //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
                                     
                                 }
-                                second_line_status.append("-2c THIS ROUND");
+                                second_line_status.append(": -2c THIS ROUND");
                                 
 
 
@@ -1208,10 +1243,17 @@ void game_scene::_update_hud_text()
 
 void game_scene::_display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo, const bn::string<50>& statustextthree)
 {
+//todo for this:
+//clear button sprites
+//after text is displayed, trawl through the strings and put a lil button under udlrba
+
+
+
     my_text_generator.set_center_alignment();
     status_text_one_sprites.clear();
     status_text_two_sprites.clear();
     status_text_three_sprites.clear();
+    button_sprites.clear();
     if(statustexttwo.length()>0 && statustextthree.length()>0)//all three lines occupied
     {
         my_text_generator.generate(0, 50, statustextone, status_text_one_sprites);
@@ -1228,6 +1270,18 @@ void game_scene::_display_status(const bn::string<50>& statustextone, const bn::
         my_text_generator.generate(0, 61, statustextone, status_text_one_sprites);
     }
     //todo: error handling for this
+    //put on the little circle things
+    /*for(int i = 0; i <status_text_three_sprites.size(); i++)
+    {
+        if(statustextthree.at(i) == 'u' || statustextthree.at(i) == 'd' || statustextthree.at(i) == 'l' || statustextthree.at(i) == 'r' || statustextthree.at(i) == 'a' || statustextthree.at(i) == 'b')
+        {
+            bn::sprite_ptr NewTableauImg = bn::sprite_items::button.create_sprite(status_text_three_sprites.at(i).position());
+            //bn::sprite_ptr NewTableauImg = bn::sprite_items::button.create_sprite(0,0);
+            
+            button_sprites.push_back(NewTableauImg);
+        }
+    }*/
+    //Eh, I tried to get the button image working, but it doesn't work. Darn. Oh well. Darn.
 }
 /*
 void game_scene::_replace_merc_with_random_owl(int which_merc_position)
@@ -1686,6 +1740,27 @@ bool game_scene::_is_merc_deck_empty()
     return allnegativeone;
 }
 
+void game_scene::_research_upgrade(int whichupgrade)
+{
+    IsUpgradeResearched[whichupgrade] = true;
+    if(whichupgrade<8)//owl upgrade
+    {
+        //my god this is hacky lmao
+        if(whichupgrade>1)//adding two if not mage or archer, because reasons
+        {
+            whichupgrade += 2;
+        }
+        CardInfoVector.at(whichupgrade) = UpgradedCardInfoVector.at(whichupgrade);
+        /*CardInfoVector.at(whichupgrade).powerone = UpgradedCardInfoVector.at(whichupgrade).powerone;
+        CardInfoVector.at(whichupgrade).powertwo = UpgradedCardInfoVector.at(whichupgrade).powertwo;
+        CardInfoVector.at(whichupgrade).powertwopercentage = UpgradedCardInfoVector.at(whichupgrade).powertwopercentage;
+        CardInfoVector.at(whichupgrade).gatherone = UpgradedCardInfoVector.at(whichupgrade).gatherone;
+        CardInfoVector.at(whichupgrade).gathertwo = UpgradedCardInfoVector.at(whichupgrade).gathertwo;
+        CardInfoVector.at(whichupgrade).gathertwopercentage = UpgradedCardInfoVector.at(whichupgrade).gathertwopercentage;*/
+    }
+}
+
+//bn::string<50> _generate_description_from_owl_index(int card_info_index);
 
 //post-jam todo list
 // figure out how much ewrom, iwrom, etc. i'm using

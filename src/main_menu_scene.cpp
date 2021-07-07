@@ -129,11 +129,11 @@ int main_menu_scene::run_scene()
                     "",
                     "YOU ARE A SUMMONER OF OWLS.",
                     "ARMED WITH YOUR SPELLBOOK",
-                    "(WHICH YOU CAN VIEW AT ANY TIME",
-                    "BY SELECTING \"SPELLBOOK\"), YOU",
-                    "MUST FACE MANY ENEMIES. KEEP",
-                    "YOUR mHP ABOVE ZERO AND DEFEAT",
-                    "THE FINAL BOSS TO WIN!",
+                    "(WHICH YOU CAN VIEW AT ANY",
+                    "TIME BY SELECTING \"SPELLBOOK\"),",
+                    "YOU MUST FACE MANY ENEMIES.",
+                    "KEEP YOUR mHP ABOVE ZERO AND",
+                    "DEFEAT THE FINAL BOSS TO WIN!",
                     ""
                     );
                 _right_book_arrow_sprite.set_visible(true);
@@ -198,6 +198,8 @@ int main_menu_scene::run_scene()
                 state = 3;
                 break;
             }
+
+            //(optional: Immediately after every boss is a spellbook reset. When this happens, you lose all owls you've added to your spellbook, as well as any DUST you've gathered, but you keep any BANNERS you may have acquired along the way. From here on out, the game will be more-or-less a repeat of what happened before, but it will be harder. This means you should choose your BANNERS carefully to maximize your chances of success post-reset.)
             case 3:
             {
                 if(bn::keypad::b_pressed())

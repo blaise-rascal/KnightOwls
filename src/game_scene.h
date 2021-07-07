@@ -159,10 +159,13 @@ class game_scene
         bn::vector<bn::sprite_ptr, 13> second_enemy_stat_text_sprites; // probably needs to be like 4
         bn::vector<bn::sprite_ptr, 13> third_enemy_stat_text_sprites; // probably needs to be like 4
 
+        bn::vector<bn::sprite_ptr, 7> button_sprites; // probably needs to be like 4
+
         //vectors containing card & state information
         bn::vector<int, 100> player1deck;
         bn::vector<int, 100> player1deck_at_start_of_round; //Uh, I guess I need both this AND cards removed? if I want to have a way to examine the tree, that is
         bn::vector<CardInfo,10> CardInfoVector;
+        bn::vector<CardInfo,10> UpgradedCardInfoVector;
         bn::vector<WaveInfo,10> WaveInfoVector;
         bn::vector<EnemyInfo,10> EnemyInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
@@ -174,6 +177,31 @@ class game_scene
         bn::vector<int, 6> TempMercDeckToDrawFrom;
         bn::vector<int, 6> SaleMercDeckToDrawFrom;
         bn::array<int, 6>AmountMercOnSale;
+        bn::array<bool,16>IsUpgradeResearched;//first 8 are owl upgrades, last 8 are:
+        //8 d20 (5% to do +10k)
+        //9 courage (+1 max static, -1 max HP)
+        //10 strength (+2 max HP)
+        //11 coupon (one owl goes on sale every round)
+        //12 first aid (after fight, 50% chance for +1hp)
+        //13 surge (first 3 owls summoned will not be surges)
+        //14 risk (after loss +3c)
+        //15 goblin (permanent goblin added to deck)
+/*
+        OWL: +all (owl type) +x power... or whatever... depending on the owl
+RIFT: +1 owl available for purchase at -1c
+SURGE: first 3 owls guaranteed to not be energy surges
+COUPON: one owl goes on sale every round (25% off)
+BRAVERY: -1maxHP but +1 max static
+STRENGTH: +2maxHP and heal to full
+D20: All owls 5% chance for +10ATK
+FIRST AID BANNER: After LOSS, 50% chance for +1HP
+GOBLIN BANNER: Permanent goblin (1d10ATK) added to deck
+VAMPIRE BANNER: Permanent vampire (2k, increases by 2k per victory) added to deck
+BANK BANNER: After buy phase, you earn xc, where x is half your c rounded up.
+UPGRADES MAGES TO: */
+        //AT SHIPWRECK:
+        //
+        //todo: remove button
 
         //functions
         void _update_hud_text();
@@ -195,6 +223,7 @@ class game_scene
         int  _price_on_sale(int merc_deck_index);
         void _clear_virt_menu();
         bool _is_merc_deck_empty();
+        void _research_upgrade(int whichupgrade);
         //void _replace_merc_with_random_owl(int which_merc_position);
 };
 //}
