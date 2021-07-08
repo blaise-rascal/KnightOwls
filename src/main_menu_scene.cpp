@@ -75,7 +75,7 @@ int main_menu_scene::run_scene()
             
             case 0:
             {
-                _display_center_text("KNIGHT OWLS");
+                _display_center_text("KNIGHT OWLS","ALPHA VERSION");
                 _display_status("ud:MOVE, a:SELECT");
                 _generate_virt_menu("BEGIN GAME", "HOW TO PLAY", "CREDITS");
                 

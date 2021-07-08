@@ -84,8 +84,8 @@ constexpr const int8_t variable_8x8_sprite_font_character_widths[] = {
     8,  // 99 c
     7,  // 100 d
     1,  // 101 e
-    5,  // 102 f
-    5,  // 103 g
+    8,  // 102 f
+    8,  // 103 g
     5,  // 104 h
     8,  // 105 i
     5,  // 106 j

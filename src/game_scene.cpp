@@ -134,7 +134,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     state_before_summon_start(0),
     number_sb_pages(0),
     current_sb_page(0),
-    current_sb_owl(0)
+    current_sb_owl(0),
+    upgrade_option_one(0),
+    upgrade_option_two(0)
 {
     current_hull=MAX_HULL;
 
@@ -142,6 +144,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     // y = 12 * 1.18^2
     //attack, reward, penalty, enemyinfoindex
     WaveInfoVector.push_back({14,1,1,0});
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({17,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
     WaveInfoVector.push_back({20,1,1,2});
     WaveInfoVector.push_back({23,1,1,3});
@@ -161,6 +164,27 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     EnemyInfoVector.push_back({6,"CAT HYDRA"});
     EnemyInfoVector.push_back({7,"PRETZELCOATL"});
     EnemyInfoVector.push_back({8,"HERMAN THE GERMAN MERMAN"});
+
+    //8 d20 (5% to do +10k)
+        //9 courage (+1 max static, -1 max HP)
+        //10 strength (+2 max HP)
+        //11 coupon (one owl goes on sale every round)
+        //12 first aid (after fight, 50% chance for +1hp)
+        //13 surge (first 3 owls summoned will not be surges)
+        //14 risk (after loss +2c)
+        //15 goblin (permanent goblin added to deck)
+        //16 When you fight, if your +c this round was 8 or higher, gain +5k
+    NonOwlUpgradeInfoVector.push_back({"D20","ALL OWLS HAVE 5% CHANCE FOR","+10k."}); //0
+    NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1
+    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP.",""}); //2
+    NonOwlUpgradeInfoVector.push_back({"COUPON","ONE OWL GOES ON SALE EVERY","ROUND."}); //3
+    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 50% CHANCE TO","HEAL 1 mHP."}); //4
+    NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5
+    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D10k)"}); //6
+    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 8 OR HIGHER, GAIN +5k"}); //7
+    //NonOwlUpgradeInfoVector.push_back({"COUNTDOWN","FIRST 2 SUMMONS WILL NOT BE","SURGES."});
+
+
 
     AmountMercOnSale.fill(0);
 
@@ -284,13 +308,13 @@ int game_scene::run_scene()
                 
                 
                 //_display_status(bn::to_string<50>(total_merc_probs));
-                //_display_status("A CHILL WIND BLOWS...","PRESS START TO BEGIN VOYAGE");
+                _display_status("A CHILL WIND BLOWS...","PRESS START TO BEGIN VOYAGE");
 
                 //YOU MUST MAKE A CHOICE
                 //CHOOSE MAGE BANNER
                 //CHOOSE COURAGE BANNER
                 
-                _display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
+                //_display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
                 for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
                 {
                     //int card_to_add=0;
@@ -326,11 +350,10 @@ int game_scene::run_scene()
                 }
                 IsUpgradeResearched.fill(false);
                 _research_upgrade(1);
-                _research_upgrade(0);
+                /*_research_upgrade(0);
                 _research_upgrade(2);
                 _research_upgrade(3);
-                _research_upgrade(4);
-                _research_upgrade(8);
+                _research_upgrade(4);*/
                 _update_hud_text();
                 state = 101;
                 break;
@@ -347,7 +370,7 @@ int game_scene::run_scene()
 //You can disable Help Mode at any time in the PAUSE MENU by pressing START.
 //HELP MODE TIP
 //
-//Only your flying units count for flying enemies!... nah... maybe]
+//Only your flying units count for flying enemies!... nah... maybe
 //SPELLBOOK:  strange text at top
 //All the owls in your spellbook are displayed here.
 //When you summon an owl, it is chosen at random from the ones remaining in your spellbook.
@@ -359,7 +382,9 @@ int game_scene::run_scene()
 //BRUISER and THUG
 //ADD __ to your spellbook?
 //SUMMON, SPELLBOOK, PASS
-                    
+
+
+//TODO: Add "next" text and 
             case 101: // Loop; wait for start press to add new enemy.
             {
                 if(bn::keypad::start_pressed())
@@ -371,23 +396,98 @@ int game_scene::run_scene()
             }
             case 900:
             {
-                bn::string<50> display_text_line_one("");
-                bn::string<50> display_text_line_two("kATTACK = ");
-                display_text_line_one.append(bn::to_string<27>(EnemyInfoVector.at(WaveInfoVector.at(current_wave).enemy_index).name));
-                display_text_line_one.append(bn::to_string<27>(" APPEARS!"));
-                display_text_line_two.append(bn::to_string<5>(WaveInfoVector.at(current_wave).attack));
-                _display_status(display_text_line_one, display_text_line_two, "a:CONTINUE");
+                
+                if(WaveInfoVector.at(current_wave).attack == -1)
+                {
+                    _display_status("SHIPWRECK APPEARS.", "CHOOSE A BANNER TO SALVAGE.", "a:CONTINUE");
+                    state = 26;
+                }
+                else
+                {
+                    bn::string<50> display_text_line_one("");
+                    bn::string<50> display_text_line_two("kATTACK = ");
+                    display_text_line_one.append(bn::to_string<27>(EnemyInfoVector.at(WaveInfoVector.at(current_wave).enemy_index).name));
+                    display_text_line_one.append(bn::to_string<27>(" APPEARS!"));
+                    display_text_line_two.append(bn::to_string<5>(WaveInfoVector.at(current_wave).attack));
+                    _display_status(display_text_line_one, display_text_line_two, "a:CONTINUE");
 
-                _enemy_sprite.set_tiles(bn::sprite_items::enemies.tiles_item().create_tiles(EnemyInfoVector.at(WaveInfoVector.at(current_wave).enemy_index).tileindex));
-                //_enemy_sprite.set_visible(true);
-                state_before_summon_start=900;
-                enemy_stat_box_active=true;
-                _update_enemy_stat_box();
-                state = 1;
+                    _enemy_sprite.set_tiles(bn::sprite_items::enemies.tiles_item().create_tiles(EnemyInfoVector.at(WaveInfoVector.at(current_wave).enemy_index).tileindex));
+                    //_enemy_sprite.set_visible(true);
+                    state_before_summon_start=900;
+                    enemy_stat_box_active=true;
+                    _update_enemy_stat_box();
+                    state = 1;
+                }
+                _update_hud_text();
                 break;
             }
+            case 26: // Loop; wait for A press to start shipwreck phase
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    state = 27;
+                }
+                bn::core::update();
+                break;
+            }
+            case 27: // intro to shipwreck phase
+            {
+                //_display_status("ud:MOVE, a:SELECT");
+                upgrade_option_one=5;
+                upgrade_option_two=8;
+                _generate_virt_menu(2, _generate_name_from_upgrade_index(upgrade_option_one), _generate_name_from_upgrade_index(upgrade_option_two),"");
+                //bn::core::update();
+                state = 28;
+                break;
+            }
+            case 28: // SHIPWRECK LOOP!
+            {
+                _navigate_through_virt_menu(); // todo : make this its own state
+                if(menu_position==0)
+                {
+                    _display_status(_generate_first_upgrade_description_from_upgrade_index(upgrade_option_one),_generate_second_upgrade_description_from_upgrade_index(upgrade_option_one),"ud:MOVE, a:SELECT");
+                }
+                else if(menu_position==1)
+                {
+                    _display_status(_generate_first_upgrade_description_from_upgrade_index(upgrade_option_two),_generate_second_upgrade_description_from_upgrade_index(upgrade_option_two),"ud:MOVE, a:SELECT");
+                }
+
+                if(bn::keypad::a_pressed())
+                {
+                    //_display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
+                    if(menu_position==0)
+                    {
+                        _clear_virt_menu();
+                        _research_upgrade(upgrade_option_one);
+                        _display_status("YOU PICKED OPTION 1", "a:CONTINUE");
+                        state = 29;
+                    }
+                    else if(menu_position==1)
+                    {
+                        _clear_virt_menu();
+                        _research_upgrade(upgrade_option_two);
+                        _display_status("YOU PICKED OPTION 2", "a:CONTINUE");
+                        state = 29;
+                    }
+                    
+                }
+                bn::core::update();
+                break;
+            }
+            case 29:
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    current_wave+=1;
+                    state = 900;
+                }
+                bn::core::update();
+                break;
+            }
+
             case 1: // Loop; wait for A press to start summon phase
             {
+                
                 if(bn::keypad::a_pressed())
                 {
                     state = 10001;
@@ -459,7 +559,7 @@ int game_scene::run_scene()
                                 first_line_status.append(".");
                             }
                             
-                            if(IsUpgradeResearched[8])// && player1deck.at(index_to_remove)!=2 && player1deck.at(index_to_remove)!=3)
+                            if(IsUpgradeResearched[8] && player1deck.at(index_to_remove)!=2 && player1deck.at(index_to_remove)!=3)
                             {
                                 first_line_status.append(" D20=");
                                 int dtwentyroll = 1 + (bn::abs(random_num) % 20); //1-20
@@ -1203,12 +1303,19 @@ void game_scene::_update_hud_text()
     bn::string<20> wave_hud_text("");
     for(int wave_to_check = 0; wave_to_check < WaveInfoVector.size(); wave_to_check++)
     {
-        if(wave_to_check==WaveInfoVector.size()-1)
+        if(WaveInfoVector.at(wave_to_check).penalty == 9999) // BOSS
         {
             if(wave_to_check==current_wave)
                 wave_hud_text.append("p");//red skull
             else
                 wave_hud_text.append("o"); //white skull
+        }
+        else if(WaveInfoVector.at(wave_to_check).attack == -1) // SHIPWRECK
+        {
+            if(wave_to_check==current_wave)
+                wave_hud_text.append("g");//red ship
+            else
+                wave_hud_text.append("f"); //white ship
         }
         else if(wave_to_check < current_wave)
         {
@@ -1490,7 +1597,7 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
 }
 
 
-void game_scene::_generate_virt_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three)
+void game_scene::_generate_virt_menu(int num_options, const bn::string<20>& menu_option_one, const bn::string<20>& menu_option_two, const bn::string<20>& menu_option_three)
 {
     my_text_generator.set_center_alignment();
 
@@ -1814,6 +1921,10 @@ bn::string<50> game_scene::_generate_first_upgrade_description_from_upgrade_inde
         _description_string.append(CardInfoVector.at(isupgraded_index).name);
         _description_string.append("S WILL BE:");
     }
+    else
+    {
+        _description_string.append(NonOwlUpgradeInfoVector.at(isupgraded_index-8).description_one);
+    }
     return(_description_string);
 }
 
@@ -1829,7 +1940,32 @@ bn::string<50> game_scene::_generate_second_upgrade_description_from_upgrade_ind
         }
         _description_string.append(_generate_description_from_owl_index(isupgraded_index,true));
     }
+    else
+    {
+        _description_string.append(NonOwlUpgradeInfoVector.at(isupgraded_index-8).description_two);
+    }
     return(_description_string);
+}
+
+bn::string<25> game_scene::_generate_name_from_upgrade_index(int isupgraded_index)
+{
+    bn::string<25> _name_string("");
+    if(isupgraded_index <8)
+    {
+        //my god this is hacky lmao
+        if(isupgraded_index>1)//adding two if not mage or archer, because reasons
+        {
+            isupgraded_index += 2;
+        }
+        _name_string.append(CardInfoVector.at(isupgraded_index).name);
+    }
+    else
+    {
+        _name_string.append(NonOwlUpgradeInfoVector.at(isupgraded_index-8).name_minus_banner);
+    }
+    //_name_string.append(" +");
+    _name_string.append(" BANNER");
+    return(_name_string);
 }
 
 //bn::string<50> _generate_description_from_owl_index(int card_info_index);

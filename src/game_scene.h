@@ -70,6 +70,12 @@ class game_scene
             //1 = common
             //2 = uncommon
         };
+
+        struct NonOwlUpgradeInfo { 
+            bn::string<20> name_minus_banner;
+            bn::string<50> description_one;
+            bn::string<50> description_two;
+        };
         //TODO: Maybe make const?  
         struct WaveInfo { 
             int attack;
@@ -138,6 +144,8 @@ class game_scene
         int number_sb_pages;
         int current_sb_page;
         int current_sb_owl;
+        int upgrade_option_one;
+        int upgrade_option_two;
         //int runes_at_start_of_round;
         //int enemyindex;
 
@@ -152,9 +160,9 @@ class game_scene
         bn::vector<bn::sprite_ptr, 50> status_text_two_sprites;
         bn::vector<bn::sprite_ptr, 50> status_text_three_sprites;
         
-        bn::vector<bn::sprite_ptr, 6> first_menu_option_text_sprites;
-        bn::vector<bn::sprite_ptr, 4> second_menu_option_text_sprites; //huh? why isn't this getting overflowed? the second menu option is "examine" which is more than 4 sprites...
-        bn::vector<bn::sprite_ptr, 8> third_menu_option_text_sprites;
+        bn::vector<bn::sprite_ptr, 10> first_menu_option_text_sprites;
+        bn::vector<bn::sprite_ptr, 10> second_menu_option_text_sprites; //huh? why isn't this getting overflowed? the second menu option is "examine" which is more than 4 sprites...
+        bn::vector<bn::sprite_ptr, 10> third_menu_option_text_sprites;
 
         bn::vector<bn::sprite_ptr, 13> first_enemy_stat_text_sprites; // probably needs to be like 4
         bn::vector<bn::sprite_ptr, 13> second_enemy_stat_text_sprites; // probably needs to be like 4
@@ -169,6 +177,7 @@ class game_scene
         bn::vector<CardInfo,10> UpgradedCardInfoVector;
         bn::vector<WaveInfo,10> WaveInfoVector;
         bn::vector<EnemyInfo,10> EnemyInfoVector;
+        bn::vector<NonOwlUpgradeInfo,8> NonOwlUpgradeInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
         bn::vector<bn::sprite_ptr, 6> MercenaryTableau;
         bn::vector<bn::sprite_ptr, 100> SpellbookTableau;
@@ -179,14 +188,7 @@ class game_scene
         bn::vector<int, 6> SaleMercDeckToDrawFrom;
         bn::array<int, 6>AmountMercOnSale;
         bn::array<bool,16>IsUpgradeResearched;//first 8 are owl upgrades, last 8 are:
-        //8 d20 (5% to do +10k)
-        //9 courage (+1 max static, -1 max HP)
-        //10 strength (+2 max HP)
-        //11 coupon (one owl goes on sale every round)
-        //12 first aid (after fight, 50% chance for +1hp)
-        //13 surge (first 3 owls summoned will not be surges)
-        //14 risk (after loss +2c)
-        //15 goblin (permanent goblin added to deck)
+        
 /*
         OWL: +all (owl type) +x power... or whatever... depending on the owl
 RIFT: +1 owl available for purchase at -1c
@@ -215,7 +217,7 @@ UPGRADES MAGES TO: */
         void _point_cursor_at_letter(const bn::sprite_ptr& target_sprite);
         void _point_cursor_at_owl(const bn::sprite_ptr& target_sprite);
         bn::string<50> _generate_description_from_owl_index(int card_info_index, bool upgraded);
-        void _generate_virt_menu(int num_options, const bn::string<12>& menu_option_one, const bn::string<12>& menu_option_two, const bn::string<12>& menu_option_three = "");
+        void _generate_virt_menu(int num_options, const bn::string<20>& menu_option_one, const bn::string<20>& menu_option_two, const bn::string<20>& menu_option_three = "");
         void _start_hor_merc_menu();
         void _navigate_through_virt_menu();
         void _navigate_through_hor_menu();
@@ -227,6 +229,7 @@ UPGRADES MAGES TO: */
         void _research_upgrade(int whichupgrade);
         bn::string<50> _generate_first_upgrade_description_from_upgrade_index(int isupgraded_index);
         bn::string<50> _generate_second_upgrade_description_from_upgrade_index(int isupgraded_index);
+        bn::string<25> _generate_name_from_upgrade_index(int isupgraded_index);
         //void _replace_merc_with_random_owl(int which_merc_position);
 };
 //}
