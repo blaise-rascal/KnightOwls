@@ -232,6 +232,8 @@ UPGRADES MAGES TO: */
         bn::string<50> _generate_first_upgrade_description_from_upgrade_index(int isupgraded_index);
         bn::string<50> _generate_second_upgrade_description_from_upgrade_index(int isupgraded_index);
         bn::string<25> _generate_name_from_upgrade_index(int isupgraded_index);
+        
+        void _apply_pity();
         //void _replace_merc_with_random_owl(int which_merc_position);
 };
 //}

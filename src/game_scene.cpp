@@ -176,14 +176,14 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
         //14 risk (after loss +2c)
         //15 goblin (permanent goblin added to deck)
         //16 When you fight, if your +c this round was 8 or higher, gain +5k
-    NonOwlUpgradeInfoVector.push_back({"D20","ALL SPELLS HAVE 5% CHANCE FOR","+10k."}); //0
+    NonOwlUpgradeInfoVector.push_back({"D20","ALL SPELLS HAVE 5%","CHANCE FOR +10k."}); //0
     NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1
     NonOwlUpgradeInfoVector.push_back({"STRENGTH","+1 MAX AND CURRENT mHP.",""}); //2
-    NonOwlUpgradeInfoVector.push_back({"COUPON","ONE OWL GOES ON SALE EVERY","ROUND."}); //3
-    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 50% CHANCE TO","HEAL 1 mHP."}); //4
+    NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, ONE RANDOM OWL","COSTS -2c, AND ANOTHER +2c."}); //3
+    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 1/3 CHANCE TO","HEAL 1 mHP."}); //4
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5
     NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D10k)"}); //6
-    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 8 OR HIGHER, GAIN +5k"}); //7
+    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 10 OR HIGHER, GAIN +5k"}); //7
     //NonOwlUpgradeInfoVector.push_back({"COUNTDOWN","FIRST 2 SUMMONS WILL NOT BE","SURGES."});
 
 
@@ -219,6 +219,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      9,0}); // 10 uh there's some shit i gotta do for the gobbo. you know what? that's enough for the night
 
     //todo: well obviously i don't need the repeat info
     UpgradedCardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,2,50,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
@@ -352,10 +353,8 @@ int game_scene::run_scene()
                 }
                 IsUpgradeResearched.fill(false);
                 //THIS IS WHERE YOU ADD NEW UPGRADES!
-                _research_upgrade(8);
-                _research_upgrade(9);
-                _research_upgrade(10);
-                _research_upgrade(11);
+                _research_upgrade(11);  
+                _research_upgrade(15);
                 _update_hud_text();
                 state = 101;
                 break;
@@ -765,12 +764,22 @@ int game_scene::run_scene()
                 //KILL SELECTION CURSOR, LABELS
                 _clear_virt_menu();
 
-                bn::string<50> first_line_status("SUMMONING OVER.");
-                _display_status(first_line_status,"PRESS A TO RESOLVE COMBAT");
+                if(IsUpgradeResearched[15] && runes_which_might_disappear>=10)
+                {
+                    current_power+=5;
+                    _display_status("SUMMONING OVER.","k+5 FOR EARNING AT LEAST 10c.","PRESS A TO RESOLVE COMBAT");
+                }
+                else{
+                    _display_status("SUMMONING OVER.","PRESS A TO RESOLVE COMBAT");
+                }
                 _update_hud_text();
                 state = 14;
                 break;
             }
+            /*case 34:
+            {
+                "YOU ARE ROLLING IN THE MONEY."
+            }*/
             case 14:
             {
                 if(bn::keypad::a_pressed())
@@ -827,9 +836,6 @@ int game_scene::run_scene()
                         
                         player_stat_box_active=false;
 
-                        bn::string<50> first_line_status("REWARD: HEAL +");  
-                        first_line_status.append(bn::to_string<4>(WaveInfoVector.at(current_wave).reward));
-                        first_line_status.append(" mHP.");
 
                         bn::string<50> second_line_status("YOUR OWLS GATHERED +");  
                         second_line_status.append(bn::to_string<8>(runes_which_might_disappear));
@@ -839,6 +845,10 @@ int game_scene::run_scene()
                         runes_which_might_disappear = 0;
                         if(won_wave==true)
                         {
+                            
+                            bn::string<50> first_line_status("REWARD: HEAL +");  
+                            first_line_status.append(bn::to_string<4>(WaveInfoVector.at(current_wave).reward));
+                            first_line_status.append(" mHP.");
                             current_hull = current_hull + WaveInfoVector.at(current_wave).reward;
                             if(current_hull>max_hull)
                             {
@@ -964,7 +974,65 @@ int game_scene::run_scene()
                 bn::core::update();
                 break;
             }
-            case 20://intro to mercs appear
+            case 20:
+            {
+                if(IsUpgradeResearched[12] == true)
+                {
+                    int first_aid_check= bn::abs(random_num) % 3;
+                    random_num = random_generator.get();
+                    if(first_aid_check == 0)
+                    {
+                        _display_status("YOU TRY TO APPLY FIRST AID...","...AND SUCCEED. +1mHP.","a:CONTINUE");
+                        if(current_hull<max_hull)
+                        {
+                            current_hull++;
+                            _update_hud_text();
+                        }
+                    }
+                    else{
+                        _display_status("YOU TRY TO APPLY FIRST AID...","...AND FAIL. DARN!","a:CONTINUE");
+                    }
+                    state = 31;
+                    
+                }
+                
+                else
+                {
+                    if(IsUpgradeResearched[13] == true && won_wave == false)
+                    {
+                        _apply_pity();
+                        state = 32;
+                    }
+                    else
+                        state = 30;
+                }
+                break;
+            }
+            case 31:
+            {
+                if(bn::keypad::a_pressed())
+                    {
+                        if(IsUpgradeResearched[13] == true && won_wave == false)
+                        {
+                            _apply_pity();
+                            state = 32;
+                        }
+                        else
+                            state = 30;
+                    }
+                bn::core::update();
+                break;
+            }
+            case 32:
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    state = 30;
+                }
+                bn::core::update();
+                break;
+            }
+            case 30://intro to mercs appear
             {
                 
                 //Populate the deck to draw from
@@ -1013,10 +1081,10 @@ int game_scene::run_scene()
                     MercenaryTableau.at(merctoillustrate).set_visible(true);
                 }
                 _rift_bg.set_visible(true);
-                if(IsUpgradeResearched[11])//coupon
+                if(IsUpgradeResearched[11])//stonks
                 {
                     
-                    bn::string<50> second_line_status("THANKS TO COUPON, OWL #");
+                    bn::string<50> second_line_status("STONKS: OWL #");
                     SaleMercDeckToDrawFrom.clear();
                     for(int i =0; i< MERCS_FOR_SALE; i++)
                     {
@@ -1027,9 +1095,15 @@ int game_scene::run_scene()
                     random_num = random_generator.get();
                     second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
                     AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] += 2;
+                    SaleMercDeckToDrawFrom.erase(SaleMercDeckToDrawFrom.begin()+card_to_draw);
+                    second_line_status.append(" IS -2c, #");
 
-                    
-                    second_line_status.append(" ON SALE.");
+                    card_to_draw= bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
+                    random_num = random_generator.get();
+                    second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
+                    AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] -= 2;
+                    second_line_status.append(" IS +2c");
+
                     _display_status("A RIFT TO OWLHALLA APPEARS!", second_line_status, "a:CONTINUE");
                 }
                 else{
@@ -1979,7 +2053,7 @@ void game_scene::_research_upgrade(int whichupgrade)
     NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1   9
     NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP.",""}); //2   10
     NonOwlUpgradeInfoVector.push_back({"COUPON","ONE OWL GOES ON SALE EVERY","ROUND."}); //3   11
-    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 50% CHANCE TO","HEAL 1 mHP."}); //4   12
+    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 33.33% CHANCE TO","HEAL 1 mHP."}); //4   12
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5   13
     NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D8k)"}); //6   14
     NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 8 OR HIGHER, GAIN +5k"}); //7   15
@@ -2047,6 +2121,12 @@ bn::string<25> game_scene::_generate_name_from_upgrade_index(int isupgraded_inde
     return(_name_string);
 }
 
+void game_scene::_apply_pity()
+{
+    _display_status("YOU LOST COMBAT. YOU DESERVE","+2c, SO +2c YOU SHALL HAVE.","a:CONTINUE");
+    current_runes+=2;
+    _update_hud_text();
+}
 //bn::string<50> _generate_description_from_owl_index(int card_info_index);
 
 //post-jam todo list
