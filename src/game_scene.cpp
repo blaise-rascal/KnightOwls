@@ -89,8 +89,8 @@ namespace{
     
     const int MERCS_FOR_SALE = 6;
     const int RUNES_PER_TURN = 4;
-    const int MAX_BOAT_WEIGHT = 4;
-    const int MAX_HULL = 4;
+    //const int MAX_BOAT_WEIGHT = 4;
+    //const int MAX_HULL = 4;
     const int STARTING_MERC_INDEX = 0;
     const int NUMBER_SPELLBOOK_COLUMNS = 6;
     const int NUMBER_SPELLBOOK_ROWS = 3;
@@ -116,6 +116,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_power(0),
     current_runes(0), // MODIFY THIS VALUE TO SET STARTING RUNES
     current_hull(0),
+    max_hull(4),
+    max_boat_weight(4),
     runes_which_might_disappear(0),
     menu_position(0),
     state(0),
@@ -138,7 +140,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     upgrade_option_one(0),
     upgrade_option_two(0)
 {
-    current_hull=MAX_HULL;
+    current_hull=max_hull;
 
     bn::music_items::voyagemusic.play(0.5);
     // y = 12 * 1.18^2
@@ -174,9 +176,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
         //14 risk (after loss +2c)
         //15 goblin (permanent goblin added to deck)
         //16 When you fight, if your +c this round was 8 or higher, gain +5k
-    NonOwlUpgradeInfoVector.push_back({"D20","ALL OWLS HAVE 5% CHANCE FOR","+10k."}); //0
+    NonOwlUpgradeInfoVector.push_back({"D20","ALL SPELLS HAVE 5% CHANCE FOR","+10k."}); //0
     NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1
-    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP.",""}); //2
+    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+1 MAX AND CURRENT mHP.",""}); //2
     NonOwlUpgradeInfoVector.push_back({"COUPON","ONE OWL GOES ON SALE EVERY","ROUND."}); //3
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 50% CHANCE TO","HEAL 1 mHP."}); //4
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5
@@ -349,11 +351,11 @@ int game_scene::run_scene()
                     }
                 }
                 IsUpgradeResearched.fill(false);
-                _research_upgrade(1);
-                /*_research_upgrade(0);
-                _research_upgrade(2);
-                _research_upgrade(3);
-                _research_upgrade(4);*/
+                //THIS IS WHERE YOU ADD NEW UPGRADES!
+                _research_upgrade(8);
+                _research_upgrade(9);
+                _research_upgrade(10);
+                _research_upgrade(11);
                 _update_hud_text();
                 state = 101;
                 break;
@@ -454,19 +456,22 @@ int game_scene::run_scene()
 
                 if(bn::keypad::a_pressed())
                 {
+                    bn::string<50> display_text_line_one("YOU PICKED ");
                     //_display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
                     if(menu_position==0)
                     {
                         _clear_virt_menu();
                         _research_upgrade(upgrade_option_one);
-                        _display_status("YOU PICKED OPTION 1", "a:CONTINUE");
+                        display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_one));
+                        _display_status(display_text_line_one, "a:CONTINUE");
                         state = 29;
                     }
                     else if(menu_position==1)
                     {
                         _clear_virt_menu();
                         _research_upgrade(upgrade_option_two);
-                        _display_status("YOU PICKED OPTION 2", "a:CONTINUE");
+                        display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_two));
+                        _display_status(display_text_line_one, "a:CONTINUE");
                         state = 29;
                     }
                     
@@ -559,18 +564,7 @@ int game_scene::run_scene()
                                 first_line_status.append(".");
                             }
                             
-                            if(IsUpgradeResearched[8] && player1deck.at(index_to_remove)!=2 && player1deck.at(index_to_remove)!=3)
-                            {
-                                first_line_status.append(" D20=");
-                                int dtwentyroll = 1 + (bn::abs(random_num) % 20); //1-20
-                                random_num = random_generator.get();
-                                first_line_status.append(bn::to_string<4>(dtwentyroll));
-                                if(dtwentyroll==20)
-                                {
-                                    current_power+=10;
-                                    first_line_status.append("! k+10");
-                                }
-                            }
+                            
 
                             if(player1deck.at(index_to_remove)==4)//4 is spear
                             {
@@ -649,7 +643,7 @@ int game_scene::run_scene()
                                     //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
                                     
                                 }
-                                second_line_status.append(": -2c THIS ROUND");
+                                second_line_status.append(": CHEAP THIS ROUND");
                                 
 
 
@@ -665,9 +659,30 @@ int game_scene::run_scene()
                                 second_line_status.append(_generate_description_from_owl_index(player1deck.at(index_to_remove),false));
                             }
 
+                            if(IsUpgradeResearched[8])
+                            {
+                                bn::string<20> dtwenty_message(" D20=");
+                                //dtwenty_message.append(" D20=");
+                                int dtwentyroll = 1 + (bn::abs(random_num) % 20); //1-20
+                                random_num = random_generator.get();
+                                dtwenty_message.append(bn::to_string<4>(dtwentyroll));
+                                if(dtwentyroll==20)
+                                {
+                                    current_power+=10;
+                                    dtwenty_message.append("! k+10");
+                                }
+                                if(player1deck.at(index_to_remove)==2 || player1deck.at(index_to_remove)==3 || player1deck.at(index_to_remove)==7) //If it's an energy surge, put it on the second line, since we don't have enough room otherwise.
+                                {
+                                    second_line_status.append(dtwenty_message);
+                                }
+                                else
+                                {
+                                    first_line_status.append(dtwenty_message);
+                                }
+                            }
                             _update_hud_text();
 
-                            if(current_weight>MAX_BOAT_WEIGHT){
+                            if(current_weight>max_boat_weight){
                                 _selection_cursor_sprite.set_visible(false);
                                 
                                 third_line_status.append("iSTATIC TOO HIGH! a:CONTINUE");
@@ -825,9 +840,9 @@ int game_scene::run_scene()
                         if(won_wave==true)
                         {
                             current_hull = current_hull + WaveInfoVector.at(current_wave).reward;
-                            if(current_hull>MAX_HULL)
+                            if(current_hull>max_hull)
                             {
-                                current_hull=MAX_HULL;
+                                current_hull=max_hull;
                             }
                             _display_status(first_line_status, second_line_status, "a:CONTINUE");//GATHER REWARD, GATHER
                         }
@@ -998,7 +1013,28 @@ int game_scene::run_scene()
                     MercenaryTableau.at(merctoillustrate).set_visible(true);
                 }
                 _rift_bg.set_visible(true);
-                _display_status("A RIFT TO OWLHALLA APPEARS!","YOU MAY CONSCRIPT NEW OWLS WITH c.","a:CONTINUE");
+                if(IsUpgradeResearched[11])//coupon
+                {
+                    
+                    bn::string<50> second_line_status("THANKS TO COUPON, OWL #");
+                    SaleMercDeckToDrawFrom.clear();
+                    for(int i =0; i< MERCS_FOR_SALE; i++)
+                    {
+                        SaleMercDeckToDrawFrom.push_back(i);
+                    }
+                    
+                    int card_to_draw= bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
+                    random_num = random_generator.get();
+                    second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
+                    AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] += 2;
+
+                    
+                    second_line_status.append(" ON SALE.");
+                    _display_status("A RIFT TO OWLHALLA APPEARS!", second_line_status, "a:CONTINUE");
+                }
+                else{
+                    _display_status("A RIFT TO OWLHALLA APPEARS!", "YOU MAY CONSCRIPT NEW OWLS WITH c.", "a:CONTINUE");
+                }
                 
                 state = 21;
                 break;
@@ -1274,7 +1310,7 @@ void game_scene::_update_hud_text()
     //needed: enemy wave sprites, runes which might disappear sprite
     hull_text_sprites.clear();
     bn::string<20> hull_hud_text("");
-    for(int hull_to_check = 0; hull_to_check < MAX_HULL; hull_to_check++)
+    for(int hull_to_check = 0; hull_to_check < max_hull; hull_to_check++)
     {
         if(hull_to_check<current_hull)
         {
@@ -1317,16 +1353,30 @@ void game_scene::_update_hud_text()
             else
                 wave_hud_text.append("f"); //white ship
         }
-        else if(wave_to_check < current_wave)
+        /*else if(wave_to_check < current_wave)
         {
             wave_hud_text.append("y");//z is open but i like y better
-        }
-        else if(wave_to_check == current_wave)
+        }*/
+        else if(WaveInfoVector.at(wave_to_check).penalty == 1) // SMALL ENEMY
         {
-            wave_hud_text.append("w");//where you are
+            if(wave_to_check == current_wave)
+            {
+                wave_hud_text.append("t");//red 1
+            }
+            else
+            {
+                wave_hud_text.append("s");//white 1
+            }
         }
-        else{
-            wave_hud_text.append("y");//closed
+        else{                                                  // BIG ENEMY
+            if(wave_to_check == current_wave)
+            {
+                wave_hud_text.append("z");//red 2
+            }
+            else
+            {
+                wave_hud_text.append("y");//white 2
+            }
         }
     }
     my_text_generator.generate(118, -72, wave_hud_text, wave_text_sprites);
@@ -1357,7 +1407,7 @@ void game_scene::_update_hud_text()
         bn::string<20> weight_hud_text("i");
         weight_hud_text.append(bn::to_string<8>(current_weight));
         weight_hud_text.append("/");
-        weight_hud_text.append(bn::to_string<2>(MAX_BOAT_WEIGHT));
+        weight_hud_text.append(bn::to_string<2>(max_boat_weight));
         my_text_generator.generate(-70, -25, weight_hud_text, weight_text_sprites);
     }
     //-115 -39
@@ -1904,7 +1954,36 @@ void game_scene::_research_upgrade(int whichupgrade)
         CardInfoVector.at(whichupgrade).gathertwo = UpgradedCardInfoVector.at(whichupgrade).gathertwo;
         CardInfoVector.at(whichupgrade).gathertwopercentage = UpgradedCardInfoVector.at(whichupgrade).gathertwopercentage;*/
     }
-    //if(whichupgrade == 10)
+    //upgrad 8 is d20, and is not handled by this function
+    else if(whichupgrade == 9)
+    {
+        max_hull -= 1;
+        max_boat_weight += 1;
+        if(current_hull>max_hull)
+        {
+            current_hull=max_hull;
+        }
+    }
+    else if(whichupgrade == 10)
+    {
+        max_hull += 1;
+        current_hull += 1;
+    }
+    else if(whichupgrade == 11)
+    {
+
+    }
+    _update_hud_text();
+    /*
+    NonOwlUpgradeInfoVector.push_back({"D20","ALL SPELLS HAVE 5% CHANCE FOR","+10k."}); //0   8
+    NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1   9
+    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP.",""}); //2   10
+    NonOwlUpgradeInfoVector.push_back({"COUPON","ONE OWL GOES ON SALE EVERY","ROUND."}); //3   11
+    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 50% CHANCE TO","HEAL 1 mHP."}); //4   12
+    NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5   13
+    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D8k)"}); //6   14
+    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 8 OR HIGHER, GAIN +5k"}); //7   15
+    */
 }
 
 bn::string<50> game_scene::_generate_first_upgrade_description_from_upgrade_index(int isupgraded_index)

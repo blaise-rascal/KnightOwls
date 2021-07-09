@@ -122,6 +122,8 @@ class game_scene
         int current_power;
         int current_runes;
         int current_hull;
+        int max_hull;
+        int max_boat_weight;
         int runes_which_might_disappear;
         //weight_hud_text.append(bn::to_string<8>(current_weight));
 

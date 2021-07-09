@@ -105,16 +105,17 @@ int main_menu_scene::run_scene()
                         state = 4;
                         _clear_virt_menu();
                         _display_center_text(
-                            "",
+                            
                             "GAME MADE BY BLAISE RASCAL",
                             "IN 3 MONTHS FOR GBA JAM 2021.",
-                            "THE ENGINE USED IS BUTANO BY",
-                            "GVALIENTE. SEE THE CURRENT",
+                            "THE GAME IS AVAILABLE FOR FREE."
+                            "IT WAS MADE WITH DEVKITARM",
+                            "AND BUTANO. SEE THE CURRENT",
                             "STATUS OF THE GAME AT",
                             "BLAISE-RASCAL.ITCH.IO/KNIGHT-OWLS.",
-                            "THE GAME IS AVAILABLE FOR FREE."
-                            //"SEE SOURCE CODE AND LICENSE AT",
-                            //"GITHUB.COM/BLAISE-RASCAL/KNIGHTOWLS."
+                            "SOURCE CODE IS FREELY AVAILABLE,",
+                            "BUT ALL OTHER RIGHTS RESERVED."
+                            //"-- RESTIA FULAR! --"
                         );
                         _display_status("b:RETURN");
                     }
@@ -170,7 +171,7 @@ int main_menu_scene::run_scene()
                     "kATTACK IS HIGHER, YOU LOSE",
                     "SOME mHP. IF YOUR kATTACK IS",
                     "HIGHER OR THE ATTACKS ARE",
-                    "EQUAL, YOU RECOVER mHP. WIN OR",
+                    "EQUAL, YOU RECOVER 1mHP. WIN OR",
                     "LOSE, ALL YOUR SPELLS WILL BE",
                     "RETURNED TO YOUR SPELLBOOK."
                     );
@@ -189,15 +190,20 @@ int main_menu_scene::run_scene()
                     "IMPROVE YOUR SPELLBOOK.",
                     "TIP: IF YOU DON'T WANT TO BUY",
                     "ANYTHING, YOU CAN SAVE YOUR c.",
-                    "TIP: OWLS WITH +c ARE MORE",
-                    "USEFUL EARLIER, AND OWLS WITH",
-                    "+k ARE BETTER WHEN NEAR A BOSS."
+                    "TIP: +c OWLS ARE BETTER EARLY,",
+                    "OR AFTER MIASMA, AND +k OWLS",
+                    "ARE BETTER WHEN NEAR A BOSS."
                     );
                 _right_book_arrow_sprite.set_visible(false);
                 _left_book_arrow_sprite.set_visible(true);
                 state = 3;
                 break;
             }
+            //MAP LEGEND PART ONE
+            //- jklj = ENEMY. THE NUMBER IS HOW MUCH HP YOU WILL LOSE IF YOU LOSE COMBAT.
+            // = BOSS. IF A BOSS WINS COMBAT, YOU LOSE THE GAME. IF YOU WIN COMBAT, YOU HEAL HP TO FULL.
+            // = MIASMA. A SINISTER FOG THAT DRAINS ALL $, AND RESETS YOUR SPELLBOOK TO ITS ORIGINAL FORM.
+            // = SHIPWRECK. CAN BE SALVAGED FOR BANNERS, WHICH ARE PERMANENT UPGRADES THAT PERSIST EVEN AFTER MIASMA.
 
             //(optional: Immediately after every boss is a spellbook reset. When this happens, you lose all owls you've added to your spellbook, as well as any DUST you've gathered, but you keep any BANNERS you may have acquired along the way. From here on out, the game will be more-or-less a repeat of what happened before, but it will be harder. This means you should choose your BANNERS carefully to maximize your chances of success post-reset.)
             case 3:
