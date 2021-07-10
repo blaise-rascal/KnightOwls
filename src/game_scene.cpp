@@ -146,15 +146,18 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     // y = 12 * 1.18^2
     //attack, reward, penalty, enemyinfoindex
     WaveInfoVector.push_back({14,1,1,0});
-    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({17,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
     WaveInfoVector.push_back({20,1,1,2});
     WaveInfoVector.push_back({23,1,1,3});
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({27,1,2,4});
     WaveInfoVector.push_back({32,1,2,5});
     WaveInfoVector.push_back({38,1,2,6});
     WaveInfoVector.push_back({45,1,2,7});
     WaveInfoVector.push_back({53,-1, 9999,8});//-1 is victory, 9999 is death
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    WaveInfoVector.push_back({14,1,1,0});
 
     //
     EnemyInfoVector.push_back({0,"LILYBAD"});
@@ -181,7 +184,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     NonOwlUpgradeInfoVector.push_back({"STRENGTH","+1 MAX AND CURRENT mHP.",""}); //2
     NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, TWO RANDOM OWLS","COST -1c, AND ANOTHER +1c."}); //3
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 1/3 CHANCE TO","HEAL 1 mHP."}); //4
-    NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5
+    NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT,","GAIN +3c."}); //5
     NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D8k)"}); //6
     NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 10 OR HIGHER, GAIN +5k"}); //7
     //NonOwlUpgradeInfoVector.push_back({"COUNTDOWN","FIRST 2 SUMMONS WILL NOT BE","SURGES."});
@@ -220,7 +223,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
-    //CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      9,0}); // 10 uh there's some shit i gotta do for the gobbo. you know what? that's enough for the night
+    CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
 
     //todo: well obviously i don't need the repeat info
     UpgradedCardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,2,50,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
@@ -251,6 +254,12 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
             AllCommonAndUncommonMercs.push_back(i);
         }
     }
+
+    for(int i = 0; i < 8; i++)
+    {
+        DeckOfOwlUpgrades.push_back(i);
+        DeckOfNonOwlUpgrades.push_back(i);
+    }
     //CardInfoTempDeckWithoutReplacement
 
     //make starting deck
@@ -262,6 +271,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     player1deck.push_back(0);
     player1deck.push_back(1);
     player1deck.push_back(1);
+
+    player1deck_after_miasma = player1deck;
 
     _selection_cursor_sprite.set_visible(false);
     _selection_cursor_sprite.set_z_order(-100);
@@ -314,9 +325,7 @@ int game_scene::run_scene()
                 //_display_status(bn::to_string<50>(total_merc_probs));
                 _display_status("A CHILL WIND BLOWS...","PRESS START TO BEGIN VOYAGE");
 
-                //YOU MUST MAKE A CHOICE
-                //CHOOSE MAGE BANNER
-                //CHOOSE COURAGE BANNER
+
                 
                 //_display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
                 for(int mercstoadd=0; mercstoadd<MERCS_FOR_SALE; mercstoadd++)
@@ -353,9 +362,9 @@ int game_scene::run_scene()
                     }
                 }
                 IsUpgradeResearched.fill(false);
-                //THIS IS WHERE YOU ADD NEW UPGRADES!
-                _research_upgrade(11);  
-                _research_upgrade(15);
+                //THIS IS WHERE YOU ADD NEW UPGRADES FOR TESTING!
+                
+                //_research_upgrade(14);
                 _update_hud_text();
                 state = 101;
                 break;
@@ -435,23 +444,39 @@ int game_scene::run_scene()
             case 27: // intro to shipwreck phase
             {
                 //_display_status("ud:MOVE, a:SELECT");
-                upgrade_option_one=5;
-                upgrade_option_two=8;
+                //0-7 are owl upgrades, 8-15 are nonowl upgrades
+                int upgrade_option_one_index = bn::abs(random_num) % DeckOfOwlUpgrades.size(); //5
+                random_num = random_generator.get();
+                
+                upgrade_option_one = DeckOfOwlUpgrades.at(upgrade_option_one_index);
+                DeckOfOwlUpgrades.erase(DeckOfOwlUpgrades.begin()+upgrade_option_one_index);
+
+
+                int upgrade_option_two_index = bn::abs(random_num) % DeckOfNonOwlUpgrades.size();
+                random_num = random_generator.get();
+                
+                upgrade_option_two = DeckOfNonOwlUpgrades.at(upgrade_option_two_index) + 8;
+                DeckOfNonOwlUpgrades.erase(DeckOfNonOwlUpgrades.begin() + upgrade_option_two_index);
+
+                //TODO: Check that whenever I interface with a vector or array of ints, I am interfacing with the contents of the array/vector, rather than the index
+
+
                 _generate_virt_menu(2, _generate_name_from_upgrade_index(upgrade_option_one), _generate_name_from_upgrade_index(upgrade_option_two),"");
                 //bn::core::update();
                 state = 28;
                 break;
             }
+            //todo: check that randomness happens after every random number get
             case 28: // SHIPWRECK LOOP!
             {
                 _navigate_through_virt_menu(); // todo : make this its own state
                 if(menu_position==0)
                 {
-                    _display_status(_generate_first_upgrade_description_from_upgrade_index(upgrade_option_one),_generate_second_upgrade_description_from_upgrade_index(upgrade_option_one),"ud:MOVE, a:SELECT");
+                    _display_status(_generate_first_upgrade_description_from_upgrade_index(upgrade_option_one), _generate_second_upgrade_description_from_upgrade_index(upgrade_option_one),"ud:MOVE, a:SELECT");
                 }
                 else if(menu_position==1)
                 {
-                    _display_status(_generate_first_upgrade_description_from_upgrade_index(upgrade_option_two),_generate_second_upgrade_description_from_upgrade_index(upgrade_option_two),"ud:MOVE, a:SELECT");
+                    _display_status(_generate_first_upgrade_description_from_upgrade_index(upgrade_option_two), _generate_second_upgrade_description_from_upgrade_index(upgrade_option_two),"ud:MOVE, a:SELECT");
                 }
 
                 if(bn::keypad::a_pressed())
@@ -542,6 +567,8 @@ int game_scene::run_scene()
 
                             //DRAW A CARD!!!
                             int index_to_remove = bn::abs(random_num) % player1deck.size();
+                            random_num = random_generator.get();
+
                             int weight_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).weight;
                             int power_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).powerone; //TOMCOMEBACK
                             int runes_to_add = CardInfoVector.at(player1deck.at(index_to_remove)).gatherone;
@@ -647,6 +674,16 @@ int game_scene::run_scene()
                                 
 
 
+                            }
+                            else if(player1deck.at(index_to_remove)==10)//10 is goblin
+                            {
+                                int goblin_attack = 1 + (bn::abs(random_num) % 8);
+                                random_num = random_generator.get();
+                                current_power = current_power + goblin_attack;
+                                second_line_status.append("ROLLED ");
+                                second_line_status.append(bn::to_string<4>(goblin_attack));
+                                second_line_status.append(" ON THE D8. k+");
+                                second_line_status.append(bn::to_string<4>(goblin_attack));
                             }
                             else
                             {
@@ -768,7 +805,7 @@ int game_scene::run_scene()
                 if(IsUpgradeResearched[15] && runes_which_might_disappear>=10)
                 {
                     current_power+=5;
-                    _display_status("SUMMONING OVER.","k+5 FOR EARNING AT LEAST 10c.","PRESS A TO RESOLVE COMBAT");
+                    _display_status("SUMMONING OVER.","k+5 FOR EARNING AT LEAST 10c.","PRESS A TO RESOLVE COMBAT"); //moneybags
                 }
                 else{
                     _display_status("SUMMONING OVER.","PRESS A TO RESOLVE COMBAT");
@@ -1639,6 +1676,10 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
         _description_string.append(bn::to_string<5>(runesone_to_add));
         _description_string.append(", AND PUT 3 OWLS ON SALE (-2c)");
     }
+    else if(card_info_index==10)//goblin
+    {
+        _description_string.append("k+D8");
+    }
     else{
         //TODO: Uh right now the nonzero value must be powerone. Maybe uh make it more flexible
         //ATTACK
@@ -1780,13 +1821,13 @@ void game_scene::_update_spellbook_from_menu_position()
 
     bn::string<50> first_line_status("");
     bn::string<50> second_line_status("");
-    bn::string<50> third_line_status("ludr:MOVE, b:RETURN");
+    //bn::string<50> third_line_status("ludr:MOVE, b:RETURN");
     first_line_status.append(bn::to_string<18>(CardInfoVector.at(player1deck.at(current_sb_owl)).name));
     //first_line_status.append(" (COST: ");
     //first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
     //first_line_status.append("c)");
     second_line_status.append(_generate_description_from_owl_index(player1deck.at(current_sb_owl),false));
-    _display_status(first_line_status, second_line_status, third_line_status);
+    _display_status(first_line_status, second_line_status, "ludr:MOVE, b:RETURN");
 }
 
 void game_scene::_navigate_through_virt_menu()
@@ -2028,12 +2069,6 @@ void game_scene::_research_upgrade(int whichupgrade)
             whichupgrade += 2;
         }
         CardInfoVector.at(whichupgrade) = UpgradedCardInfoVector.at(whichupgrade);
-        /*CardInfoVector.at(whichupgrade).powerone = UpgradedCardInfoVector.at(whichupgrade).powerone;
-        CardInfoVector.at(whichupgrade).powertwo = UpgradedCardInfoVector.at(whichupgrade).powertwo;
-        CardInfoVector.at(whichupgrade).powertwopercentage = UpgradedCardInfoVector.at(whichupgrade).powertwopercentage;
-        CardInfoVector.at(whichupgrade).gatherone = UpgradedCardInfoVector.at(whichupgrade).gatherone;
-        CardInfoVector.at(whichupgrade).gathertwo = UpgradedCardInfoVector.at(whichupgrade).gathertwo;
-        CardInfoVector.at(whichupgrade).gathertwopercentage = UpgradedCardInfoVector.at(whichupgrade).gathertwopercentage;*/
     }
     //upgrad 8 is d20, and is not handled by this function
     else if(whichupgrade == 9)
@@ -2050,9 +2085,11 @@ void game_scene::_research_upgrade(int whichupgrade)
         max_hull += 1;
         current_hull += 1;
     }
-    else if(whichupgrade == 11)
+    else if(whichupgrade == 14)
     {
-
+        player1deck.push_back(10);
+        player1deck_after_miasma.push_back(10);
+        //No need to push back to 
     }
     _update_hud_text();
     /*
@@ -2062,7 +2099,7 @@ void game_scene::_research_upgrade(int whichupgrade)
     NonOwlUpgradeInfoVector.push_back({"COUPON","ONE OWL GOES ON SALE EVERY","ROUND."}); //3   11
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 33.33% CHANCE TO","HEAL 1 mHP."}); //4   12
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5   13
-    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D8k)"}); //6   14
+    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +D8k)"}); //6   14
     NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 8 OR HIGHER, GAIN +5k"}); //7   15
     */
 }
@@ -2130,8 +2167,8 @@ bn::string<25> game_scene::_generate_name_from_upgrade_index(int isupgraded_inde
 
 void game_scene::_apply_pity()
 {
-    _display_status("YOU LOST COMBAT. YOU DESERVE","+2c, SO +2c YOU SHALL HAVE.","a:CONTINUE");
-    current_runes+=2;
+    _display_status("YOU LOST COMBAT, SO YOU GET","+3c THANKS TO PITY BANNER.","a:CONTINUE");
+    current_runes+=3;
     _update_hud_text();
 }
 //bn::string<50> _generate_description_from_owl_index(int card_info_index);

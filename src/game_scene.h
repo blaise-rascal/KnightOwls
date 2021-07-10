@@ -163,7 +163,7 @@ class game_scene
         bn::vector<bn::sprite_ptr, 50> status_text_three_sprites;
         
         bn::vector<bn::sprite_ptr, 10> first_menu_option_text_sprites;
-        bn::vector<bn::sprite_ptr, 10> second_menu_option_text_sprites; //huh? why isn't this getting overflowed? the second menu option is "examine" which is more than 4 sprites...
+        bn::vector<bn::sprite_ptr, 10> second_menu_option_text_sprites; //huh? why isn't this getting overflowed? the second menu option is "examine" which is more than 4 sprites... oh well, let's just set it to 10
         bn::vector<bn::sprite_ptr, 10> third_menu_option_text_sprites;
 
         bn::vector<bn::sprite_ptr, 13> first_enemy_stat_text_sprites; // probably needs to be like 4
@@ -175,9 +175,11 @@ class game_scene
         //vectors containing card & state information
         bn::vector<int, 100> player1deck;
         bn::vector<int, 100> player1deck_at_start_of_round; //Uh, I guess I need both this AND cards removed? if I want to have a way to examine the tree, that is
-        bn::vector<CardInfo,10> CardInfoVector;
+        bn::vector<int, 100> player1deck_after_miasma; //Uh, I guess I need both this AND cards removed? if I want to have a way to examine the tree, that is
+
+        bn::vector<CardInfo,11> CardInfoVector;
         bn::vector<CardInfo,10> UpgradedCardInfoVector;
-        bn::vector<WaveInfo,10> WaveInfoVector;
+        bn::vector<WaveInfo,36> WaveInfoVector;
         bn::vector<EnemyInfo,10> EnemyInfoVector;
         bn::vector<NonOwlUpgradeInfo,8> NonOwlUpgradeInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
@@ -189,6 +191,8 @@ class game_scene
         bn::vector<int, 6> TempMercDeckToDrawFrom;
         bn::vector<int, 6> SaleMercDeckToDrawFrom;
         bn::array<int, 6>AmountMercOnSale;
+        bn::vector<int, 8>DeckOfOwlUpgrades;
+        bn::vector<int, 8>DeckOfNonOwlUpgrades;
         bn::array<bool,16>IsUpgradeResearched;//first 8 are owl upgrades, last 8 are:
         
 /*

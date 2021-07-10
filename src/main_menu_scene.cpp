@@ -202,8 +202,8 @@ int main_menu_scene::run_scene()
             //MAP LEGEND PART ONE
             //- jklj = ENEMY. THE NUMBER IS HOW MUCH HP YOU WILL LOSE IF YOU LOSE COMBAT.
             // = BOSS. IF A BOSS WINS COMBAT, YOU LOSE THE GAME. IF YOU WIN COMBAT, YOU HEAL HP TO FULL.
-            // = MIASMA. A SINISTER FOG THAT DRAINS ALL $, AND RESETS YOUR SPELLBOOK TO ITS ORIGINAL FORM.
-            // = SHIPWRECK. CAN BE SALVAGED FOR BANNERS, WHICH ARE PERMANENT UPGRADES THAT PERSIST EVEN AFTER MIASMA.
+            // = MIASMA. A SINISTER FOG THAT DRAINS ALL c, AND RESETS YOUR SPELLBOOK TO ITS ORIGINAL FORM.
+            // = SHIPWRECK. GIVES YOU BANNERS, WHICH ARE PERMANENT UPGRADES THAT PERSIST EVEN AFTER MIASMA. THERE ARE 16 DIFFERENT UPGRADES.
 
             //(optional: Immediately after every boss is a spellbook reset. When this happens, you lose all owls you've added to your spellbook, as well as any DUST you've gathered, but you keep any BANNERS you may have acquired along the way. From here on out, the game will be more-or-less a repeat of what happened before, but it will be harder. This means you should choose your BANNERS carefully to maximize your chances of success post-reset.)
             case 3:
