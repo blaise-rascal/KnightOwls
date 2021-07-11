@@ -151,6 +151,7 @@ class game_scene
         //int current_zone;
         int start_of_zone_two;
         int start_of_zone_three;
+        int last_banner_tableau_x_pos;
         //int runes_at_start_of_round;
         //int enemyindex;
 
@@ -186,11 +187,13 @@ class game_scene
         bn::vector<CardInfo,11> CardInfoVector;
         bn::vector<CardInfo,10> UpgradedCardInfoVector;
         bn::vector<WaveInfo,36> WaveInfoVector;
-        bn::vector<EnemyInfo,10> EnemyInfoVector;
+        bn::vector<EnemyInfo,30> EnemyInfoVector;
         bn::vector<NonOwlUpgradeInfo,8> NonOwlUpgradeInfoVector;
         bn::vector<bn::sprite_ptr, 100> Player1Tableau;
         bn::vector<bn::sprite_ptr, 6> MercenaryTableau;
+        bn::vector<bn::sprite_ptr, 6> SaleArrowsTableau;
         bn::vector<bn::sprite_ptr, 100> SpellbookTableau;
+        bn::vector<bn::sprite_ptr, 5> BannerTableau;
         bn::vector<int, 6> MercenaryDeck;
         bn::vector<int, 6> AllUncommonMercs;
         bn::vector<int, 8> AllCommonAndUncommonMercs;

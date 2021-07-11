@@ -70,8 +70,10 @@
 #include "bn_sprite_items_selection_cursor.h"
 #include "bn_sprite_items_right_book_arrow.h"
 #include "bn_sprite_items_left_book_arrow.h"
+#include "bn_sprite_items_banners.h"
 #include "bn_sprite_items_enemies.h"
 //#include "bn_sprite_items_button.h"
+#include "bn_sprite_items_salearrows.h"
 #include "bn_regular_bg_items_oceanbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
 #include "bn_regular_bg_items_rift.h"
@@ -143,25 +145,27 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     upgrade_option_two(0),
     //current_zone(0),
     start_of_zone_two(0),
-    start_of_zone_three(0)
+    start_of_zone_three(0),
+    last_banner_tableau_x_pos(-110)
 {
     current_hull=max_hull;
 
     bn::music_items::voyagemusic.play(0.5);
     // y = 12 * 1.18^2
     //attack, reward, penalty, enemyinfoindex
-    WaveInfoVector.push_back({14,1,1,0});
-    WaveInfoVector.push_back({17,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
-    WaveInfoVector.push_back({20,1,1,2});
-    WaveInfoVector.push_back({23,1,1,3});
-    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    WaveInfoVector.push_back({14,1,1,11});
+    WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    //WaveInfoVector.push_back({17,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
+    //WaveInfoVector.push_back({20,1,1,2});
+    //WaveInfoVector.push_back({23,1,1,3});
+    //WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({29,1,2,4});
     WaveInfoVector.push_back({35,1,2,5});
     WaveInfoVector.push_back({42,1,2,6});
     WaveInfoVector.push_back({50,1,2,7});
     WaveInfoVector.push_back({60, 9999, 9999,8});//-1 is victory, 9999 is death
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
-    WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    //WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
     WaveInfoVector.push_back({15,1,1,0});
     WaveInfoVector.push_back({18,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
     WaveInfoVector.push_back({21,1,1,2});
@@ -210,6 +214,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     EnemyInfoVector.push_back({6,"CAT HYDRA"});
     EnemyInfoVector.push_back({7,"PRETZELCOATL"});
     EnemyInfoVector.push_back({8,"HERMAN THE GERMAN MERMAN"});
+    EnemyInfoVector.push_back({9,"SHIPWRECK"});
+    EnemyInfoVector.push_back({10,"MIASMA"});
+    EnemyInfoVector.push_back({11,"INVISIBLE NEMESIS"});
 
     //8 d20 (5% to do +10k)
         //9 courage (+1 max static, -1 max HP)
@@ -223,7 +230,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     NonOwlUpgradeInfoVector.push_back({"D20","WHENEVER YOU SUMMON, ROLL A D20.","IF IT'S A 20, GET +10k."}); //0
     NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1
     NonOwlUpgradeInfoVector.push_back({"STRENGTH","+1 MAX AND CURRENT mHP.",""}); //2
-    NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, ONE RANDOM OWL","COSTS -2c, AND ANOTHER +2c."}); //3
+    NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, TWO RANDOM OWLS","COST -1c, AND ANOTHER +1c."}); //3
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 75% CHANCE TO","HEAL 1 mHP."}); //4
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT,","GAIN +4c."}); //5
     NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D10k)"}); //6
@@ -256,13 +263,13 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
     CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,     0,0,0,      2,1});
-    CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
-    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
+    CardInfoVector.push_back({"ENERGY SURGE",       0,1,    50,0,0,      1,0,0,      6,0});
+    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    100,0,0,     2,0,0,      7,0});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,2}); // -1money
     CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
-    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,20,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
 
@@ -272,11 +279,11 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     UpgradedCardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
-    UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -3,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
-    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   35,0,0,     0,0,0,      3,2}); // +1 energy
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   38,0,0,     0,0,0,      3,2}); // +1 energy
     UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,30,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       9,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
@@ -376,10 +383,18 @@ int game_scene::run_scene()
                     bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -35);
                     NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0));
                     MercenaryTableau.push_back(NewTableauImg);
-                    last_merc_tableau_x_pos+=20;
                     MercenaryTableau.at(mercstoadd).set_visible(false);
                     MercenaryTableau.at(mercstoadd).set_z_order(-75);
                     MercenaryTableau.at(mercstoadd).set_bg_priority(1); //TODO: Plan out this better
+
+                    bn::sprite_ptr NewerTableauImg = bn::sprite_items::salearrows.create_sprite(last_merc_tableau_x_pos-1, -27);
+                    NewerTableauImg.set_tiles(bn::sprite_items::salearrows.tiles_item().create_tiles(0));
+                    SaleArrowsTableau.push_back(NewerTableauImg);
+                    SaleArrowsTableau.at(mercstoadd).set_visible(false);
+                    SaleArrowsTableau.at(mercstoadd).set_z_order(-76);
+                    SaleArrowsTableau.at(mercstoadd).set_bg_priority(1);
+                    
+                    last_merc_tableau_x_pos+=20;
                 }
                 int topleftx = -79;
                 int toplefty = -50;
@@ -405,7 +420,12 @@ int game_scene::run_scene()
                 IsUpgradeResearched.fill(false);
                 //THIS IS WHERE YOU ADD NEW UPGRADES FOR TESTING!
                 
-                //_research_upgrade(14);
+                /*_research_upgrade(7);
+                _research_upgrade(8);
+                _research_upgrade(15);
+                _research_upgrade(14);
+                _research_upgrade(10);*/
+                //_research_upgrade(7);
                 _update_hud_text();
                 _update_wave_info_hud_text();
                 state = 101;
@@ -453,11 +473,17 @@ int game_scene::run_scene()
                 
                 if(WaveInfoVector.at(current_wave).attack == -1) //SHIPWRECK
                 {
+                    _enemy_sprite.set_tiles(bn::sprite_items::enemies.tiles_item().create_tiles(EnemyInfoVector.at(9).tileindex)); //shipwreck is 9, miasma is 10
+                    
+                    _enemy_sprite.set_visible(true);
                     _display_status("SHIPWRECK APPEARS.", "CHOOSE A BANNER TO SALVAGE.", "a:CONTINUE");
                     state = 26;
                 }
                 else if(WaveInfoVector.at(current_wave).attack == -2)
                 {
+                    _enemy_sprite.set_tiles(bn::sprite_items::enemies.tiles_item().create_tiles(EnemyInfoVector.at(10).tileindex)); //shipwreck is 9, miasma is 10
+
+                    _enemy_sprite.set_visible(true);
                     _display_status("A CLOUD OF NOXIOUS MIASMA APPEARS!", "YOU ARE UNABLE TO ESCAPE.", "a:CONTINUE");
                     state = 33;
                 }
@@ -487,7 +513,7 @@ int game_scene::run_scene()
                 {
                     current_runes = 0;
                     player1deck = player1deck_after_miasma;
-                    _display_status("YOUR SPELLBOOK IS DRAINED OF POWER,", "AND YOUR c IS DEPLETED.", "a:CONTINUE");
+                    _display_status("YOUR SPELLBOOK IS DRAINED OF", "POWER, AND YOUR c IS DEPLETED.", "a:CONTINUE");
 
                     state = 34;
                     _update_hud_text();
@@ -500,6 +526,8 @@ int game_scene::run_scene()
                 if(bn::keypad::a_pressed())
                 {
                     _display_status("YOU SHAKE OFF THE HEADACHE,", "AND NOTICE YOU ARE IN A NEW PLACE.", "a:CONTINUE");
+                    
+                    _enemy_sprite.set_visible(false);
                     current_wave++;
                     _update_wave_info_hud_text();
                     state = 35;
@@ -581,6 +609,8 @@ int game_scene::run_scene()
 
                 if(bn::keypad::a_pressed())
                 {
+                    
+                    _enemy_sprite.set_visible(false);
                     bn::string<50> display_text_line_one("YOU PICKED ");
                     //_display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
                     if(menu_position==0)
@@ -588,7 +618,8 @@ int game_scene::run_scene()
                         _clear_virt_menu();
                         _research_upgrade(upgrade_option_one);
                         display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_one));
-                        _display_status(display_text_line_one, "a:CONTINUE");
+                        display_text_line_one.append(".");
+                        _display_status(display_text_line_one, "YOU SAIL ON.", "a:CONTINUE");
                         state = 29;
                     }
                     else if(menu_position==1)
@@ -596,7 +627,8 @@ int game_scene::run_scene()
                         _clear_virt_menu();
                         _research_upgrade(upgrade_option_two);
                         display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_two));
-                        _display_status(display_text_line_one, "a:CONTINUE");
+                        display_text_line_one.append(".");
+                        _display_status(display_text_line_one, "YOU SAIL ON.", "a:CONTINUE");
                         state = 29;
                     }
                     
@@ -906,10 +938,10 @@ int game_scene::run_scene()
                 if(IsUpgradeResearched[15] && runes_which_might_disappear>=10)
                 {
                     current_power+=6;
-                    _display_status("SUMMONING OVER.","k+6 FOR EARNING AT LEAST 10c.","PRESS A TO RESOLVE COMBAT"); //moneybags
+                    _display_status("SUMMONING OVER.","k+6 FOR EARNING AT LEAST 10c.","PRESS a TO RESOLVE COMBAT"); //moneybags
                 }
                 else{
-                    _display_status("SUMMONING OVER.","PRESS A TO RESOLVE COMBAT");
+                    _display_status("SUMMONING OVER.","PRESS a TO RESOLVE COMBAT");
                 }
                 _update_hud_text();
                 state = 14;
@@ -923,21 +955,21 @@ int game_scene::run_scene()
                     if(current_power < WaveInfoVector.at(current_wave).attack)
                     {
                         
-                        _display_status("ENEMY'S kATTACK IS HIGHER. DEFEAT!","PRESS A TO CONTINUE");
+                        _display_status("ENEMY'S kATTACK IS HIGHER. DEFEAT!","PRESS a TO CONTINUE");
                         won_wave=false;
                         state=6;
                     }
 
                     if(current_power > WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR kATTACK IS HIGHER. VICTORY!","PRESS A TO CONTINUE");
+                        _display_status("YOUR kATTACK IS HIGHER. VICTORY!","PRESS a TO CONTINUE");
                         won_wave=true;
                         state=13;
                     }
                     
                     if(current_power == WaveInfoVector.at(current_wave).attack)
                     {
-                        _display_status("YOUR kATTACK = ENEMY'S kATTACK.","VICTORY!","PRESS A TO CONTINUE");
+                        _display_status("YOUR kATTACK = ENEMY'S kATTACK.","VICTORY!","PRESS a TO CONTINUE");
                         won_wave=true;
                         state=13;
                     }
@@ -1212,17 +1244,7 @@ int game_scene::run_scene()
                 //TODO: possible check to make sure that an attacking owl is generated for this last slot? Or nah; maybe just 4 uncommon...
                 */
 
-                for(int merctoillustrate=0; merctoillustrate<MERCS_FOR_SALE; merctoillustrate++)
-                {
-                    //int card_to_add=0;
-                    //MercenaryDeck.push_back(0);
-                    //bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
-                    //NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0);
-                    //MercenaryTableau.push_back(NewTableauImg);
-                    //last_merc_tableau_x_pos+=20;
-                    MercenaryTableau.at(merctoillustrate).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(MercenaryDeck.at(merctoillustrate)).tileindex));
-                    MercenaryTableau.at(merctoillustrate).set_visible(true);
-                }
+               
                 _rift_bg.set_visible(true);
                 if(IsUpgradeResearched[11])//stonks
                 {
@@ -1233,9 +1255,9 @@ int game_scene::run_scene()
                     }
                     int card_to_draw = 0;
 
-                    bn::string<50> second_line_status("STONKS: OWL ");
+                    bn::string<50> second_line_status("STONKS: OWLS ");
 
-                    /*for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 2; i++)
                     {
                         card_to_draw = bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
                         random_num = random_generator.get();
@@ -1251,8 +1273,8 @@ int game_scene::run_scene()
                     random_num = random_generator.get();
                     second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
                     AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] -= 1;
-                    second_line_status.append(" +1c");*/
-
+                    second_line_status.append(" +1c");
+/*
                     card_to_draw = bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
                     random_num = random_generator.get();
                     second_line_status.append("#");
@@ -1266,14 +1288,36 @@ int game_scene::run_scene()
                     random_num = random_generator.get();
                     second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
                     AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] -= 2;
-                    second_line_status.append(" +2c");
+                    second_line_status.append(" +2c");*/
 
                     _display_status("A RIFT TO OWLHALLA APPEARS!", second_line_status, "a:CONTINUE");
                 }
                 else{
                     _display_status("A RIFT TO OWLHALLA APPEARS!", "YOU MAY CONSCRIPT NEW OWLS WITH c.", "a:CONTINUE");
                 }
-                
+                for(int merctoillustrate=0; merctoillustrate<MERCS_FOR_SALE; merctoillustrate++)
+                {
+                    //int card_to_add=0;
+                    //MercenaryDeck.push_back(0);
+                    //bn::sprite_ptr NewTableauImg = bn::sprite_items::knight_owls.create_sprite(last_merc_tableau_x_pos, -38);
+                    //NewTableauImg.set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(0);
+                    //MercenaryTableau.push_back(NewTableauImg);
+                    //last_merc_tableau_x_pos+=20;
+                    MercenaryTableau.at(merctoillustrate).set_tiles(bn::sprite_items::knight_owls.tiles_item().create_tiles(CardInfoVector.at(MercenaryDeck.at(merctoillustrate)).tileindex));
+                    MercenaryTableau.at(merctoillustrate).set_visible(true);
+                    if(AmountMercOnSale[merctoillustrate] != 0)
+                    {
+                        SaleArrowsTableau.at(merctoillustrate).set_visible(true);
+                        if(AmountMercOnSale[merctoillustrate]>0)
+                        {
+                            SaleArrowsTableau.at(merctoillustrate).set_tiles(bn::sprite_items::salearrows.tiles_item().create_tiles(0));
+                        }
+                        else
+                        {
+                            SaleArrowsTableau.at(merctoillustrate).set_tiles(bn::sprite_items::salearrows.tiles_item().create_tiles(1));
+                        }
+                    }
+                }
                 state = 21;
                 break;
             }
@@ -1390,6 +1434,7 @@ int game_scene::run_scene()
                         first_line_status.append(CardInfoVector.at(MercenaryDeck.at(menu_position)).name);
                         first_line_status.append(" ADDED TO SPELLBOOK"); // clear that sprite!
                         MercenaryTableau.at(menu_position).set_visible(false);
+                        SaleArrowsTableau.at(menu_position).set_visible(false);
                         player1deck.push_back(MercenaryDeck.at(menu_position));
                         //current_runes -= CardInfoVector.at(MercenaryDeck.at(menu_position)).cost;
                         current_runes -= _price_on_sale(menu_position);
@@ -1969,9 +2014,9 @@ void game_scene::_generate_virt_menu(int num_options, const bn::string<20>& menu
     first_menu_option_text_sprites.clear();
     second_menu_option_text_sprites.clear();
     third_menu_option_text_sprites.clear();
-    my_text_generator.generate(0, 0, menu_option_one, first_menu_option_text_sprites);
-    my_text_generator.generate(0, 11, menu_option_two, second_menu_option_text_sprites);
-    my_text_generator.generate(0, 22, menu_option_three, third_menu_option_text_sprites);
+    my_text_generator.generate(0, -11, menu_option_one, first_menu_option_text_sprites);
+    my_text_generator.generate(0, 0, menu_option_two, second_menu_option_text_sprites);
+    my_text_generator.generate(0, 11, menu_option_three, third_menu_option_text_sprites);
     menu_position_max = num_options -1;
     menu_position = 0;
     _selection_cursor_sprite.set_visible(true);
@@ -2187,7 +2232,15 @@ void game_scene::_update_selection_cursor_from_hor_menu_position()
     bn::string<50> second_line_status("");
     bn::string<50> third_line_status("lr:MOVE, a:SELECT, b:CANCEL");
     first_line_status.append(bn::to_string<18>(CardInfoVector.at(MercenaryDeck.at(menu_position)).name));
-    first_line_status.append(" (COST: ");
+    if(CardInfoVector.at(MercenaryDeck.at(menu_position)).rarity == 1)
+    {
+        first_line_status.append(" (COMMON, ");
+    }
+    else
+    {
+        first_line_status.append(" (UNCOMMON, ");
+    }
+    first_line_status.append("COSTS ");
     //first_line_status.append(bn::to_string<5>(CardInfoVector.at(MercenaryDeck.at(menu_position)).cost));
     first_line_status.append(bn::to_string<5>(_price_on_sale(menu_position)));
     first_line_status.append("c)");
@@ -2206,6 +2259,7 @@ void game_scene::_clear_virt_menu() //TODO: Uh, maybe this should be called clea
     for(int i = 0; i<MercenaryDeck.size(); i++)
     {
         MercenaryTableau.at(i).set_visible(false);
+        SaleArrowsTableau.at(i).set_visible(false);
     }
     _rift_bg.set_visible(false);
 }
@@ -2254,6 +2308,12 @@ bool game_scene::_is_merc_deck_empty()
 void game_scene::_research_upgrade(int whichupgrade)
 {
     IsUpgradeResearched[whichupgrade] = true;
+
+    bn::sprite_ptr NewTableauImg = bn::sprite_items::banners.create_sprite(last_banner_tableau_x_pos, 37);
+    NewTableauImg.set_tiles(bn::sprite_items::banners.tiles_item().create_tiles(whichupgrade));
+    last_banner_tableau_x_pos+=12;
+    BannerTableau.push_back(NewTableauImg);
+
     if(whichupgrade<8)//owl upgrade
     {
         //my god this is hacky lmao
@@ -2282,8 +2342,9 @@ void game_scene::_research_upgrade(int whichupgrade)
     {
         player1deck.push_back(10);
         player1deck_after_miasma.push_back(10);
-        //No need to push back to 
+        //No need to push back to player1deck_at_start_of_round because upgrades can't be researched during combat
     }
+    
     _update_hud_text();
     /*
     NonOwlUpgradeInfoVector.push_back({"D20","ALL SPELLS HAVE 5% CHANCE FOR","+10k."}); //0   8
@@ -2293,7 +2354,7 @@ void game_scene::_research_upgrade(int whichupgrade)
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 33.33% CHANCE TO","HEAL 1 mHP."}); //4   12
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT, GAIN","+2c."}); //5   13
     NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +D8k)"}); //6   14
-    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 8 OR HIGHER, GAIN +5k"}); //7   15
+    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 8 OR HIGHER, GAIN +6k"}); //7   15
     */
 }
 
