@@ -148,13 +148,19 @@ class game_scene
         int current_sb_owl;
         int upgrade_option_one;
         int upgrade_option_two;
+        //int current_zone;
+        int start_of_zone_two;
+        int start_of_zone_three;
         //int runes_at_start_of_round;
         //int enemyindex;
 
         //declare text sprites
         bn::vector<bn::sprite_ptr, 10> weight_text_sprites; // probably only needs to be like 7
         bn::vector<bn::sprite_ptr, 4> hull_text_sprites; // probably only needs to be 4
-        bn::vector<bn::sprite_ptr, 20> wave_text_sprites; // needs to be equal to the number of waves... 
+        bn::vector<bn::sprite_ptr, 13> wave_text_sprites;
+        bn::vector<bn::sprite_ptr, 7> zone_text_sprites;  
+        //bn::vector<bn::sprite_ptr, 13> wave_text_sprites_two; 
+        //bn::vector<bn::sprite_ptr, 13> wave_text_sprites_three; 
         bn::vector<bn::sprite_ptr, 10> total_runes_text_sprites;
         bn::vector<bn::sprite_ptr, 10> runes_that_might_disappear_text_sprites;
         bn::vector<bn::sprite_ptr, 10> power_text_sprites;
@@ -214,6 +220,7 @@ UPGRADES MAGES TO: */
 
         //functions
         void _update_hud_text();
+        void _update_wave_info_hud_text();
         void _update_enemy_stat_box();
         void _display_status(const bn::string<50>& statustextone, const bn::string<50>& statustexttwo = "", const bn::string<50>& statustextthree = "");
         void _update_selection_cursor_from_virt_menu_position();
@@ -238,6 +245,7 @@ UPGRADES MAGES TO: */
         bn::string<25> _generate_name_from_upgrade_index(int isupgraded_index);
         
         void _apply_pity();
+        int _get_current_zone();
         //void _replace_merc_with_random_owl(int which_merc_position);
 };
 //}

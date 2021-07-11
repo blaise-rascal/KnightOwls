@@ -94,6 +94,8 @@ namespace{
     const int STARTING_MERC_INDEX = 0;
     const int NUMBER_SPELLBOOK_COLUMNS = 6;
     const int NUMBER_SPELLBOOK_ROWS = 3;
+    //const int START_OF_ZONE_TWO = 12;
+    //const int START_OF_ZONE_THREE = 24;
     //const int 
     //const bn::array<3> MERC_POSITIONS
     //const bn::string<6> deploy_label_text("  DRAW");
@@ -138,7 +140,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_sb_page(0),
     current_sb_owl(0),
     upgrade_option_one(0),
-    upgrade_option_two(0)
+    upgrade_option_two(0),
+    //current_zone(0),
+    start_of_zone_two(0),
+    start_of_zone_three(0)
 {
     current_hull=max_hull;
 
@@ -150,15 +155,51 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({20,1,1,2});
     WaveInfoVector.push_back({23,1,1,3});
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
-    WaveInfoVector.push_back({27,1,2,4});
-    WaveInfoVector.push_back({32,1,2,5});
-    WaveInfoVector.push_back({38,1,2,6});
-    WaveInfoVector.push_back({45,1,2,7});
-    WaveInfoVector.push_back({53,-1, 9999,8});//-1 is victory, 9999 is death
+    WaveInfoVector.push_back({29,1,2,4});
+    WaveInfoVector.push_back({35,1,2,5});
+    WaveInfoVector.push_back({42,1,2,6});
+    WaveInfoVector.push_back({50,1,2,7});
+    WaveInfoVector.push_back({60, 9999, 9999,8});//-1 is victory, 9999 is death
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
-    WaveInfoVector.push_back({14,1,1,0});
+    WaveInfoVector.push_back({15,1,1,0});
+    WaveInfoVector.push_back({18,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
+    WaveInfoVector.push_back({21,1,1,2});
+    WaveInfoVector.push_back({26,1,1,3});
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    WaveInfoVector.push_back({33,1,2,4});
+    WaveInfoVector.push_back({41,1,2,5});
+    WaveInfoVector.push_back({50,1,2,6});
+    WaveInfoVector.push_back({61,1,2,7});
+    WaveInfoVector.push_back({75, 9999, 9999,8});//-1 is victory, 9999 is death
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    WaveInfoVector.push_back({15,1,1,0});
+    WaveInfoVector.push_back({19,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
+    WaveInfoVector.push_back({23,1,1,2});
+    WaveInfoVector.push_back({29,1,1,3});
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    WaveInfoVector.push_back({37,1,2,4});
+    WaveInfoVector.push_back({46,1,2,5});
+    WaveInfoVector.push_back({58,1,2,6});
+    WaveInfoVector.push_back({72,1,2,7});
+    WaveInfoVector.push_back({90, 9999, 9999,8});//-1 is victory, 9999 is death
 
+
+    //TODO: NO SHOP AFTER BOSS!!!!!!!!!!!!!!!!!
+
+    for(int i = 0; i < WaveInfoVector.size(); i++)
+    {
+        if (WaveInfoVector.at(i).attack==-2)
+        {
+            if(start_of_zone_two==0)
+            {
+                start_of_zone_two = i+1;
+            }
+            else
+                start_of_zone_three = i+1;
+        }
+    }
     //
     EnemyInfoVector.push_back({0,"LILYBAD"});
     EnemyInfoVector.push_back({1,"MARAUDING OWLSHIP"});
@@ -214,7 +255,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
     CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
-    CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,     0,0,0,      2,1});
+    CardInfoVector.push_back({"ARCHER",             4,0,    30,0,0,     0,0,0,      2,1});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
@@ -366,6 +407,7 @@ int game_scene::run_scene()
                 
                 //_research_upgrade(14);
                 _update_hud_text();
+                _update_wave_info_hud_text();
                 state = 101;
                 break;
             }
@@ -396,6 +438,7 @@ int game_scene::run_scene()
 
 
 //TODO: Add "next" text and 
+
             case 101: // Loop; wait for start press to add new enemy.
             {
                 if(bn::keypad::start_pressed())
@@ -408,12 +451,17 @@ int game_scene::run_scene()
             case 900:
             {
                 
-                if(WaveInfoVector.at(current_wave).attack == -1)
+                if(WaveInfoVector.at(current_wave).attack == -1) //SHIPWRECK
                 {
                     _display_status("SHIPWRECK APPEARS.", "CHOOSE A BANNER TO SALVAGE.", "a:CONTINUE");
                     state = 26;
                 }
-                else
+                else if(WaveInfoVector.at(current_wave).attack == -2)
+                {
+                    _display_status("A CLOUD OF NOXIOUS MIASMA APPEARS!", "YOU ARE UNABLE TO ESCAPE.", "a:CONTINUE");
+                    state = 33;
+                }
+                else //ENEMY & BOSS
                 {
                     bn::string<50> display_text_line_one("");
                     bn::string<50> display_text_line_two("kATTACK = ");
@@ -430,6 +478,58 @@ int game_scene::run_scene()
                     state = 1;
                 }
                 _update_hud_text();
+                _update_wave_info_hud_text();
+                break;
+            }
+            case 33: // Loop; wait for A press to loop through miasma
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    current_runes = 0;
+                    player1deck = player1deck_after_miasma;
+                    _display_status("YOUR SPELLBOOK IS DRAINED OF POWER,", "AND YOUR c IS DEPLETED.", "a:CONTINUE");
+
+                    state = 34;
+                    _update_hud_text();
+                }
+                bn::core::update();
+                break;
+            }
+            case 34: // Loop; wait for A press to loop through miasma
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    _display_status("YOU SHAKE OFF THE HEADACHE,", "AND NOTICE YOU ARE IN A NEW PLACE.", "a:CONTINUE");
+                    current_wave++;
+                    _update_wave_info_hud_text();
+                    state = 35;
+                }
+                bn::core::update();
+                break;
+            }
+            case 35: // Loop; wait for A press to loop through miasma
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    if(_get_current_zone()==1)
+                    {
+                        _display_status("LIGHTS DANCE BETWEEN TREES.", "EYES GLINT IN THE DARK.", "a:CONTINUE");
+                    }
+                    else{ // zone = 2
+                        _display_status("YOU ARE SURROUNDED BY STARS.", "COULD YOUR JOURNEY BE NEAR ITS END?", "a:CONTINUE");
+                    }
+                    state = 36;
+                }
+                bn::core::update();
+                break;
+            }
+            case 36: // Loop; wait for A press to loop through miasma
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    state = 900;
+                }
+                bn::core::update();
                 break;
             }
             case 26: // Loop; wait for A press to start shipwreck phase
@@ -814,10 +914,7 @@ int game_scene::run_scene()
                 state = 14;
                 break;
             }
-            /*case 34:
-            {
-                "YOU ARE ROLLING IN THE MONEY."
-            }*/
+            
             case 14:
             {
                 if(bn::keypad::a_pressed())
@@ -1007,11 +1104,18 @@ int game_scene::run_scene()
             {
                 if(bn::keypad::a_pressed())
                 {
-                   state = 20;
+                    if(WaveInfoVector.at(current_wave).penalty == 9999)
+                    {
+                        current_wave++;
+                        state = 900;
+                    }
+                    else
+                        state = 20;
                 }
                 bn::core::update();
                 break;
             }
+            //case 900;
             case 20:
             {
                 if(IsUpgradeResearched[12] == true)
@@ -1388,9 +1492,9 @@ void game_scene::_update_enemy_stat_box()
 
         first_enemy_stat_text.append(bn::to_string<4>(WaveInfoVector.at(current_wave).attack));
 
-        if(WaveInfoVector.at(current_wave).reward==-1)
+        if(WaveInfoVector.at(current_wave).reward==9999)
         {   
-            second_enemy_stat_text.append("VICTORY!");
+            second_enemy_stat_text.append("+MAXm");
         }
         else
         {
@@ -1446,59 +1550,7 @@ void game_scene::_update_hud_text()
     bn::string<20> total_runes_hud_text("cx");
     total_runes_hud_text.append(bn::to_string<8>(current_runes));
     my_text_generator.generate(-116, -61, total_runes_hud_text, total_runes_text_sprites);
-
-
-
     
-
-    my_text_generator.set_right_alignment();
-    //needed: enemy wave sprites, runes which might disappear sprite
-    wave_text_sprites.clear();
-    bn::string<20> wave_hud_text("");
-    for(int wave_to_check = 0; wave_to_check < WaveInfoVector.size(); wave_to_check++)
-    {
-        if(WaveInfoVector.at(wave_to_check).penalty == 9999) // BOSS
-        {
-            if(wave_to_check==current_wave)
-                wave_hud_text.append("p");//red skull
-            else
-                wave_hud_text.append("o"); //white skull
-        }
-        else if(WaveInfoVector.at(wave_to_check).attack == -1) // SHIPWRECK
-        {
-            if(wave_to_check==current_wave)
-                wave_hud_text.append("g");//red ship
-            else
-                wave_hud_text.append("f"); //white ship
-        }
-        /*else if(wave_to_check < current_wave)
-        {
-            wave_hud_text.append("y");//z is open but i like y better
-        }*/
-        else if(WaveInfoVector.at(wave_to_check).penalty == 1) // SMALL ENEMY
-        {
-            if(wave_to_check == current_wave)
-            {
-                wave_hud_text.append("t");//red 1
-            }
-            else
-            {
-                wave_hud_text.append("s");//white 1
-            }
-        }
-        else{                                                  // BIG ENEMY
-            if(wave_to_check == current_wave)
-            {
-                wave_hud_text.append("z");//red 2
-            }
-            else
-            {
-                wave_hud_text.append("y");//white 2
-            }
-        }
-    }
-    my_text_generator.generate(118, -72, wave_hud_text, wave_text_sprites);
-
 
     power_text_sprites.clear();
     runes_that_might_disappear_text_sprites.clear();
@@ -1532,6 +1584,131 @@ void game_scene::_update_hud_text()
     //-115 -50
     //-115 -61
     //-115 -72
+
+}
+
+void game_scene::_update_wave_info_hud_text()
+{
+//AFTER ACT 1 (SEA)
+//YOU FIND A MESSAGE IN A BOTTLE. DO YOU WISH TO READ IT?
+// THUNDERING, THUNDERING... I USED TO FIND THE SOUND OF A STORM CALMING, BUT NO LONGER.
+// RAIN PELTS OUR ROOF UNCEASINGLY, AND THE WIND IS LIKE A MIGHTY ROAR.
+// WHAT HAS CAUSED THIS WRETCHED STORM? IS IT SOMEHOW PUNISHMENT FOR THE EVIL IN OUR HEARTS?
+// I SUPPOSE IT DOESN'T MATTER. OF FAR GREATER IMPORTANCE, IS THE FACT THAT MY FAMILY HAS CONSTRUCTED
+// A SHIP, AND SO WE MAY SURVIVE A LITTLE LONGER ONCE THE GROUND IS SWALLOWED UP BENEATH US BY THE RAIN.
+// IF ANYONE READS THIS, KNOW THAT THERE IS NO STOPPING THE RAIN. IT WILL SPREAD, AND SPREAD, UNTIL ALL IS A WATERY GRAVEYARD.
+// UNFORTUNATELY, IF YOU WISH TO KNOW WHERE TO GO NEXT, I HAVE NO ADVICE. WE ARE ALL REFUGEES NOW...
+
+//AFTER ACT 2 (SWAMP)
+//YOU FIND A MESSAGE IN A BOTTLE. DO YOU WISH TO READ IT?
+// WE HAVE BEEN WEEKS AT SEA. THE BAD NEWS IS THAT WE ARE RUNNING LOW ON PROVISIONS.
+// THE GOOD NEWS IS THAT MY YOUNGEST DAUGHTER HAS FOUND A SPELLBOOK. I DON'T QUITE UNDERSTAND
+// HOW IT WORKS, BUT SOMEHOW SHE IS ABLE TO USE IT TO SUMMON LITTLE OWLS WEARING MEDIEVAL WARRIOR OUTFITS.
+// AN UNCONVENTIONAL FIGHTING TACTIC, TO BE SURE, BUT A WELCOME ONE.
+// WE HAVE ENCOUNTERED SOME AWFULLY STRANGE MONSTERS ON OUR VOYAGE. A SORT OF PRIMORDIAL POWER FEELS LIKE IT'S BEEN LOOSED HERE, AND MAGIC CRACKLES AROUND US IN THE AIR.
+// IN ANY CASE, WE HAVE SEARCHED THROUGHOUT THE WORLD, AND FOUND NO PLACE TO MAKE OUR NEW HOME.
+// BUT WE HAVE ONE MORE HOPE. WE CAN SEARCH UPWARD...
+
+//AFTER ACT 3 (SKY)
+//REELING FROM YOUR LAST FIGHT, YOU TAKE A MOMENT TO REST. A CREATURE APPEARS, AND BEGINS TO SPEAK.
+//"HMMPH. ANOTHER "REFUGEE" FROM YOUR WATERLOGGED PLANET...
+//...I'M AFRAID YOU CANNOT STAY HERE LONG. 
+//THIS ISN'T YOUR HOME. YOU BELONG BACK ON EARTH.
+//BUT I GUESS EARTH IS NO GOOD FOR YOU NOW, EH? AWFULLY WET DOWN THERE, ISN'T IT?
+//FINE, YOU MAY STAY FOR NOW. BUT AS SOON AS THE WATER DRIES, YOU MUST GO BACK TO WHERE YOU CAME."
+//AND THE WATER *WILL* DRY. I'M SURE OF IT. THESE THINGS ALWAYS COME IN CYCLES."
+//YOU THANK THE STRANGER FOR THEIR HOSPITALITY. IT APPEARS YOU HAVE FOUND A SHELTER - FOR NOW.
+//CONGRATULATIONS! YOUR VOYAGE IS COMPLETE!
+    
+
+    my_text_generator.set_right_alignment();
+    //needed: enemy wave sprites, runes which might disappear sprite
+    wave_text_sprites.clear();
+    zone_text_sprites.clear();
+    //wave_text_sprites_two.clear();
+    //wave_text_sprites_three.clear();
+    bn::string<20> wave_hud_text("");
+    bn::string<10> zone_hud_text("");
+    //int row_to_draw = 1;
+    int first_wave_to_draw = 0;
+    int last_wave_to_draw = 0;
+    if(_get_current_zone() == 0)
+    {
+        zone_hud_text.append("SEA");
+        first_wave_to_draw = 0;
+        last_wave_to_draw = start_of_zone_two-1;
+    }
+    else if(_get_current_zone() == 1)
+    {
+        zone_hud_text.append("SWAMP");
+        first_wave_to_draw = start_of_zone_two;
+        last_wave_to_draw = start_of_zone_three-1;
+    }
+    else
+    {
+        zone_hud_text.append("SKY");
+        first_wave_to_draw = start_of_zone_three;
+        last_wave_to_draw = WaveInfoVector.size()-1;
+    }
+
+    for(int wave_to_check = first_wave_to_draw; wave_to_check <= last_wave_to_draw; wave_to_check++)//todo:separate into its own function
+    {
+        if(WaveInfoVector.at(wave_to_check).penalty == 9999) // BOSS
+        {
+            if(wave_to_check==current_wave)
+                wave_hud_text.append("p");//red skull
+            else
+                wave_hud_text.append("o"); //white skull
+        }
+        else if(WaveInfoVector.at(wave_to_check).attack == -1) // SHIPWRECK
+        {
+            if(wave_to_check==current_wave)
+                wave_hud_text.append("g");//red ship
+            else
+                wave_hud_text.append("f"); //white ship
+        }
+        /*else if(wave_to_check < current_wave)
+        {
+            wave_hud_text.append("y");//z is open but i like y better
+        }*/
+        else if(WaveInfoVector.at(wave_to_check).penalty == 1) // 1-POWER ENEMY
+        {
+            if(wave_to_check == current_wave)
+            {
+                wave_hud_text.append("t");//red 1
+            }
+            else
+            {
+                wave_hud_text.append("s");//white 1
+            }
+        }
+        else if(WaveInfoVector.at(wave_to_check).penalty == 2)
+        {                                                  // 2-POWER ENEMY
+            if(wave_to_check == current_wave)
+            {
+                wave_hud_text.append("z");//red 2
+            }
+            else
+            {
+                wave_hud_text.append("y");//white 2
+            }
+        }
+        else{                                                  // MIASMA (also go to next line)
+            if(wave_to_check == current_wave)
+            {
+                wave_hud_text.append("j");//red miasma
+            }
+            else
+            {
+                wave_hud_text.append("q");//white miasma
+            }   
+        }
+    }
+    
+    my_text_generator.generate(118, -72, wave_hud_text, wave_text_sprites);
+    my_text_generator.generate(118, -63, zone_hud_text, zone_text_sprites);
+
+    //my_text_generator.generate(118, -72, wave_hud_text, wave_text_sprites);
 
     
 }
@@ -2170,6 +2347,19 @@ void game_scene::_apply_pity()
     _display_status("YOU LOST COMBAT, SO YOU GET","+3c THANKS TO PITY BANNER.","a:CONTINUE");
     current_runes+=3;
     _update_hud_text();
+}
+
+int game_scene::_get_current_zone()
+{
+    if(current_wave < start_of_zone_two)
+    {
+        return 0;
+    }
+    else if(current_wave < start_of_zone_three)
+    {
+        return 1;
+    }
+    else return 2;
 }
 //bn::string<50> _generate_description_from_owl_index(int card_info_index);
 
