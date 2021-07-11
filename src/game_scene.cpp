@@ -223,11 +223,11 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     NonOwlUpgradeInfoVector.push_back({"D20","WHENEVER YOU SUMMON, ROLL A D20.","IF IT'S A 20, GET +10k."}); //0
     NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1
     NonOwlUpgradeInfoVector.push_back({"STRENGTH","+1 MAX AND CURRENT mHP.",""}); //2
-    NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, TWO RANDOM OWLS","COST -1c, AND ANOTHER +1c."}); //3
-    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 1/3 CHANCE TO","HEAL 1 mHP."}); //4
-    NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT,","GAIN +3c."}); //5
-    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D8k)"}); //6
-    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 10 OR HIGHER, GAIN +5k"}); //7
+    NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, ONE RANDOM OWL","COSTS -2c, AND ANOTHER +2c."}); //3
+    NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 75% CHANCE TO","HEAL 1 mHP."}); //4
+    NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT,","GAIN +4c."}); //5
+    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D10k)"}); //6
+    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 10 OR HIGHER, GAIN +6k"}); //7
     //NonOwlUpgradeInfoVector.push_back({"COUNTDOWN","FIRST 2 SUMMONS WILL NOT BE","SURGES."});
 
 //rare owls (probably listed elsewhere as well)
@@ -255,7 +255,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
     CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
-    CardInfoVector.push_back({"ARCHER",             4,0,    30,0,0,     0,0,0,      2,1});
+    CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,     0,0,0,      2,1});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
@@ -275,7 +275,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -3,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
     UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   35,0,0,     0,0,0,      3,2}); // +1 energy
-    UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,40,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,30,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       9,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
@@ -770,18 +770,19 @@ int game_scene::run_scene()
                                     //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
                                     
                                 }
-                                second_line_status.append(": CHEAP THIS ROUND");
+                                second_line_status.append(" CHEAP THIS ROUND");
                                 
 
 
                             }
                             else if(player1deck.at(index_to_remove)==10)//10 is goblin
                             {
-                                int goblin_attack = 1 + (bn::abs(random_num) % 8);
+                                int goblin_attack = 1 + (bn::abs(random_num) % 10);
                                 random_num = random_generator.get();
                                 current_power = current_power + goblin_attack;
-                                second_line_status.append("ROLLED ");
-                                second_line_status.append(bn::to_string<4>(goblin_attack));
+                                //second_line_status.append("ROLLED ");
+                                //second_line_status.append(bn::to_string<4>(goblin_attack));
+                                //second_line_status.append(" ON THE D8. k+");
                                 second_line_status.append(" ON THE D8. k+");
                                 second_line_status.append(bn::to_string<4>(goblin_attack));
                             }
@@ -904,8 +905,8 @@ int game_scene::run_scene()
 
                 if(IsUpgradeResearched[15] && runes_which_might_disappear>=10)
                 {
-                    current_power+=5;
-                    _display_status("SUMMONING OVER.","k+5 FOR EARNING AT LEAST 10c.","PRESS A TO RESOLVE COMBAT"); //moneybags
+                    current_power+=6;
+                    _display_status("SUMMONING OVER.","k+6 FOR EARNING AT LEAST 10c.","PRESS A TO RESOLVE COMBAT"); //moneybags
                 }
                 else{
                     _display_status("SUMMONING OVER.","PRESS A TO RESOLVE COMBAT");
@@ -1120,9 +1121,9 @@ int game_scene::run_scene()
             {
                 if(IsUpgradeResearched[12] == true)
                 {
-                    int first_aid_check= bn::abs(random_num) % 3;
+                    int first_aid_check= bn::abs(random_num) % 4;
                     random_num = random_generator.get();
-                    if(first_aid_check == 0)
+                    if(first_aid_check != 0)
                     {
                         _display_status("YOU TRY TO APPLY FIRST AID...","...AND SUCCEED. +1mHP.","a:CONTINUE");
                         if(current_hull<max_hull)
@@ -1232,9 +1233,9 @@ int game_scene::run_scene()
                     }
                     int card_to_draw = 0;
 
-                    bn::string<50> second_line_status("STONKS: OWLS ");
+                    bn::string<50> second_line_status("STONKS: OWL ");
 
-                    for (int i = 0; i < 2; i++)
+                    /*for (int i = 0; i < 2; i++)
                     {
                         card_to_draw = bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
                         random_num = random_generator.get();
@@ -1250,7 +1251,22 @@ int game_scene::run_scene()
                     random_num = random_generator.get();
                     second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
                     AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] -= 1;
-                    second_line_status.append(" +1c");
+                    second_line_status.append(" +1c");*/
+
+                    card_to_draw = bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
+                    random_num = random_generator.get();
+                    second_line_status.append("#");
+                    second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
+                    second_line_status.append(" ");
+                    AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] += 2;
+                    SaleMercDeckToDrawFrom.erase(SaleMercDeckToDrawFrom.begin()+card_to_draw);
+
+                    second_line_status.append("-2c, #");
+                    card_to_draw= bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
+                    random_num = random_generator.get();
+                    second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
+                    AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] -= 2;
+                    second_line_status.append(" +2c");
 
                     _display_status("A RIFT TO OWLHALLA APPEARS!", second_line_status, "a:CONTINUE");
                 }
@@ -2344,8 +2360,8 @@ bn::string<25> game_scene::_generate_name_from_upgrade_index(int isupgraded_inde
 
 void game_scene::_apply_pity()
 {
-    _display_status("YOU LOST COMBAT, SO YOU GET","+3c THANKS TO PITY BANNER.","a:CONTINUE");
-    current_runes+=3;
+    _display_status("YOU LOST COMBAT, SO YOU GET","+4c THANKS TO PITY BANNER.","a:CONTINUE");
+    current_runes+=4;
     _update_hud_text();
 }
 

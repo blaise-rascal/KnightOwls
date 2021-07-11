@@ -45,10 +45,10 @@ main_menu_scene::main_menu_scene(bn::sprite_text_generator& text_generator):
     menu_position(0),
     menu_position_max(1),
     state(0),
-    number_tutorial_pages(4),
+    number_tutorial_pages(6),
     current_tutorial_page(0)
 {
-    bn::music_items::voyagemusic.play(0.5);
+    bn::music_items::menumusic.play(0.5);
     _selection_cursor_sprite.set_visible(false);
     _selection_cursor_sprite.set_z_order(-100);
     _selection_cursor_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
@@ -108,7 +108,7 @@ int main_menu_scene::run_scene()
                             
                             "GAME MADE BY BLAISE RASCAL",
                             "IN 3 MONTHS FOR GBA JAM 2021.",
-                            "THE GAME IS AVAILABLE FOR FREE."
+                            "THE GAME IS AVAILABLE FOR FREE.",
                             "IT WAS MADE WITH DEVKITARM",
                             "AND BUTANO. SEE THE CURRENT",
                             "STATUS OF THE GAME AT",
@@ -126,7 +126,7 @@ int main_menu_scene::run_scene()
             case 10:
             {
                 _display_center_text(
-                    "(1/4) OVERVIEW",
+                    "(1/6) OVERVIEW",
                     "",
                     "YOU ARE A SUMMONER OF OWLS.",
                     "ARMED WITH YOUR SPELLBOOK",
@@ -145,7 +145,7 @@ int main_menu_scene::run_scene()
             case 11:
             {
                 _display_center_text(
-                    "(2/4) SUMMONING",
+                    "(2/6) SUMMONING",
                     "",
                     "WHEN YOU SELECT \"SUMMON\", YOU",
                     "CAST A RANDOM SPELL FROM YOUR",
@@ -164,16 +164,16 @@ int main_menu_scene::run_scene()
             case 12:
             {
                 _display_center_text(
-                    "(3/4) FIGHTING",
+                    "(3/6) FIGHTING",
                     "",
                     "SELECTING \"FIGHT\" WILL",
                     "INITIATE COMBAT. IF THE ENEMY'S",
                     "kATTACK IS HIGHER, YOU LOSE",
                     "SOME mHP. IF YOUR kATTACK IS",
-                    "HIGHER OR THE ATTACKS ARE",
-                    "EQUAL, YOU RECOVER 1mHP. WIN OR",
-                    "LOSE, ALL YOUR SPELLS WILL BE",
-                    "RETURNED TO YOUR SPELLBOOK."
+                    "HIGHER, YOU RECOVER 1mHP. (YOU",
+                    "WIN TIES.) WIN OR LOSE, ALL",
+                    "YOUR SPELLS WILL BE RETURNED",
+                    "TO YOUR SPELLBOOK."
                     );
                 _right_book_arrow_sprite.set_visible(true);
                 _left_book_arrow_sprite.set_visible(true);
@@ -183,7 +183,7 @@ int main_menu_scene::run_scene()
             case 13:
             {
                 _display_center_text(
-                    "(4/4) SHOPPING",
+                    "(4/6) SHOPPING",
                     "",
                     "AFTER FIGHTING, YOU WILL HAVE",
                     "THE CHANCE TO BUY NEW OWLS TO",
@@ -193,6 +193,43 @@ int main_menu_scene::run_scene()
                     "TIP: +c OWLS ARE BETTER EARLY,",
                     "OR AFTER MIASMA, AND +k OWLS",
                     "ARE BETTER WHEN NEAR A BOSS."
+                    );
+                _right_book_arrow_sprite.set_visible(true);
+                _left_book_arrow_sprite.set_visible(true);
+                state = 3;
+                break;
+            }
+            case 14:
+            {
+                _display_center_text(
+                    "(5/6) MAP LEGEND",
+                    "",
+                    "vw = ENEMY. THE NUMBER IS HOW",
+                    "MUCH HP YOU WILL LOSE IF YOU",
+                    "LOSE COMBAT.",
+                    "o = BOSS. IF A BOSS WINS",
+                    "COMBAT, YOU LOSE THE GAME.",
+                    "IF YOU DEFEAT A BOSS, YOU HEAL",
+                    "mHP TO FULL."
+                    );
+                _right_book_arrow_sprite.set_visible(true);
+                _left_book_arrow_sprite.set_visible(true);
+                state = 3;
+                break;
+            }
+            case 15:
+            {
+                _display_center_text(
+                    "(6/6) MAP LEGEND",
+                    "",
+                    "q = MIASMA. A SINISTER FOG",
+                    "THAT DRAINS ALL c, AND RESETS",
+                    "YOUR SPELLBOOK TO ITS ORIGINAL",
+                    "FORM.",
+                    "h = SHIPWRECK. GIVES YOU",
+                    "BANNERS, WHICH ARE UPGRADES",
+                    "THAT PERSIST EVEN AFTER MIASMA.",
+                    "THERE ARE 16 DIFFERENT BANNERS."
                     );
                 _right_book_arrow_sprite.set_visible(false);
                 _left_book_arrow_sprite.set_visible(true);

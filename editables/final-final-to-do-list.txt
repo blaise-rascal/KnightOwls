@@ -1,8 +1,11 @@
 possible FINAL FINAL to do list
-art for 18 enemies
+art for 18 enemies (palette swap?)
 art for 2 zones
-art & code for 16 banners
+art for 16 banners (and code to display that art)
+possibly code to view banners, and to view spellbook when choosing a banner
 main menu music
-add to main menu tutorial
-"message in a bottle"
-shipwreck art, final enemy art
+finish main menu tutorial
+"message in a bottle" lore drops
+shipwreck art, miasma art, final npc art
+"NEXT ATTACK" text
+sale info (just up and down arrows)

@@ -35,7 +35,7 @@ int main()
 {
     //Must be called before butano functionality is used
     bn::core::init();
-    int next_scene = 1; ///////////////////////////////////////////////SET THIS VALUE TO WHATEVER YOU WANT THE FIRST SCENE TO BE
+    int next_scene = 0; ///////////////////////////////////////////////SET THIS VALUE TO WHATEVER YOU WANT THE FIRST SCENE TO BE
     //text generator
     bn::sprite_text_generator my_text_generator(variable_8x8_sprite_font);
     my_text_generator.set_left_alignment();
