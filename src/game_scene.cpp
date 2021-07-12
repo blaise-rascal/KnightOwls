@@ -75,6 +75,7 @@
 //#include "bn_sprite_items_button.h"
 #include "bn_sprite_items_salearrows.h"
 #include "bn_regular_bg_items_oceanbackground.h"
+#include "bn_regular_bg_items_swampbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
 #include "bn_regular_bg_items_rift.h"
 
@@ -96,6 +97,9 @@ namespace{
     const int STARTING_MERC_INDEX = 0;
     const int NUMBER_SPELLBOOK_COLUMNS = 6;
     const int NUMBER_SPELLBOOK_ROWS = 3;
+    const int ZONE_ONE_BG_Y = 256;
+    const int ZONE_TWO_BG_Y = 0;
+    const int ZONE_THREE_BG_Y = -256;
     //const int START_OF_ZONE_TWO = 12;
     //const int START_OF_ZONE_THREE = 24;
     //const int 
@@ -107,7 +111,8 @@ namespace{
 
 game_scene::game_scene(bn::sprite_text_generator& text_generator):
     my_text_generator(text_generator),
-    _ocean_bg(bn::regular_bg_items::oceanbackground.create_bg(0, 0)),
+    _ocean_bg(bn::regular_bg_items::oceanbackground.create_bg(0,ZONE_ONE_BG_Y)),
+    //_swamp_bg(bn::regular_bg_items::swampbackground.create_bg(0, 0)),
     _spellbook_bg(bn::regular_bg_items::spellbook.create_bg(0, 0)),
     _rift_bg(bn::regular_bg_items::rift.create_bg(0, 0)),
     _selection_cursor_sprite(bn::sprite_items::selection_cursor.create_sprite(0, 30)),
@@ -151,43 +156,48 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     current_hull=max_hull;
 
     bn::music_items::voyagemusic.play(0.5);
-    // y = 12 * 1.18^2
-    //attack, reward, penalty, enemyinfoindex
-    WaveInfoVector.push_back({14,1,1,11});
-    WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
-    //WaveInfoVector.push_back({17,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
-    //WaveInfoVector.push_back({20,1,1,2});
-    //WaveInfoVector.push_back({23,1,1,3});
-    //WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
-    WaveInfoVector.push_back({29,1,2,4});
-    WaveInfoVector.push_back({35,1,2,5});
-    WaveInfoVector.push_back({42,1,2,6});
-    WaveInfoVector.push_back({50,1,2,7});
-    WaveInfoVector.push_back({60, 9999, 9999,8});//-1 is victory, 9999 is death
-    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    
     //WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
-    WaveInfoVector.push_back({15,1,1,0});
-    WaveInfoVector.push_back({18,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
-    WaveInfoVector.push_back({21,1,1,2});
-    WaveInfoVector.push_back({26,1,1,3});
+    //WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    //WaveInfoVector.push_back({14,1,1,0});
+    //WaveInfoVector.push_back({14,1,1,0});
+    //attack, reward, penalty, enemyinfoindex
+    
+    WaveInfoVector.push_back({14,1,1,0}); //LILYBAD
+    WaveInfoVector.push_back({17,1,1,1}); //MARAUDING OWLSHIP 
+    WaveInfoVector.push_back({20,1,1,2}); //FLOATING VILESTAR
+    WaveInfoVector.push_back({23,1,1,3}); //LAMB ON THE LAM
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
-    WaveInfoVector.push_back({33,1,2,4});
-    WaveInfoVector.push_back({41,1,2,5});
-    WaveInfoVector.push_back({50,1,2,6});
-    WaveInfoVector.push_back({61,1,2,7});
-    WaveInfoVector.push_back({75, 9999, 9999,8});//-1 is victory, 9999 is death
+    WaveInfoVector.push_back({29,1,2,4}); //DIRE LILYBAD
+    WaveInfoVector.push_back({35,1,2,5}); //GOBLIN SURF-SHIP
+    WaveInfoVector.push_back({42,1,2,6}); //CAT HYDRA
+    WaveInfoVector.push_back({50,1,2,7}); //PRETZELCOATL
+    WaveInfoVector.push_back({60, 9999, 9999,12});//-1 is victory, 9999 is death //LILYBANE
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
-    WaveInfoVector.push_back({15,1,1,0});
-    WaveInfoVector.push_back({19,1,1,1}); //TODO: SHOULD PROBABLY RAMP UP MORE SLOWLY
-    WaveInfoVector.push_back({23,1,1,2});
-    WaveInfoVector.push_back({29,1,1,3});
+    WaveInfoVector.push_back({15,1,1,27}); //SURPRISED LILYBAD
+    WaveInfoVector.push_back({18,1,1,17}); //HAUNTED OWLSHIP
+    WaveInfoVector.push_back({21,1,1,13}); // LAMB WITH A LAMBIC
+    WaveInfoVector.push_back({26,1,1,20}); // CORRUPTED SHADOWSTAR
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
-    WaveInfoVector.push_back({37,1,2,4});
-    WaveInfoVector.push_back({46,1,2,5});
-    WaveInfoVector.push_back({58,1,2,6});
-    WaveInfoVector.push_back({72,1,2,7});
-    WaveInfoVector.push_back({90, 9999, 9999,8});//-1 is victory, 9999 is death
+    WaveInfoVector.push_back({33,1,2,21}); // SWIMMIN' WOMEN
+    WaveInfoVector.push_back({41,1,2,19}); // VICIOUS FISHES
+    WaveInfoVector.push_back({50,1,2,23}); //CAT HYDRA WITH SUNGLASSES
+    WaveInfoVector.push_back({61,1,2,18}); // BORIS THE GRIMDARK
+    WaveInfoVector.push_back({75, 9999, 9999,16});// GREAT PACIFIC GARBAGE PATCH
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    WaveInfoVector.push_back({15,1,1,28}); //LILYDADJOKE
+    WaveInfoVector.push_back({19,1,1,22}); //MIASMOID
+    WaveInfoVector.push_back({23,1,1,26}); //BACKWARDS SURF-SHIP
+    WaveInfoVector.push_back({29,1,1,14}); // CYCLOPEAN HOVERSTAR
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
+    WaveInfoVector.push_back({37,1,2,11}); // INVISIBLE NEMESIS
+    WaveInfoVector.push_back({46,1,2,24}); //MARY
+    WaveInfoVector.push_back({58,1,2,15}); // CAT HYDRA WITH PARTY HATS
+    WaveInfoVector.push_back({72,1,2,25}); // GUNGLASSES
+    WaveInfoVector.push_back({90, 9999, 9999,8}); //HERMAN
+    
 
 
     //TODO: NO SHOP AFTER BOSS!!!!!!!!!!!!!!!!!
@@ -207,16 +217,33 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //
     EnemyInfoVector.push_back({0,"LILYBAD"});
     EnemyInfoVector.push_back({1,"MARAUDING OWLSHIP"});
-    EnemyInfoVector.push_back({2,"FLOATING VILESTAR"});
+    EnemyInfoVector.push_back({2,"VILE HOVERSTAR"});
     EnemyInfoVector.push_back({3,"LAMB ON THE LAM"});
     EnemyInfoVector.push_back({4,"DIRE LILYBAD"});
     EnemyInfoVector.push_back({5,"GOBLIN SURF-SHIP"});
     EnemyInfoVector.push_back({6,"CAT HYDRA"});
     EnemyInfoVector.push_back({7,"PRETZELCOATL"});
-    EnemyInfoVector.push_back({8,"HERMAN THE GERMAN MERMAN"});
+    EnemyInfoVector.push_back({8,"HERMAN THE MERMAN"});
     EnemyInfoVector.push_back({9,"SHIPWRECK"});
     EnemyInfoVector.push_back({10,"MIASMA"});
     EnemyInfoVector.push_back({11,"INVISIBLE NEMESIS"});
+    EnemyInfoVector.push_back({12,"LILYBANE"});
+    EnemyInfoVector.push_back({13,"LAMB WITH A LAMBIC"});
+    EnemyInfoVector.push_back({14,"CYCLOPEAN HOVERSTAR"});
+    EnemyInfoVector.push_back({15,"CAT HYDRA WITH PARTY HATS"});
+    EnemyInfoVector.push_back({16,"GREAT PACIFIC TRASH HEAP"});
+    EnemyInfoVector.push_back({17,"HAUNTED OWLSHIP"});
+    EnemyInfoVector.push_back({18,"BORIS THE GRIMDARK"});
+    EnemyInfoVector.push_back({19,"VICIOUS FISHES"});
+    EnemyInfoVector.push_back({20,"CORRUPTED SHADOWSTAR"});
+    EnemyInfoVector.push_back({21,"SWIMMIN' WOMEN"});
+    EnemyInfoVector.push_back({22,"MIASMOID"});
+    EnemyInfoVector.push_back({23,"CAT HYDRA WITH SUNGLASSES"});
+    EnemyInfoVector.push_back({24,"MARY"});
+    EnemyInfoVector.push_back({25,"GUNGLASSES"});
+    EnemyInfoVector.push_back({26,"BACKWARDS SURF-SHIP"});
+    EnemyInfoVector.push_back({27,"SURPRISED LILYBAD"});
+    EnemyInfoVector.push_back({28,"LILYDADJOKE"});
 
     //8 d20 (5% to do +10k)
         //9 courage (+1 max static, -1 max HP)
@@ -229,8 +256,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
         //16 When you fight, if your +c this round was 8 or higher, gain +5k
     NonOwlUpgradeInfoVector.push_back({"D20","WHENEVER YOU SUMMON, ROLL A D20.","IF IT'S A 20, GET +10k."}); //0
     NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1
-    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+1 MAX AND CURRENT mHP.",""}); //2
-    NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, TWO RANDOM OWLS","COST -1c, AND ANOTHER +1c."}); //3
+    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP.",""}); //2
+    NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, 1 RANDOM OWL","COSTS -2c, AND ANOTHER +2c."}); //3
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 75% CHANCE TO","HEAL 1 mHP."}); //4
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT,","GAIN +4c."}); //5
     NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D10k)"}); //6
@@ -263,12 +290,12 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
     CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,     0,0,0,      2,1});
-    CardInfoVector.push_back({"ENERGY SURGE",       0,1,    50,0,0,      1,0,0,      6,0});
-    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    100,0,0,     2,0,0,      7,0});
+    CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
+    CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,2}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   28,0,0,     0,0,0,      3,2}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,20,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
@@ -281,7 +308,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
-    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   38,0,0,     0,0,0,      3,2}); // +1 energy
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   40,0,0,     0,0,0,      3,2}); // +1 energy
     UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,30,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
@@ -345,6 +372,11 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     _rift_bg.set_z_order(-80);
     _rift_bg.set_priority(1);
     _rift_bg.set_visible(false);
+
+    //_ocean_bg.set_y(20);
+
+    
+   // _swamp_bg.set_visible(false);
 }
 
 int game_scene::run_scene()
@@ -526,9 +558,23 @@ int game_scene::run_scene()
                 if(bn::keypad::a_pressed())
                 {
                     _display_status("YOU SHAKE OFF THE HEADACHE,", "AND NOTICE YOU ARE IN A NEW PLACE.", "a:CONTINUE");
-                    
-                    _enemy_sprite.set_visible(false);
                     current_wave++;
+                    if(_get_current_zone()==1)
+                    {
+                        //_ocean_bg.delete();
+                        _ocean_bg.set_y(ZONE_TWO_BG_Y);
+                        //bn::core::update();
+                        //_ocean_bg = bn::regular_bg_items::swampbackground.create_bg(0, 0);
+                        //_ocean_bg.set_item(new bn::regular_bg_items::swampbackground.create_bg(0, 0));
+                        //_swamp_bg.set_visible(true);
+                    }
+                    else
+                    {
+                        _ocean_bg.set_y(ZONE_THREE_BG_Y);
+                        //_ocean_bg.set_visible(false);
+                        //_swamp_bg.set_visible(false);
+                    }
+                    _enemy_sprite.set_visible(false);
                     _update_wave_info_hud_text();
                     state = 35;
                 }
@@ -539,23 +585,35 @@ int game_scene::run_scene()
             {
                 if(bn::keypad::a_pressed())
                 {
+                   // _display_status("YOU FIND A MESSAGE IN A BOTTLE.", "DO YOU WANT TO READ IT?", "a:YES b:NO");
+                    /*
                     if(_get_current_zone()==1)
                     {
                         _display_status("LIGHTS DANCE BETWEEN TREES.", "EYES GLINT IN THE DARK.", "a:CONTINUE");
                     }
                     else{ // zone = 2
                         _display_status("YOU ARE SURROUNDED BY STARS.", "COULD YOUR JOURNEY BE NEAR ITS END?", "a:CONTINUE");
-                    }
-                    state = 36;
+                    }*/
+                    state = 900;
                 }
                 bn::core::update();
                 break;
             }
             case 36: // Loop; wait for A press to loop through miasma
             {
-                if(bn::keypad::a_pressed())
+                if(bn::keypad::b_pressed())
                 {
                     state = 900;
+                }
+                else if(bn::keypad::a_pressed())
+                {
+                    if(_get_current_zone()==1)
+                    {
+                        state = 37;
+                    }
+                    else{
+
+                    }
                 }
                 bn::core::update();
                 break;
@@ -815,7 +873,7 @@ int game_scene::run_scene()
                                 //second_line_status.append("ROLLED ");
                                 //second_line_status.append(bn::to_string<4>(goblin_attack));
                                 //second_line_status.append(" ON THE D8. k+");
-                                second_line_status.append(" ON THE D8. k+");
+                                second_line_status.append("k+");
                                 second_line_status.append(bn::to_string<4>(goblin_attack));
                             }
                             else
@@ -1255,9 +1313,9 @@ int game_scene::run_scene()
                     }
                     int card_to_draw = 0;
 
-                    bn::string<50> second_line_status("STONKS: OWLS ");
-
-                    for (int i = 0; i < 2; i++)
+                    bn::string<50> second_line_status("STONKS: OWL ");
+/*
+                    for (int i = 0; i < 3; i++)
                     {
                         card_to_draw = bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
                         random_num = random_generator.get();
@@ -1274,7 +1332,7 @@ int game_scene::run_scene()
                     second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
                     AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] -= 1;
                     second_line_status.append(" +1c");
-/*
+*/
                     card_to_draw = bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
                     random_num = random_generator.get();
                     second_line_status.append("#");
@@ -1288,7 +1346,7 @@ int game_scene::run_scene()
                     random_num = random_generator.get();
                     second_line_status.append(bn::to_string<4>(1+SaleMercDeckToDrawFrom.at(card_to_draw)));
                     AmountMercOnSale[SaleMercDeckToDrawFrom.at(card_to_draw)] -= 2;
-                    second_line_status.append(" +2c");*/
+                    second_line_status.append(" +2c");
 
                     _display_status("A RIFT TO OWLHALLA APPEARS!", second_line_status, "a:CONTINUE");
                 }
@@ -1701,7 +1759,7 @@ void game_scene::_update_wave_info_hud_text()
     }
     else if(_get_current_zone() == 1)
     {
-        zone_hud_text.append("SWAMP");
+        zone_hud_text.append("STORM");
         first_wave_to_draw = start_of_zone_two;
         last_wave_to_draw = start_of_zone_three-1;
     }
@@ -2014,9 +2072,9 @@ void game_scene::_generate_virt_menu(int num_options, const bn::string<20>& menu
     first_menu_option_text_sprites.clear();
     second_menu_option_text_sprites.clear();
     third_menu_option_text_sprites.clear();
-    my_text_generator.generate(0, -11, menu_option_one, first_menu_option_text_sprites);
-    my_text_generator.generate(0, 0, menu_option_two, second_menu_option_text_sprites);
-    my_text_generator.generate(0, 11, menu_option_three, third_menu_option_text_sprites);
+    my_text_generator.generate(0, -5, menu_option_one, first_menu_option_text_sprites);
+    my_text_generator.generate(0, 6, menu_option_two, second_menu_option_text_sprites);
+    my_text_generator.generate(0, 16, menu_option_three, third_menu_option_text_sprites);
     menu_position_max = num_options -1;
     menu_position = 0;
     _selection_cursor_sprite.set_visible(true);
@@ -2333,10 +2391,10 @@ void game_scene::_research_upgrade(int whichupgrade)
             current_hull=max_hull;
         }
     }
-    else if(whichupgrade == 10)
+    else if(whichupgrade == 10) //strength
     {
-        max_hull += 1;
-        current_hull += 1;
+        max_hull += 2;
+        current_hull += 2;
     }
     else if(whichupgrade == 14)
     {
