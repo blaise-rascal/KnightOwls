@@ -75,7 +75,6 @@
 //#include "bn_sprite_items_button.h"
 #include "bn_sprite_items_salearrows.h"
 #include "bn_regular_bg_items_oceanbackground.h"
-#include "bn_regular_bg_items_swampbackground.h"
 #include "bn_regular_bg_items_spellbook.h"
 #include "bn_regular_bg_items_rift.h"
 
@@ -242,7 +241,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     EnemyInfoVector.push_back({24,"MARY"});
     EnemyInfoVector.push_back({25,"GUNGLASSES"});
     EnemyInfoVector.push_back({26,"BACKWARDS SURF-SHIP"});
-    EnemyInfoVector.push_back({27,"SURPRISED LILYBAD"});
+    EnemyInfoVector.push_back({27,"NAKED LILYBAD"});
     EnemyInfoVector.push_back({28,"LILYDADJOKE"});
 
     //8 d20 (5% to do +10k)
@@ -1974,7 +1973,7 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     }
     else if(card_info_index==10)//goblin
     {
-        _description_string.append("k+D8");
+        _description_string.append("k+D10");
     }
     else{
         //TODO: Uh right now the nonzero value must be powerone. Maybe uh make it more flexible
