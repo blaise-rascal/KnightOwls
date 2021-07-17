@@ -20,7 +20,7 @@
 //      You can use code snippets in your own projects, but don't use the art, or the music,            //
 //            or rip off huge portions of the game's design without my permission.                      //
 //          (Feel free to ask permission! There's a good chance I'll give it to you.)                   //
-//                    Game engine used: https://github.com/GValiente/butano                             //
+//                  Additionally, all licenses in the licenses folder apply.                            //
 //                                                                                                      //
 //                                                                                                      //
 //                                                                                                      //
