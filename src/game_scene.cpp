@@ -294,8 +294,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,2}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   28,0,0,     0,0,0,      3,2}); // +1 energy
-    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,20,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
 
@@ -307,9 +307,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
-    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   40,0,0,     0,0,0,      3,2}); // +1 energy
-    UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,30,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   35,0,0,     0,0,0,      3,2}); // +1 energy
+    UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       9,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
@@ -846,7 +846,7 @@ int game_scene::run_scene()
                                 {
                                     SaleMercDeckToDrawFrom.push_back(i);
                                 }
-                                for(int i =0; i<3; i++)
+                                for(int i =0; i<2; i++)
                                 {
                                     int card_to_draw= bn::abs(random_num) % SaleMercDeckToDrawFrom.size();
                                     random_num = random_generator.get();
@@ -1708,35 +1708,40 @@ void game_scene::_update_hud_text()
 void game_scene::_update_wave_info_hud_text()
 {
 //AFTER ACT 1 (SEA)
-//YOU FIND A MESSAGE IN A BOTTLE. DO YOU WISH TO READ IT?
+//YOU FIND A MESSAGE IN A BOTTLE, FLOATING IN THE WATER. DO YOU WISH TO READ IT?
 // THUNDERING, THUNDERING... I USED TO FIND THE SOUND OF A STORM CALMING, BUT NO LONGER.
 // RAIN PELTS OUR ROOF UNCEASINGLY, AND THE WIND IS LIKE A MIGHTY ROAR.
 // WHAT HAS CAUSED THIS WRETCHED STORM? IS IT SOMEHOW PUNISHMENT FOR THE EVIL IN OUR HEARTS?
 // I SUPPOSE IT DOESN'T MATTER. OF FAR GREATER IMPORTANCE, IS THE FACT THAT MY FAMILY HAS CONSTRUCTED
-// A SHIP, AND SO WE MAY SURVIVE A LITTLE LONGER ONCE THE GROUND IS SWALLOWED UP BENEATH US BY THE RAIN.
+// A SAILING SHIP, AND SO WE MAY SURVIVE A LITTLE LONGER ONCE THE GROUND IS SWALLOWED UP BENEATH US BY THE RAIN.
 // IF ANYONE READS THIS, KNOW THAT THERE IS NO STOPPING THE RAIN. IT WILL SPREAD, AND SPREAD, UNTIL ALL IS A WATERY GRAVEYARD.
 // UNFORTUNATELY, IF YOU WISH TO KNOW WHERE TO GO NEXT, I HAVE NO ADVICE. WE ARE ALL REFUGEES NOW...
 
 //AFTER ACT 2 (SWAMP)
-//YOU FIND A MESSAGE IN A BOTTLE. DO YOU WISH TO READ IT?
-// WE HAVE BEEN WEEKS AT SEA. THE BAD NEWS IS THAT WE ARE RUNNING LOW ON PROVISIONS.
+//YOU FIND A MESSAGE IN A BOTTLE, FLOATING IN THE WATER. DO YOU WISH TO READ IT?
+// WE HAVE BEEN WEEKS AT SEA IN OUR HASTILY-CONSTRUCTED VESSEL. THE BAD NEWS IS THAT WE ARE RUNNING LOW ON PROVISIONS.
 // THE GOOD NEWS IS THAT MY YOUNGEST DAUGHTER HAS FOUND A SPELLBOOK. I DON'T QUITE UNDERSTAND
-// HOW IT WORKS, BUT SOMEHOW SHE IS ABLE TO USE IT TO SUMMON LITTLE OWLS WEARING MEDIEVAL WARRIOR OUTFITS.
+// HOW IT WORKS, BUT SOMEHOW, SHE IS ABLE TO USE IT TO SUMMON LITTLE OWLS WEARING MEDIEVAL WARRIOR OUTFITS.
 // AN UNCONVENTIONAL FIGHTING TACTIC, TO BE SURE, BUT A WELCOME ONE.
 // WE HAVE ENCOUNTERED SOME AWFULLY STRANGE MONSTERS ON OUR VOYAGE. A SORT OF PRIMORDIAL POWER FEELS LIKE IT'S BEEN LOOSED HERE, AND MAGIC CRACKLES AROUND US IN THE AIR.
 // IN ANY CASE, WE HAVE SEARCHED THROUGHOUT THE WORLD, AND FOUND NO PLACE TO MAKE OUR NEW HOME.
 // BUT WE HAVE ONE MORE HOPE. WE CAN SEARCH UPWARD...
 
 //AFTER ACT 3 (SKY)
-//REELING FROM YOUR LAST FIGHT, YOU TAKE A MOMENT TO REST. A CREATURE APPEARS, AND BEGINS TO SPEAK.
-//"HMMPH. ANOTHER "REFUGEE" FROM YOUR WATERLOGGED PLANET...
+//AT LAST, WE ARE SAFE! MY RELIEF IS IMMEASURABLE.
+//WHEN WE FIRST ARRIVED IN THE STARRY REALM ABOVE THE WORLD, IT APPEARED TO BE NO BETTER THAN THE WATERLOGGED PLANET WE HAD LEFT BEHIND.
+//VICIOUS MONSTERS PROWL THE SKIES... I CAN ONLY BE THANKFUL THAT MY DAUGHTER'S SKILL WITH HER SPELLBOOK HAS GROWN, AND THAT HER OWLS ARE ON OUR SIDE.
+//WE SEEMED TO BE GETTING NOWHERE, UNTIL WE ENCOUNTERED AN ECCENTRIC STRANGER NAMED HERMAN.
+//HE INITIALLY DEMANDED WE FIGHT, SO THAT WE COULD "PROVE OURSELVES." AFTER WE DEFEATED HIM, HE TOLD US THE FOLLOWING:
+//"HMMPH. ANOTHER "REFUGEE" FROM YOUR RAINY PLANET...
 //...I'M AFRAID YOU CANNOT STAY HERE LONG. 
 //THIS ISN'T YOUR HOME. YOU BELONG BACK ON EARTH.
 //BUT I GUESS EARTH IS NO GOOD FOR YOU NOW, EH? AWFULLY WET DOWN THERE, ISN'T IT?
 //FINE, YOU MAY STAY FOR NOW. BUT AS SOON AS THE WATER DRIES, YOU MUST GO BACK TO WHERE YOU CAME."
 //AND THE WATER *WILL* DRY. I'M SURE OF IT. THESE THINGS ALWAYS COME IN CYCLES."
-//YOU THANK THE STRANGER FOR THEIR HOSPITALITY. IT APPEARS YOU HAVE FOUND A SHELTER - FOR NOW.
-//CONGRATULATIONS! YOUR VOYAGE IS COMPLETE!
+//I THANKED HIM PROFUSELY FOR HIS HOSPITALITY. IT APPEARS WE HAVE FOUND A SHELTER - FOR NOW.
+//I AM NOT SO CERTAIN I AGREE WITH HIM THAT THERE IS HOPE THE EARTH WILL RECOVER... BUT WE SHALL SEE.
+//PLEASE, IF YOU ARE READING THIS, SEEK US OUT IN THE SKIES. WE WILL HELP YOU.
     
 
     my_text_generator.set_right_alignment();
@@ -1969,7 +1974,7 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
         
         _description_string.append("c+");
         _description_string.append(bn::to_string<5>(runesone_to_add));
-        _description_string.append(", AND PUT 3 OWLS ON SALE (-2c)");
+        _description_string.append(", AND PUT 2 OWLS ON SALE (-2c)");
     }
     else if(card_info_index==10)//goblin
     {
@@ -2508,9 +2513,28 @@ int game_scene::_get_current_zone()
 // figure out if the idea is good enough to keep working on
 // fricking take a break, man
 
+//ACTUAL post-jam todo list
+// ability to view banners at any time
+// ability to view spellbook when selecting banner (CHOOSE ENERGY KNIGHT BANNER - CHOOSE STRENGTH BANNER - BANNERS - SPELLBOOK)
+// zone 2 and 3 backgrounds more interesting
+// balance. (maybe replace some content like pity banner)
+// pause menu - 
+//      MUTE MUSIC - UNMUTE MUSIC
+// SUMMONED ENERGY KNIGHT II - ENERGY KNIGHT III - LEVELS UP ALL ENERGY KNIGHTS UNTIL MIASMA.
+//      INCREASE MUSIC VOLUME
+//      DECREASE MUSIC VOLUME
+//      SAVE AND RETURN TO MAIN MENU
+//      RESUME GAME
+// high score (which is saved)
+
+// finish drawing enemies
+// ability to save game!!
+// for sale... one "rare" slot which can contain temporary upgrades, eggs, vamp owl, mage nest perhaps? and also one "procgen" slot
 /*
 small tasks, needed for the game to be complete
 
 -button for movement descriptions
--main menu
+-main menu =
+
+-lol autochess
 */

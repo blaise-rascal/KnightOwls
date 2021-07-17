@@ -1,0 +1,1 @@
+see src/gamescene.cpp for license

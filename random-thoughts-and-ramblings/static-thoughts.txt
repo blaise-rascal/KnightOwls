@@ -1,0 +1,10 @@
+could have: 5 energy surges, with ALL of them being 25% chance for mega, 75% chance for regular... the issue is that the danger STILL IS NOT COMMUNICATED.
+Or just: Every time you summon, there is a 10% chance that instead of 
+
+OPTIONS
+1. current method - downside is that 4/4 has variable danger
+2. 6 regular energy surges - downside is that there is no danger in summoning at 3/4, eliminating "pretty safe" mode from 3 states of "completely safe" "pretty safe" "kinda dangerous"
+3. 5 energy surges, each one has 33 % chance to be double static - issue is that static number still doesn't identify danger
+4. every time you summon, 15% chance for mini and 5% for mega - ruins the fun push your luck mechanic where the danger becomes worse and worse every time you summon safely
+5. Whenever you summon an energy surge, there is a 33% chance that another energy surge will immediately be summoned... Solves all problems BUT is super unclear to player...
+6. Keep analyzing the numbers and try to come up with a system similar to 1) that does not have this issue
