@@ -254,7 +254,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
         //15 goblin (permanent goblin added to deck)
         //16 When you fight, if your +c this round was 8 or higher, gain +5k
     NonOwlUpgradeInfoVector.push_back({"D20","WHENEVER YOU SUMMON, ROLL A D20.","IF IT'S A 20, GET +10k."}); //0
-    NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -1 MAX mHP.",""}); //1
+    NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -2 MAX mHP.",""}); //1
     NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP.",""}); //2
     NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, 1 RANDOM OWL","COSTS -2c, AND ANOTHER +2c."}); //3
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 75% CHANCE TO","HEAL 1 mHP."}); //4
@@ -305,7 +305,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     UpgradedCardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
-    UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     4,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     5,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
     UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   35,0,0,     0,0,0,      3,2}); // +1 energy
     UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
@@ -2386,9 +2386,9 @@ void game_scene::_research_upgrade(int whichupgrade)
         CardInfoVector.at(whichupgrade) = UpgradedCardInfoVector.at(whichupgrade);
     }
     //upgrad 8 is d20, and is not handled by this function
-    else if(whichupgrade == 9)
+    else if(whichupgrade == 9) //COURAGE
     {
-        max_hull -= 1;
+        max_hull -= 2;
         max_boat_weight += 1;
         if(current_hull>max_hull)
         {
@@ -2400,7 +2400,7 @@ void game_scene::_research_upgrade(int whichupgrade)
         max_hull += 2;
         current_hull += 2;
     }
-    else if(whichupgrade == 14)
+    else if(whichupgrade == 14) //GOBLIN
     {
         player1deck.push_back(10);
         player1deck_after_miasma.push_back(10);

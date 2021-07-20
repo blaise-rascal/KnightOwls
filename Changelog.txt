@@ -1,0 +1,13 @@
+Version Alpha 2.0 (wip)
+-Improved audio quality
+-Nerfed energy knight, energy knight banner, merchant, merchant banner, alchemist, alchemist banner
+-Nerfed courage banner; it now gives you -2 hp. Mwahahaha!
+-Buffed mystic banner, to +5 money -2 attack
+-Fixed goblin description
+-New enemies: Lilydadjoke
+
+planned:
+-made the shop a little more consistent; from now on, there will always be 2 attacking uncommon owls, and 2 money-generating uncommon owls. (the odds of any given uncommon owl appearing is still 2/3)
+
+Version Alpha 1.0
+-Initial Release
