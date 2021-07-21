@@ -174,27 +174,27 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({60, 9999, 9999,12});//-1 is victory, 9999 is death //LILYBANE
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
-    WaveInfoVector.push_back({15,1,1,27}); //SURPRISED LILYBAD
-    WaveInfoVector.push_back({18,1,1,17}); //HAUNTED OWLSHIP
-    WaveInfoVector.push_back({21,1,1,13}); // LAMB WITH A LAMBIC
-    WaveInfoVector.push_back({26,1,1,20}); // CORRUPTED SHADOWSTAR
+    WaveInfoVector.push_back({15,1,1,17}); //HAUNTED OWLSHIP
+    WaveInfoVector.push_back({18,1,1,13}); // LAMB WITH A LAMBIC
+    WaveInfoVector.push_back({21,1,1,21}); // SWIMMIN' WOMEN
+    WaveInfoVector.push_back({26,1,1,19}); // VICIOUS FISHES
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
-    WaveInfoVector.push_back({33,1,2,21}); // SWIMMIN' WOMEN
-    WaveInfoVector.push_back({41,1,2,19}); // VICIOUS FISHES
-    WaveInfoVector.push_back({50,1,2,23}); //CAT HYDRA WITH SUNGLASSES
-    WaveInfoVector.push_back({61,1,2,18}); // BORIS THE GRIMDARK
+    WaveInfoVector.push_back({33,1,2,20}); // CORRUPTED SHADOWSTAR
+    WaveInfoVector.push_back({41,1,2,23}); //CAT HYDRA WITH SUNGLASSES
+    WaveInfoVector.push_back({50,1,2,18}); // BORIS THE GRIMDARK
+    WaveInfoVector.push_back({61,1,2,11}); // INVISIBLE NEMESIS
     WaveInfoVector.push_back({75, 9999, 9999,16});// GREAT PACIFIC GARBAGE PATCH
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
-    WaveInfoVector.push_back({15,1,1,28}); //LILYDADJOKE
+    WaveInfoVector.push_back({15,1,1,26}); //LILYDADJOKE
     WaveInfoVector.push_back({19,1,1,22}); //MIASMOID
-    WaveInfoVector.push_back({23,1,1,26}); //BACKWARDS SURF-SHIP
-    WaveInfoVector.push_back({29,1,1,14}); // CYCLOPEAN HOVERSTAR
+    WaveInfoVector.push_back({23,1,1,14}); // CYCLOPEAN HOVERSTAR
+    WaveInfoVector.push_back({29,1,1,28}); // LILY AND THE GOBLINS
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
-    WaveInfoVector.push_back({37,1,2,11}); // INVISIBLE NEMESIS
-    WaveInfoVector.push_back({46,1,2,24}); //MARY
-    WaveInfoVector.push_back({58,1,2,15}); // CAT HYDRA WITH PARTY HATS
-    WaveInfoVector.push_back({72,1,2,25}); // GUNGLASSES
+    WaveInfoVector.push_back({37,1,2,24});  //MARY
+    WaveInfoVector.push_back({46,1,2,15});// CAT HYDRA WITH PARTY HATS
+    WaveInfoVector.push_back({58,1,2,25}); // GUNGLASSES
+    WaveInfoVector.push_back({72,1,2,27}); // BONES MCJONES
     WaveInfoVector.push_back({90, 9999, 9999,8}); //HERMAN
     
 
@@ -240,9 +240,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     EnemyInfoVector.push_back({23,"CAT HYDRA WITH SUNGLASSES"});
     EnemyInfoVector.push_back({24,"MARY"});
     EnemyInfoVector.push_back({25,"GUNGLASSES"});
-    EnemyInfoVector.push_back({26,"BACKWARDS SURF-SHIP"});
-    EnemyInfoVector.push_back({27,"NAKED LILYBAD"});
-    EnemyInfoVector.push_back({28,"LILYDADJOKE"});
+    EnemyInfoVector.push_back({26,"LILYDADJOKE"});
+    EnemyInfoVector.push_back({27,"BONES MCJONES"});
+    EnemyInfoVector.push_back({28,"LILY AND THE GOBLINS"});
 
     //8 d20 (5% to do +10k)
         //9 courage (+1 max static, -1 max HP)
