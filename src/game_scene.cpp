@@ -294,7 +294,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,2}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   25,0,0,     0,0,0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   27,0,0,     0,0,0,      3,2}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
@@ -307,9 +307,9 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     5,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
-    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   35,0,0,     0,0,0,      3,2}); // +1 energy
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   37,0,0,     0,0,0,      3,2}); // +1 energy
     UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
-    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       9,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
+    UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,      10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
 //builder owl
@@ -642,11 +642,16 @@ int game_scene::run_scene()
                 
                 upgrade_option_two = DeckOfNonOwlUpgrades.at(upgrade_option_two_index) + 8;
                 DeckOfNonOwlUpgrades.erase(DeckOfNonOwlUpgrades.begin() + upgrade_option_two_index);
-
+                state = 10027;
+                break;
+            }
                 //TODO: Check that whenever I interface with a vector or array of ints, I am interfacing with the contents of the array/vector, rather than the index
+            case 10027:
+            {
+                
 
-
-                _generate_virt_menu(2, _generate_name_from_upgrade_index(upgrade_option_one), _generate_name_from_upgrade_index(upgrade_option_two),"");
+                //_generate_virt_menu(2, _generate_name_from_upgrade_index(upgrade_option_one), _generate_name_from_upgrade_index(upgrade_option_two),"");
+                _generate_virt_menu(3, _generate_name_from_upgrade_index(upgrade_option_one), _generate_name_from_upgrade_index(upgrade_option_two),"SPELLBOOK");
                 //bn::core::update();
                 state = 28;
                 break;
@@ -663,32 +668,42 @@ int game_scene::run_scene()
                 {
                     _display_status(_generate_first_upgrade_description_from_upgrade_index(upgrade_option_two), _generate_second_upgrade_description_from_upgrade_index(upgrade_option_two),"ud:MOVE, a:SELECT");
                 }
-
+                else if(menu_position==2) // GO TO SPELLBOOK STATE
+                {
+                    _display_status("ud:MOVE, a:SELECT");
+                }
                 if(bn::keypad::a_pressed())
                 {
-                    
-                    _enemy_sprite.set_visible(false);
-                    bn::string<50> display_text_line_one("YOU PICKED ");
-                    //_display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
-                    if(menu_position==0)
-                    {
+                    if(menu_position==2)
+                    {//show spellbook!
+                        state_before_spellbook=28;
+                        state=23;
                         _clear_virt_menu();
-                        _research_upgrade(upgrade_option_one);
-                        display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_one));
-                        display_text_line_one.append(".");
-                        _display_status(display_text_line_one, "YOU SAIL ON.", "a:CONTINUE");
-                        state = 29;
                     }
-                    else if(menu_position==1)
+                    else
                     {
-                        _clear_virt_menu();
-                        _research_upgrade(upgrade_option_two);
-                        display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_two));
-                        display_text_line_one.append(".");
-                        _display_status(display_text_line_one, "YOU SAIL ON.", "a:CONTINUE");
-                        state = 29;
+                        _enemy_sprite.set_visible(false);
+                        bn::string<50> display_text_line_one("YOU PICKED ");
+                        //_display_status(_generate_first_upgrade_description_from_upgrade_index(6),_generate_second_upgrade_description_from_upgrade_index(6));
+                        if(menu_position==0)
+                        {
+                            _clear_virt_menu();
+                            _research_upgrade(upgrade_option_one);
+                            display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_one));
+                            display_text_line_one.append(".");
+                            _display_status(display_text_line_one, "YOU SAIL ON.", "a:CONTINUE");
+                            state = 29;
+                        }
+                        else if(menu_position==1)
+                        {
+                            _clear_virt_menu();
+                            _research_upgrade(upgrade_option_two);
+                            display_text_line_one.append(_generate_name_from_upgrade_index(upgrade_option_two));
+                            display_text_line_one.append(".");
+                            _display_status(display_text_line_one, "YOU SAIL ON.", "a:CONTINUE");
+                            state = 29;
+                        }
                     }
-                    
                 }
                 bn::core::update();
                 break;
@@ -1558,6 +1573,8 @@ int game_scene::run_scene()
                         state=10002;
                     else if(state_before_spellbook==11)
                         state=10;
+                    else if(state_before_spellbook == 28)
+                        state=10027;
                     //_selection_cursor_sprite.set_visible(true);
                 }
                 bn::core::update();
@@ -2537,4 +2554,8 @@ small tasks, needed for the game to be complete
 -main menu =
 
 -lol autochess
+
+
+immediate tasks:
+-PUT CAT HYDRA IN SAME PLACE EVERY TIME!!!
 */
