@@ -4,10 +4,16 @@ Version Alpha 2.0 (wip)
 -Nerfed courage banner; it now gives you -2 hp. Mwahahaha!
 -Buffed mystic banner, to +5 money -2 attack
 -Fixed goblin description
--New enemies: Lilydadjoke
+-New enemies: Lilydadjoke, bones mcjones, lily and the goblins
+-now can view spellbook from banner selection screen
+-put miasma before shipwreck at the end of zones; functionally the same but should be clearer
 
 planned:
 -made the shop a little more consistent; from now on, there will always be 2 attacking uncommon owls, and 2 money-generating uncommon owls. (the odds of any given uncommon owl appearing is still 2/3)
+-check to make sure you want to fight before summoning
+-final boss power on entering zone, next enemy power every round
+-sargasso sea   twilight mire  starry stream
+
 
 Version Alpha 1.0
 -Initial Release

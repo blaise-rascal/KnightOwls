@@ -196,8 +196,9 @@ class game_scene
         bn::vector<bn::sprite_ptr, 100> SpellbookTableau;
         bn::vector<bn::sprite_ptr, 5> BannerTableau;
         bn::vector<int, 6> MercenaryDeck;
-        bn::vector<int, 6> AllUncommonMercs;
-        bn::vector<int, 8> AllCommonAndUncommonMercs;
+        bn::vector<int, 3> AllUncommonAttackingMercs;
+        bn::vector<int, 3> AllUncommonEconomyMercs;
+       // bn::vector<int, 8> AllCommonAndUncommonMercs;
         bn::vector<int, 6> TempMercDeckToDrawFrom;
         bn::vector<int, 6> SaleMercDeckToDrawFrom;
         bn::array<int, 6>AmountMercOnSale;

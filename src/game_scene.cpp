@@ -172,28 +172,28 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({42,1,2,6}); //CAT HYDRA
     WaveInfoVector.push_back({50,1,2,7}); //PRETZELCOATL
     WaveInfoVector.push_back({60, 9999, 9999,12});//-1 is victory, 9999 is death //LILYBANE
-    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({15,1,1,17}); //HAUNTED OWLSHIP
     WaveInfoVector.push_back({18,1,1,13}); // LAMB WITH A LAMBIC
     WaveInfoVector.push_back({21,1,1,21}); // SWIMMIN' WOMEN
     WaveInfoVector.push_back({26,1,1,19}); // VICIOUS FISHES
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({33,1,2,20}); // CORRUPTED SHADOWSTAR
-    WaveInfoVector.push_back({41,1,2,23}); //CAT HYDRA WITH SUNGLASSES
-    WaveInfoVector.push_back({50,1,2,18}); // BORIS THE GRIMDARK
-    WaveInfoVector.push_back({61,1,2,11}); // INVISIBLE NEMESIS
+    WaveInfoVector.push_back({41,1,2,18});  // BORIS THE GRIMDARK 
+    WaveInfoVector.push_back({50,1,2,23}); //CAT HYDRA WITH SUNGLASSES
+    WaveInfoVector.push_back({61,1,2,28}); // LILY AND THE GOBLINS
     WaveInfoVector.push_back({75, 9999, 9999,16});// GREAT PACIFIC GARBAGE PATCH
-    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
+    WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({15,1,1,26}); //LILYDADJOKE
-    WaveInfoVector.push_back({19,1,1,22}); //MIASMOID
-    WaveInfoVector.push_back({23,1,1,14}); // CYCLOPEAN HOVERSTAR
-    WaveInfoVector.push_back({29,1,1,28}); // LILY AND THE GOBLINS
+    WaveInfoVector.push_back({19,1,1,14}); // CYCLOPEAN HOVERSTAR 
+    WaveInfoVector.push_back({23,1,1,22});//MIASMOID
+    WaveInfoVector.push_back({29,1,1,11}); // INVISIBLE NEMESIS
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({37,1,2,24});  //MARY
-    WaveInfoVector.push_back({46,1,2,15});// CAT HYDRA WITH PARTY HATS
-    WaveInfoVector.push_back({58,1,2,25}); // GUNGLASSES
+    WaveInfoVector.push_back({46,1,2,25}); // GUNGLASSES
+    WaveInfoVector.push_back({58,1,2,15});// CAT HYDRA WITH PARTY HATS
     WaveInfoVector.push_back({72,1,2,27}); // BONES MCJONES
     WaveInfoVector.push_back({90, 9999, 9999,8}); //HERMAN
     
@@ -284,6 +284,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 
 
     //                         name,    cost, weight,     p1,p2,p2%    g1,g2,g2%   tileindex, rarity
+    //RARITIES: 0 = special
+    //          1 = common
+    //          2 = uncommon money
+    //          3 = uncommon attack
    
     //CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
@@ -291,10 +295,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,     0,0,0,      2,1});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
-    CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
+    CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,3}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,2}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   27,0,0,     0,0,0,      3,2}); // +1 energy
+    CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,3}); // -1money
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   27,0,0,     0,0,0,      3,3}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
@@ -304,10 +308,10 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"ARCHER",             4,0,    4,0,0,     0,0,0,      2,1});
     UpgradedCardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     UpgradedCardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
-    UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,2}); // WHEN SUMMONED: 50% chance double ATK
+    UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,3}); // WHEN SUMMONED: 50% chance double ATK
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     5,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
-    UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,2}); // -1money
-    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   37,0,0,     0,0,0,      3,2}); // +1 energy
+    UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,3}); // -1money
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   37,0,0,     0,0,0,      3,3}); // +1 energy
     UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,      10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
@@ -321,12 +325,16 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     {
         if(CardInfoVector.at(i).rarity == 2)
         {
-            AllUncommonMercs.push_back(i);
+            AllUncommonEconomyMercs.push_back(i);
         }
-        if(CardInfoVector.at(i).rarity==2 || CardInfoVector.at(i).rarity==1)
+        else if(CardInfoVector.at(i).rarity == 3)
+        {
+            AllUncommonAttackingMercs.push_back(i);
+        }
+       /* if(CardInfoVector.at(i).rarity==3 || CardInfoVector.at(i).rarity==2 || CardInfoVector.at(i).rarity==1)
         {
             AllCommonAndUncommonMercs.push_back(i);
-        }
+        }*/
     }
 
     for(int i = 0; i < 8; i++)
@@ -1282,8 +1290,7 @@ int game_scene::run_scene()
             case 30://intro to mercs appear
             {
                 
-                //Populate the deck to draw from
-                TempMercDeckToDrawFrom = AllUncommonMercs;
+                
 
                 //Choose all the mercs
                 //There will always be a mage for sale
@@ -1294,9 +1301,23 @@ int game_scene::run_scene()
                 MercenaryDeck.push_back(0);//mage
                 MercenaryDeck.push_back(1);//archer
 
-                
-                //Populate elements 2,3,4. Random owls with replacement from AllDrawableMercs
-                for(int MercDeckIndex = 2; MercDeckIndex < 6; MercDeckIndex++)
+                //Populate the deck to draw from
+                TempMercDeckToDrawFrom = AllUncommonEconomyMercs;
+                //Populate elements 2,3. Random owls with replacement from AllUncommonEconomyMercs
+                for(int MercDeckIndex = 2; MercDeckIndex < 4; MercDeckIndex++)
+                {
+                    int card_to_draw= bn::abs(random_num) % TempMercDeckToDrawFrom.size();
+                    random_num = random_generator.get();
+                    MercenaryDeck.push_back(TempMercDeckToDrawFrom.at(card_to_draw));
+
+                    //Delete the drawn card from the deck
+                    TempMercDeckToDrawFrom.erase(TempMercDeckToDrawFrom.begin()+card_to_draw);
+                    //spin the random number generator! (TODO: experiment with not spinning it and instead just using the same number but modulating it down a bunch; would be faster)
+                    
+                }
+
+                TempMercDeckToDrawFrom = AllUncommonAttackingMercs;
+                for(int MercDeckIndex = 4; MercDeckIndex < 6; MercDeckIndex++)
                 {
                     int card_to_draw= bn::abs(random_num) % TempMercDeckToDrawFrom.size();
                     random_num = random_generator.get();

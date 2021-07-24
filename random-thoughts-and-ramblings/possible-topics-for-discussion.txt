@@ -1,0 +1,8 @@
+Possible topics for discussion:
+
+-Is this idea good enough to turn into a "complete" game?
+-If so, how do I go about doing that?
+-What should be changed about the game as it is right now?
+-Should it remain on GBA, or should I re-do it from scratch in Godot?
+-Crazy idea: What if I turn this game into a final fantasy - style RPG, but to control each character, you play a mini roguelike?
+-Should I work with a team, or do it all solo? (If I do it solo, how do I improve in needed areas?)
