@@ -162,6 +162,8 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //WaveInfoVector.push_back({14,1,1,0});
     //attack, reward, penalty, enemyinfoindex
     
+    BossAttacks = {60,75,90};
+    ZoneNames = {"STRIGASSO SEA","MIRE OF SOULS","ASTRAL RIVER"};
     WaveInfoVector.push_back({14,1,1,0}); //LILYBAD
     WaveInfoVector.push_back({17,1,1,1}); //MARAUDING OWLSHIP 
     WaveInfoVector.push_back({20,1,1,2}); //FLOATING VILESTAR
@@ -171,7 +173,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({35,1,2,5}); //GOBLIN SURF-SHIP
     WaveInfoVector.push_back({42,1,2,6}); //CAT HYDRA
     WaveInfoVector.push_back({50,1,2,7}); //PRETZELCOATL
-    WaveInfoVector.push_back({60, 9999, 9999,12});//-1 is victory, 9999 is death //LILYBANE
+    WaveInfoVector.push_back({BossAttacks[0], 9999, 9999,12});//-1 is victory, 9999 is death //LILYBANE
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({15,1,1,17}); //HAUNTED OWLSHIP
@@ -183,7 +185,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({41,1,2,18});  // BORIS THE GRIMDARK 
     WaveInfoVector.push_back({50,1,2,23}); //CAT HYDRA WITH SUNGLASSES
     WaveInfoVector.push_back({61,1,2,28}); // LILY AND THE GOBLINS
-    WaveInfoVector.push_back({75, 9999, 9999,16});// GREAT PACIFIC GARBAGE PATCH
+    WaveInfoVector.push_back({BossAttacks[1], 9999, 9999,16});// GREAT PACIFIC GARBAGE PATCH
     WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
     WaveInfoVector.push_back({-1,0,0,0});//-1 is shipwreck
     WaveInfoVector.push_back({15,1,1,26}); //LILYDADJOKE
@@ -195,7 +197,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     WaveInfoVector.push_back({46,1,2,25}); // GUNGLASSES
     WaveInfoVector.push_back({58,1,2,15});// CAT HYDRA WITH PARTY HATS
     WaveInfoVector.push_back({72,1,2,27}); // BONES MCJONES
-    WaveInfoVector.push_back({90, 9999, 9999,8}); //HERMAN
+    WaveInfoVector.push_back({BossAttacks[2], 9999, 9999,8}); //HERMAN
     
 
 
@@ -259,7 +261,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, 1 RANDOM OWL","COSTS -2c, AND ANOTHER +2c."}); //3
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 75% CHANCE TO","HEAL 1 mHP."}); //4
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT,","GAIN +4c."}); //5
-    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D10k)"}); //6
+    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D8k)"}); //6
     NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 10 OR HIGHER, GAIN +6k"}); //7
     //NonOwlUpgradeInfoVector.push_back({"COUNTDOWN","FIRST 2 SUMMONS WILL NOT BE","SURGES."});
 
@@ -410,7 +412,7 @@ int game_scene::run_scene()
                 
                 
                 //_display_status(bn::to_string<50>(total_merc_probs));
-                _display_status("A CHILL WIND BLOWS...","PRESS START TO BEGIN VOYAGE");
+                _display_status("A CHILL WIND BLOWS...","PRESS a TO BEGIN VOYAGE");
 
 
                 
@@ -456,6 +458,7 @@ int game_scene::run_scene()
                         //last_merc_tableau_x_pos+=20;
                     }
                 }
+                
                 IsUpgradeResearched.fill(false);
                 //THIS IS WHERE YOU ADD NEW UPGRADES FOR TESTING!
                 
@@ -497,10 +500,35 @@ int game_scene::run_scene()
 
 
 //TODO: Add "next" text and 
-
-            case 101: // Loop; wait for start press to add new enemy.
+            
+            case 101: // Loop; wait for a display next status
             {
-                if(bn::keypad::start_pressed())
+                if(bn::keypad::a_pressed())
+                {
+                    state = 38;
+                }
+                bn::core::update();
+                break; 
+            }
+            case 38:
+            {
+                //welcome to Strigasso Sea
+                //welcome to Mire of Souls
+                //welcome to Astral River
+                bn::string<50> first_line_status("WELCOME TO ");
+                bn::string<50> second_line_status("THE oBOSS WILL HAVE ");
+                //bn::string<50> third_line_status("");
+                first_line_status.append(ZoneNames[_get_current_zone()]);
+                first_line_status.append("!");
+                second_line_status.append(bn::to_string<5>(BossAttacks[_get_current_zone()]));
+                second_line_status.append(" kATTACK.");
+                _display_status(first_line_status, second_line_status, "a:CONTINUE");
+                state = 39;
+                break;
+            }
+            case 39: // Loop; wait for a press to add new enemy.
+            {
+                if(bn::keypad::a_pressed())
                 {
                     state = 900;
                 }
@@ -564,7 +592,7 @@ int game_scene::run_scene()
             {
                 if(bn::keypad::a_pressed())
                 {
-                    _display_status("YOU SHAKE OFF THE HEADACHE,", "AND NOTICE YOU ARE IN A NEW PLACE.", "a:CONTINUE");
+                    _display_status("THE MIASMA CLEARS, AND YOU", "NOTICE YOU ARE IN A NEW PLACE.", "a:CONTINUE");
                     current_wave++;
                     if(_get_current_zone()==1)
                     {
@@ -583,30 +611,30 @@ int game_scene::run_scene()
                     }
                     _enemy_sprite.set_visible(false);
                     _update_wave_info_hud_text();
-                    state = 35;
+                    state = 101;
                 }
                 bn::core::update();
                 break;
             }
-            case 35: // Loop; wait for A press to loop through miasma
+            /*case 35: // Loop; wait for A press to loop through miasma
             {
                 if(bn::keypad::a_pressed())
                 {
                    // _display_status("YOU FIND A MESSAGE IN A BOTTLE.", "DO YOU WANT TO READ IT?", "a:YES b:NO");
-                    /*
+                    
                     if(_get_current_zone()==1)
                     {
                         _display_status("LIGHTS DANCE BETWEEN TREES.", "EYES GLINT IN THE DARK.", "a:CONTINUE");
                     }
                     else{ // zone = 2
                         _display_status("YOU ARE SURROUNDED BY STARS.", "COULD YOUR JOURNEY BE NEAR ITS END?", "a:CONTINUE");
-                    }*/
+                    }
                     state = 900;
                 }
                 bn::core::update();
                 break;
-            }
-            case 36: // Loop; wait for A press to loop through miasma
+            }*/
+            /*case 36: // Loop; wait for A press to loop through miasma
             {
                 if(bn::keypad::b_pressed())
                 {
@@ -624,7 +652,7 @@ int game_scene::run_scene()
                 }
                 bn::core::update();
                 break;
-            }
+            }*/
             case 26: // Loop; wait for A press to start shipwreck phase
             {
                 if(bn::keypad::a_pressed())
@@ -758,7 +786,7 @@ int game_scene::run_scene()
                 {
                     _display_status("TRY, TRY AGAIN...","ud:MOVE, a:SELECT");
                 }
-                else if(state_before_summon_start==23) // came from spellbook
+                else if(state_before_summon_start==23 || state_before_summon_start==37) // came from spellbook
                 {
                     _display_status("ud:MOVE, a:SELECT");
                 }
@@ -889,13 +917,13 @@ int game_scene::run_scene()
                             }
                             else if(player1deck.at(index_to_remove)==10)//10 is goblin
                             {
-                                int goblin_attack = 1 + (bn::abs(random_num) % 10);
+                                int goblin_attack = 1 + (bn::abs(random_num) % 8);
                                 random_num = random_generator.get();
                                 current_power = current_power + goblin_attack;
                                 //second_line_status.append("ROLLED ");
                                 //second_line_status.append(bn::to_string<4>(goblin_attack));
                                 //second_line_status.append(" ON THE D8. k+");
-                                second_line_status.append("k+");
+                                second_line_status.append("D8 RESULT: k+");
                                 second_line_status.append(bn::to_string<4>(goblin_attack));
                             }
                             else
@@ -970,13 +998,33 @@ int game_scene::run_scene()
                         state_before_spellbook=3;
                         state=23;
                     }
-                    else if(menu_position==2)
+                    else if(menu_position==2) //FIGHT!
                     {
-                        state=5;
+                        if(player1deck == player1deck_at_start_of_round)
+                        {
+                            _clear_virt_menu();
+                            _display_status("YOU HAVEN'T SUMMONED ANYTHING YET.","ARE YOU SURE YOU WANT TO FIGHT?","a:YES, b:NO");
+                            state = 37;
+                        }
+                        else state=5;
                     }
                 }
 
                 
+                bn::core::update();
+                break;
+            }
+            case 37:
+            {
+                if(bn::keypad::a_pressed())
+                {
+                    state = 5;
+                }
+                else if(bn::keypad::b_pressed())
+                {
+                    state_before_summon_start = 37;
+                    state = 10002;
+                }
                 bn::core::update();
                 break;
             }
@@ -1789,25 +1837,23 @@ void game_scene::_update_wave_info_hud_text()
     //wave_text_sprites_two.clear();
     //wave_text_sprites_three.clear();
     bn::string<20> wave_hud_text("");
-    bn::string<10> zone_hud_text("");
+    bn::string<14> zone_hud_text("");
     //int row_to_draw = 1;
     int first_wave_to_draw = 0;
     int last_wave_to_draw = 0;
+    zone_hud_text.append(ZoneNames[_get_current_zone()]);
     if(_get_current_zone() == 0)
     {
-        zone_hud_text.append("SEA");
         first_wave_to_draw = 0;
         last_wave_to_draw = start_of_zone_two-1;
     }
     else if(_get_current_zone() == 1)
     {
-        zone_hud_text.append("STORM");
         first_wave_to_draw = start_of_zone_two;
         last_wave_to_draw = start_of_zone_three-1;
     }
     else
     {
-        zone_hud_text.append("SKY");
         first_wave_to_draw = start_of_zone_three;
         last_wave_to_draw = WaveInfoVector.size()-1;
     }
@@ -2016,7 +2062,7 @@ bn::string<50> game_scene::_generate_description_from_owl_index(int card_info_in
     }
     else if(card_info_index==10)//goblin
     {
-        _description_string.append("k+D10");
+        _description_string.append("k+D8");
     }
     else{
         //TODO: Uh right now the nonzero value must be powerone. Maybe uh make it more flexible

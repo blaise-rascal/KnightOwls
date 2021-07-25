@@ -205,6 +205,8 @@ class game_scene
         bn::vector<int, 8>DeckOfOwlUpgrades;
         bn::vector<int, 8>DeckOfNonOwlUpgrades;
         bn::array<bool,16>IsUpgradeResearched;//first 8 are owl upgrades, last 8 are:
+        bn::array<int,3>BossAttacks;
+        bn::array<bn::string<14>,3>ZoneNames;
         
 /*
         OWL: +all (owl type) +x power... or whatever... depending on the owl
