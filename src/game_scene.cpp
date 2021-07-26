@@ -29,7 +29,9 @@
 //                                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+//NEXT ENEMY:
+//15k
+//NEXT: 15k
 
 
 /////////////////
@@ -163,7 +165,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     //attack, reward, penalty, enemyinfoindex
     
     BossAttacks = {60,75,90};
-    ZoneNames = {"STRIGASSO SEA","MIRE OF SOULS","ASTRAL RIVER"};
+    ZoneNames = {"STRIGASSO SEA","STORMY PASSAGE","ASTRAL RIVER"};
     WaveInfoVector.push_back({14,1,1,0}); //LILYBAD
     WaveInfoVector.push_back({17,1,1,1}); //MARAUDING OWLSHIP 
     WaveInfoVector.push_back({20,1,1,2}); //FLOATING VILESTAR
@@ -256,13 +258,13 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
         //15 goblin (permanent goblin added to deck)
         //16 When you fight, if your +c this round was 8 or higher, gain +5k
     NonOwlUpgradeInfoVector.push_back({"D20","WHENEVER YOU SUMMON, ROLL A D20.","IF IT'S A 20, GET +10k."}); //0
-    NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -2 MAX mHP.",""}); //1
-    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP.",""}); //2
+    NonOwlUpgradeInfoVector.push_back({"COURAGE","+1 MAX iSTATIC, BUT -2 MAX mHP."," "}); //1 //FOR NOW WE NEED A SPACE HERE BECAUSE MY CODE SUCKS! TODO: FIX THIS LATER
+    NonOwlUpgradeInfoVector.push_back({"STRENGTH","+2 MAX AND CURRENT mHP."," "}); //2
     NonOwlUpgradeInfoVector.push_back({"STONKS","EVERY ROUND, 1 RANDOM OWL","COSTS -2c, AND ANOTHER +2c."}); //3
     NonOwlUpgradeInfoVector.push_back({"FIRST AID","AFTER FIGHT, 75% CHANCE TO","HEAL 1 mHP."}); //4
     NonOwlUpgradeInfoVector.push_back({"PITY","AFTER YOU LOSE A FIGHT,","GAIN +4c."}); //5
-    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO","YOUR SPELLBOOK. (GOBLIN HAS +1D8k)"}); //6
-    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 10 OR HIGHER, GAIN +6k"}); //7
+    NonOwlUpgradeInfoVector.push_back({"GOBLIN","ADD A PERMANENT GOBLIN TO YOUR","SPELLBOOK. (GOBLIN HAS +1D8k.)"}); //6
+    NonOwlUpgradeInfoVector.push_back({"MONEYBAGS","WHEN YOU FIGHT, IF YOUR +c THIS","ROUND WAS 10 OR HIGHER, GAIN +6k."}); //7
     //NonOwlUpgradeInfoVector.push_back({"COUNTDOWN","FIRST 2 SUMMONS WILL NOT BE","SURGES."});
 
 //rare owls (probably listed elsewhere as well)
@@ -300,7 +302,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,3}); // WHEN SUMMONED: 50% chance double ATK
     CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,3}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   27,0,0,     0,0,0,      3,3}); // +1 energy
+    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   28,0,0,     0,0,0,      3,3}); // +1 energy
     CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
@@ -313,7 +315,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,3}); // WHEN SUMMONED: 50% chance double ATK
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     5,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,3}); // -1money
-    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   37,0,0,     0,0,0,      3,3}); // +1 energy
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   40,0,0,     0,0,0,      3,3}); // +1 energy
     UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,      10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
@@ -512,9 +514,6 @@ int game_scene::run_scene()
             }
             case 38:
             {
-                //welcome to Strigasso Sea
-                //welcome to Mire of Souls
-                //welcome to Astral River
                 bn::string<50> first_line_status("WELCOME TO ");
                 bn::string<50> second_line_status("THE oBOSS WILL HAVE ");
                 //bn::string<50> third_line_status("");

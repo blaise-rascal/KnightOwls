@@ -1,6 +1,6 @@
-Version Alpha 1.1 (wip)
+Version Alpha 1.1
 -Improved audio quality
--Slightly nerfed energy knight, energy knight banner, merchant, merchant banner, alchemist, alchemist banner
+-Slightly nerfed merchant, merchant banner, alchemist, alchemist banner
 -Nerfed courage banner; it now gives you -2 hp. Mwahahaha!
 -Buffed mystic banner, to +5 money -2 attack
 -Nerfed goblin to d8 (and fixed goblin description)
@@ -10,9 +10,10 @@ Version Alpha 1.1 (wip)
 -made the shop a little more consistent; from now on, there will always be 2 attacking uncommon owls, and 2 money-generating uncommon owls. (the odds of any given uncommon owl appearing is still 67%)
 -the game now checks to make sure you want to fight before summoning
 -final boss power is displayed on entering new zone
-
-planned:
--next enemy power every round
+-tweaked background art
+-added missing licenses to source code
+-fixed ui bug with two banner options
+-tweaked main menu text
 
 
 Version Alpha 1.0

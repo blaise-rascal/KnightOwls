@@ -27,7 +27,7 @@ GRAPHICS    :=  graphics
 AUDIO       :=  audio
 ROMTITLE    :=  KnightOwls
 ROMCODE     :=  SBTP
-USERFLAGS   := -DBN_CFG_AUDIO_MIXING_RATE=BN_AUDIO_MIXING_RATE_31_KHZ
+USERFLAGS   := -DBN_CFG_AUDIO_MIXING_RATE=BN_AUDIO_MIXING_RATE_27_KHZ
 
 #---------------------------------------------------------------------------------------------------------------------
 # Export absolute butano path:

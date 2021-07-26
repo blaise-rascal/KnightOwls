@@ -96,7 +96,12 @@ class game_scene
         };
         //Declare sprite pointers
         bn::sprite_text_generator& my_text_generator;
+        
+        //BACKGROUND POINTER TEST
         bn::regular_bg_ptr _ocean_bg;
+        //bn::optional<bn::regular_bg_ptr> _background_image;
+
+
         //bn::regular_bg_ptr _swamp_bg;
         bn::regular_bg_ptr _spellbook_bg;
         bn::regular_bg_ptr _rift_bg;
@@ -108,6 +113,7 @@ class game_scene
         bn::sprite_ptr _right_book_arrow_sprite;
         bn::sprite_ptr _left_book_arrow_sprite;
         bn::sprite_ptr _enemy_sprite;
+
 
         //bf::status status;
 
@@ -153,6 +159,7 @@ class game_scene
         int start_of_zone_two;
         int start_of_zone_three;
         int last_banner_tableau_x_pos;
+       // int goblindicesides;
         //int runes_at_start_of_round;
         //int enemyindex;
 

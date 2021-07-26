@@ -75,7 +75,7 @@ int main_menu_scene::run_scene()
             
             case 0:
             {
-                _display_center_text("KNIGHT OWLS","ALPHA VERSION");
+                _display_center_text("KNIGHT OWLS","VERSION: ALPHA 1.1");
                 _display_status("ud:MOVE, a:SELECT");
                 _generate_virt_menu("BEGIN GAME", "HOW TO PLAY", "CREDITS");
                 
@@ -106,9 +106,8 @@ int main_menu_scene::run_scene()
                         _clear_virt_menu();
                         _display_center_text(
                             
-                            "GAME MADE BY BLAISE RASCAL",
-                            "IN 3 MONTHS FOR GBA JAM 2021.",
-                            "THE GAME IS AVAILABLE FOR FREE.",
+                            "GAME MADE BY BLAISE RASCAL.",
+                            "IT IS AVAILABLE FOR FREE, AND.",
                             "IT WAS MADE WITH DEVKITARM",
                             "AND BUTANO. SEE THE CURRENT",
                             "STATUS OF THE GAME AT",
@@ -133,9 +132,9 @@ int main_menu_scene::run_scene()
                     "(WHICH YOU CAN VIEW AT ANY",
                     "TIME BY SELECTING \"SPELLBOOK\"),",
                     "YOU MUST FACE MANY ENEMIES.",
-                    "KEEP YOUR mHP ABOVE ZERO AND",
-                    "DEFEAT THE FINAL BOSS TO WIN!",
-                    ""
+                    "KEEP YOUR mHP ABOVE ZERO, JOURNEY",
+                    "THROUGH THREE DIFFERENT AREAS,",
+                    "AND DEFEAT THE FINAL BOSS TO WIN!"
                     );
                 _right_book_arrow_sprite.set_visible(true);
                 _left_book_arrow_sprite.set_visible(false);
@@ -190,9 +189,9 @@ int main_menu_scene::run_scene()
                     "IMPROVE YOUR SPELLBOOK.",
                     "TIP: IF YOU DON'T WANT TO BUY",
                     "ANYTHING, YOU CAN SAVE YOUR c.",
-                    "TIP: +c OWLS ARE BETTER EARLY,",
-                    "OR AFTER MIASMA, AND +k OWLS",
-                    "ARE BETTER WHEN NEAR A BOSS."
+                    "TIP: +c OWLS ARE BETTER EARLY",
+                    "IN A NEW AREA, AND +k OWLS ARE",
+                    "BETTER WHEN APPROACHING A BOSS."
                     );
                 _right_book_arrow_sprite.set_visible(true);
                 _left_book_arrow_sprite.set_visible(true);
@@ -223,9 +222,9 @@ int main_menu_scene::run_scene()
                     "(6/6) MAP LEGEND",
                     "",
                     "q = MIASMA. A SINISTER FOG",
-                    "THAT DRAINS ALL c, AND RESETS",
-                    "YOUR SPELLBOOK TO ITS ORIGINAL",
-                    "FORM.",
+                    "THAT DRAINS ALL c, RESETS YOUR",
+                    "SPELLBOOK TO ITS ORIGINAL FORM,",
+                    "AND TAKES YOU TO A NEW AREA.",
                     "h = SHIPWRECK. GIVES YOU",
                     "BANNERS, WHICH ARE UPGRADES",
                     "THAT PERSIST EVEN AFTER MIASMA.",
