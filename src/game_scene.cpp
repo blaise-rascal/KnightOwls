@@ -156,7 +156,7 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
 {
     current_hull=max_hull;
 
-    bn::music_items::voyagemusic.play(0.5);
+    bn::music_items::voyagemusic.play(0.4);
     
     //WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
     //WaveInfoVector.push_back({-2,0,0,0});//-2 is miasma
@@ -295,28 +295,28 @@ game_scene::game_scene(bn::sprite_text_generator& text_generator):
    
     //CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     //CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,      0,0,0,      2,1});
-    CardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
+    CardInfoVector.push_back({"MAGE",               2,0,    0,0,0,      1,0,0,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     CardInfoVector.push_back({"ARCHER",             4,0,    3,0,0,     0,0,0,      2,1});
     CardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     CardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     CardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,25,    0,0,0,      4,3}); // WHEN SUMMONED: 50% chance double ATK
-    CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     2,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
+    CardInfoVector.push_back({"MYSTIC",             4,0,    -1,0,0,     3,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     CardInfoVector.push_back({"THUG",               7,0,    12,0,0,    -2,0,0,      0,3}); // -1money
-    CardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   28,0,0,     0,0,0,      3,3}); // +1 energy
-    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       4,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    CardInfoVector.push_back({"ENERGY KNIGHT",      13,1,   30,0,0,     0,0,0,      3,3}); // +1 energy
+    CardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       5,0,25,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     CardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,       5,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     CardInfoVector.push_back({"GOBLIN",             0,0,   0,0,0,       0,0,0,      10,0}); // 10 uh the gobbo has a unique mechanic. maybe i should put it off til tomorrow.
 
     //todo: well obviously i don't need the repeat info
-    UpgradedCardInfoVector.push_back({"MAGE",               3,0,    0,0,0,      1,2,50,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
+    UpgradedCardInfoVector.push_back({"MAGE",               2,0,    0,0,0,      1,2,50,      1,1}); // stuff to add: int attackone int attackonepercentage int attacktwo int attacktwopercentage int 
     UpgradedCardInfoVector.push_back({"ARCHER",             4,0,    4,0,0,     0,0,0,      2,1});
     UpgradedCardInfoVector.push_back({"ENERGY SURGE",       0,1,    5,0,0,      1,0,0,      6,0});
     UpgradedCardInfoVector.push_back({"MEGA ENERGY SURGE",  0,2,    10,0,0,     2,0,0,      7,0});
     UpgradedCardInfoVector.push_back({"SPEAR-OWL",          5,0,    4,12,50,    0,0,0,      4,3}); // WHEN SUMMONED: 50% chance double ATK
     UpgradedCardInfoVector.push_back({"MYSTIC",             4,0,    -2,0,0,     5,0,0,      5,2}); // 50% chance for evil? or maybe: AFTER FIGHT: Random owl goes on sale?
     UpgradedCardInfoVector.push_back({"THUG",               7,0,    18,0,0,    -3,0,0,      0,3}); // -1money
-    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      12,1,   40,0,0,     0,0,0,      3,3}); // +1 energy
-    UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       8,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
+    UpgradedCardInfoVector.push_back({"ENERGY KNIGHT",      13,1,   42,0,0,     0,0,0,      3,3}); // +1 energy
+    UpgradedCardInfoVector.push_back({"ALCHEMIST",          6,0,    0,0,0,       10,0,35,      8,2}); // +3money if your atk is even? or maybe AFTER FIGHT: 3 owls cost 1 less
     UpgradedCardInfoVector.push_back({"MERCHANT",           10,0,   0,0,0,      10,0,0,      9,2}); // AFTER FIGHT: 3 random owls cost 1 less
     //                         name,    cost, static, attack,   gather, tileindex, rarity
 
@@ -1203,7 +1203,8 @@ int game_scene::run_scene()
                     enemy_stat_box_active=false;
                     _update_enemy_stat_box();
                     
-                    _display_status("YOU DIED! GAME OVER.","a:TRY AGAIN, b:RETURN TO MENU");
+                   // _display_status("YOU DIED! GAME OVER.","a:TRY AGAIN, b:RETURN TO MENU");
+                    _display_status("YOU DIED! GAME OVER.","a:RETURN TO MENU");
                     state = 25;
                 }
                 bn::core::update();
@@ -1211,13 +1212,17 @@ int game_scene::run_scene()
             }
             case 25: // Game over
             {
-                if(bn::keypad::a_pressed())
+                /*if(bn::keypad::a_pressed())
                 {
                     return(1); //next_scene is another game scene
                 }
                 else if(bn::keypad::b_pressed())
                 {
-                    return(0); //next_scene is menu
+                    return(0); //next_scene is main menu
+                }*/
+                if(bn::keypad::a_pressed())
+                {
+                    return(0); //next_scene is main menu
                 }
                 bn::core::update();
                 break;

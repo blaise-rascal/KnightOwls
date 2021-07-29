@@ -48,7 +48,7 @@ main_menu_scene::main_menu_scene(bn::sprite_text_generator& text_generator):
     number_tutorial_pages(6),
     current_tutorial_page(0)
 {
-    bn::music_items::menumusic.play(0.5);
+    bn::music_items::menumusic.play(0.3);
     _selection_cursor_sprite.set_visible(false);
     _selection_cursor_sprite.set_z_order(-100);
     _selection_cursor_sprite.set_bg_priority(0); //lower z order means it shows up higher. wacky huh?
@@ -75,7 +75,7 @@ int main_menu_scene::run_scene()
             
             case 0:
             {
-                _display_center_text("KNIGHT OWLS","VERSION: ALPHA 1.1");
+                _display_center_text("KNIGHT OWLS","VERSION: ALPHA 1.3");
                 _display_status("ud:MOVE, a:SELECT");
                 _generate_virt_menu("BEGIN GAME", "HOW TO PLAY", "CREDITS");
                 
@@ -107,10 +107,10 @@ int main_menu_scene::run_scene()
                         _display_center_text(
                             
                             "GAME MADE BY BLAISE RASCAL.",
-                            "IT IS AVAILABLE FOR FREE, AND.",
-                            "IT WAS MADE WITH DEVKITARM",
-                            "AND BUTANO. SEE THE CURRENT",
-                            "STATUS OF THE GAME AT",
+                            "IT IS AVAILABLE FOR FREE.",
+                            "IT WAS MADE WITH DEVKITARM,",
+                            "GBA.NINJA, AND BUTANO. SEE THE",
+                            "CURRENT STATUS OF THE GAME AT",
                             "BLAISE-RASCAL.ITCH.IO/KNIGHT-OWLS.",
                             "SOURCE CODE IS FREELY AVAILABLE,",
                             "BUT ALL OTHER RIGHTS RESERVED."
